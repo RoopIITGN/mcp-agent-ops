@@ -1,0 +1,77 @@
+[
+  {
+    "account_id": "ACC-001",
+    "name": "Client 001",
+    "tolerance": 0.005
+  },
+  {
+    "account_id": "ACC-002",
+    "name": "Client 002",
+    "tolerance": 0.005
+  },
+  {
+    "account_id": "ACC-003",
+    "name": "Client 003",
+    "tolerance": 0.005
+  },
+  {
+    "account_id": "ACC-004",
+    "name": "Client 004",
+    "tolerance": 0.005
+  },
+  {
+    "account_id": "ACC-005",
+    "name": "Client 005",
+    "tolerance": 0.005
+  },
+  {
+    "account_id": "ACC-006",
+    "name": "Client 006",
+    "tolerance": 0.005
+  },
+  {
+    "account_id": "ACC-007",
+    "name": "Client 007",
+    "tolerance": 0.005
+  },
+  {
+    "account_id": "ACC-008",
+    "name": "Client 008",
+    "tolerance": 0.005
+  },
+  {
+    "account_id": "ACC-009",
+    "name": "Client 009",
+    "tolerance": 0.005
+  },
+  {
+    "account_id": "ACC-010",
+    "name": "Client 010",
+    "tolerance": 0.005
+  },
+  {
+    "account_id": "ACC-011",
+    "name": "Client 011",
+    "tolerance": 0.005
+  },
+  {
+    "account_id": "ACC-012",
+    "name": "Client 012",
+    "tolerance": 0.005
+  },
+  {
+    "account_id": "ACC-013",
+    "name": "Client 013",
+    "tolerance": 0.005
+  },
+  {
+    "account_id": "ACC-014",
+    "name": "Client 014",
+    "tolerance": 0.005
+  },
+  {
+    "account_id": "ACC-015",
+    "name": "Client 015",
+    "tolerance": 0.005
+  }
+]

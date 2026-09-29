@@ -1,0 +1,6493 @@
+[
+  {
+    "session_id": "ACC-001-2026-09-01",
+    "account_id": "ACC-001",
+    "as_of": "2026-09-01",
+    "broker_statement": {
+      "account_id": "ACC-001",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T794772",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1557.15,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T536110",
+          "instrument": "ITC",
+          "quantity": 1000,
+          "price": 481.79,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T870163",
+          "instrument": "ICICIBANK",
+          "quantity": 1000,
+          "price": 1239.35,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T934973",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 4011.26,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T146534",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1679.64,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T953938",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3686.87,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T325213",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1689.48,
+          "settlement_date": "2026-09-03"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-001",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T794772",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1557.15,
+          "settlement_date": "2026-09-04"
+        },
+        {
+          "trade_id": "T536110",
+          "instrument": "ITC",
+          "quantity": 1000,
+          "price": 481.79,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T870163",
+          "instrument": "ICICIBANK",
+          "quantity": 1000,
+          "price": 1239.35,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T934973",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 4011.26,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T146534",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1679.64,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T953938",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3686.87,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T325213",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1689.48,
+          "settlement_date": "2026-09-03"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-002-2026-09-01",
+    "account_id": "ACC-002",
+    "as_of": "2026-09-01",
+    "broker_statement": {
+      "account_id": "ACC-002",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T455262",
+          "instrument": "SBIN",
+          "quantity": 2500,
+          "price": 826.91,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T214410",
+          "instrument": "LT",
+          "quantity": 1000,
+          "price": 3587.62,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T546678",
+          "instrument": "ICICIBANK",
+          "quantity": 100,
+          "price": 1272.88,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T575352",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1418.46,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T418196",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1399.46,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T909747",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 831.33,
+          "settlement_date": "2026-09-03"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-002",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T455262",
+          "instrument": "SBIN",
+          "quantity": 2500,
+          "price": 826.91,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T214410",
+          "instrument": "LT",
+          "quantity": 1000,
+          "price": 3587.62,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T546678",
+          "instrument": "ICICIBANK",
+          "quantity": 100,
+          "price": 1272.88,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T575352",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1418.46,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T909747",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 831.33,
+          "settlement_date": "2026-09-03"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-003-2026-09-01",
+    "account_id": "ACC-003",
+    "as_of": "2026-09-01",
+    "broker_statement": {
+      "account_id": "ACC-003",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T250206",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1844.22,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T084353",
+          "instrument": "SBIN",
+          "quantity": 2500,
+          "price": 844.5,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T513054",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1655.08,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T740883",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1633.44,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T967048",
+          "instrument": "LT",
+          "quantity": 250,
+          "price": 3700.19,
+          "settlement_date": "2026-09-03"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-003",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T250206",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1844.22,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T084353",
+          "instrument": "SBIN",
+          "quantity": 2500,
+          "price": 844.5,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T513054",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1655.08,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T740883",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1633.44,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T967048",
+          "instrument": "LT",
+          "quantity": 250,
+          "price": 3626.19,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T250206",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1844.22,
+          "settlement_date": "2026-09-03"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-004-2026-09-01",
+    "account_id": "ACC-004",
+    "as_of": "2026-09-01",
+    "broker_statement": {
+      "account_id": "ACC-004",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T253867",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1226.7,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T195800",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1440.43,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T272688",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 458.43,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T794405",
+          "instrument": "INFY",
+          "quantity": 250,
+          "price": 1897.0,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T883383",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1668.17,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T878565",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3604.71,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T246941",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 4180.01,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T439797",
+          "instrument": "AXISBANK",
+          "quantity": 500,
+          "price": 1136.62,
+          "settlement_date": "2026-09-03"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-004",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T253867",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1226.7,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T195800",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1440.43,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T272688",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 458.43,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T794405",
+          "instrument": "INFY",
+          "quantity": 250,
+          "price": 1897.0,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T883383",
+          "instrument": "HDFCBANK",
+          "quantity": 2450,
+          "price": 1668.17,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T878565",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3604.71,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T246941",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 4180.01,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T439797",
+          "instrument": "AXISBANK",
+          "quantity": 500,
+          "price": 1136.62,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T878565",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3604.71,
+          "settlement_date": "2026-09-03"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-005-2026-09-01",
+    "account_id": "ACC-005",
+    "as_of": "2026-09-01",
+    "broker_statement": {
+      "account_id": "ACC-005",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T615592",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 807.36,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T767022",
+          "instrument": "ICICIBANK",
+          "quantity": 100,
+          "price": 1265.4,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T390133",
+          "instrument": "INFY",
+          "quantity": 500,
+          "price": 1841.8,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T065213",
+          "instrument": "HDFCBANK",
+          "quantity": 250,
+          "price": 1685.18,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T229400",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1411.27,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T982012",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3639.01,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T027993",
+          "instrument": "HDFCBANK",
+          "quantity": 250,
+          "price": 1660.53,
+          "settlement_date": "2026-09-03"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-005",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T615592",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 807.36,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T767022",
+          "instrument": "ICICIBANK",
+          "quantity": 100,
+          "price": 1265.4,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T390133",
+          "instrument": "INFY",
+          "quantity": 450,
+          "price": 1841.8,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T065213",
+          "instrument": "HDFCBANK",
+          "quantity": 250,
+          "price": 1685.18,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T229400",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1411.27,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T982012",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3639.01,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T027993",
+          "instrument": "HDFCBANK",
+          "quantity": 250,
+          "price": 1660.53,
+          "settlement_date": "2026-09-03"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-006-2026-09-01",
+    "account_id": "ACC-006",
+    "as_of": "2026-09-01",
+    "broker_statement": {
+      "account_id": "ACC-006",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T634917",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1438.73,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T193957",
+          "instrument": "HDFCBANK",
+          "quantity": 1000,
+          "price": 1621.35,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T839643",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1403.72,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T650746",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1607.43,
+          "settlement_date": "2026-09-03"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-006",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T634917",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1438.73,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T193957",
+          "instrument": "HDFCBANK",
+          "quantity": 1000,
+          "price": 1621.35,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T839643",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1403.72,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T650746",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1607.43,
+          "settlement_date": "2026-09-03"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-007-2026-09-01",
+    "account_id": "ACC-007",
+    "as_of": "2026-09-01",
+    "broker_statement": {
+      "account_id": "ACC-007",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T367309",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1538.39,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T489822",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1366.48,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T410282",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4065.2,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T767136",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 460.68,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T705314",
+          "instrument": "TCS",
+          "quantity": 100,
+          "price": 4171.01,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T165893",
+          "instrument": "INFY",
+          "quantity": 500,
+          "price": 1853.27,
+          "settlement_date": "2026-09-03"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-007",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T367309",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1538.39,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T489822",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1366.48,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T410282",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4065.2,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T767136",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 460.68,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T705314",
+          "instrument": "TCS",
+          "quantity": 100,
+          "price": 4171.01,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T165893",
+          "instrument": "INFY",
+          "quantity": 500,
+          "price": 1853.27,
+          "settlement_date": "2026-09-03"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-008-2026-09-01",
+    "account_id": "ACC-008",
+    "as_of": "2026-09-01",
+    "broker_statement": {
+      "account_id": "ACC-008",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T697938",
+          "instrument": "INFY",
+          "quantity": 100,
+          "price": 1846.85,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T429816",
+          "instrument": "AXISBANK",
+          "quantity": 2500,
+          "price": 1168.56,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T680456",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 836.61,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T263121",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1871.18,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T480199",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1673.66,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T570760",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1230.51,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T999428",
+          "instrument": "ITC",
+          "quantity": 500,
+          "price": 473.11,
+          "settlement_date": "2026-09-03"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-008",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T697938",
+          "instrument": "INFY",
+          "quantity": 100,
+          "price": 1846.85,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T429816",
+          "instrument": "AXISBANK",
+          "quantity": 2500,
+          "price": 1168.56,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T263121",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1871.18,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T480199",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1673.66,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T570760",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1230.51,
+          "settlement_date": "2026-09-04"
+        },
+        {
+          "trade_id": "T999428",
+          "instrument": "ITC",
+          "quantity": 500,
+          "price": 473.11,
+          "settlement_date": "2026-09-03"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-009-2026-09-01",
+    "account_id": "ACC-009",
+    "as_of": "2026-09-01",
+    "broker_statement": {
+      "account_id": "ACC-009",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T784844",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1532.74,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T201651",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 807.18,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T668361",
+          "instrument": "ITC",
+          "quantity": 1000,
+          "price": 475.93,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T706504",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1107.96,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T914031",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1158.62,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T743446",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1395.41,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T271819",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1853.06,
+          "settlement_date": "2026-09-03"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-009",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T784844",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1532.74,
+          "settlement_date": "2026-09-04"
+        },
+        {
+          "trade_id": "T201651",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 807.18,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T668361",
+          "instrument": "ITC",
+          "quantity": 1000,
+          "price": 475.93,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T706504",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1107.96,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T914031",
+          "instrument": "AXISBANK",
+          "quantity": 900,
+          "price": 1158.62,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T743446",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1395.41,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T271819",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1853.06,
+          "settlement_date": "2026-09-03"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-010-2026-09-01",
+    "account_id": "ACC-010",
+    "as_of": "2026-09-01",
+    "broker_statement": {
+      "account_id": "ACC-010",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T878430",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 478.72,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T917521",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1584.6,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T663841",
+          "instrument": "HDFCBANK",
+          "quantity": 250,
+          "price": 1698.2,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T421335",
+          "instrument": "BHARTIARTL",
+          "quantity": 500,
+          "price": 1532.92,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T014985",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1409.41,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T199711",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1664.78,
+          "settlement_date": "2026-09-03"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-010",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T917521",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1584.6,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T663841",
+          "instrument": "HDFCBANK",
+          "quantity": 250,
+          "price": 1698.2,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T421335",
+          "instrument": "BHARTIARTL",
+          "quantity": 500,
+          "price": 1532.92,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T014985",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1409.41,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T199711",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1664.78,
+          "settlement_date": "2026-09-03"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-011-2026-09-01",
+    "account_id": "ACC-011",
+    "as_of": "2026-09-01",
+    "broker_statement": {
+      "account_id": "ACC-011",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T895419",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1534.67,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T958273",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 480.19,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T139901",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3516.86,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T161942",
+          "instrument": "ICICIBANK",
+          "quantity": 100,
+          "price": 1215.67,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T215729",
+          "instrument": "ICICIBANK",
+          "quantity": 2500,
+          "price": 1236.1,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T384716",
+          "instrument": "AXISBANK",
+          "quantity": 100,
+          "price": 1163.69,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T735392",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1154.53,
+          "settlement_date": "2026-09-03"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-011",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T895419",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1534.67,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T958273",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 480.19,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T139901",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3516.86,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T161942",
+          "instrument": "ICICIBANK",
+          "quantity": 100,
+          "price": 1215.67,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T215729",
+          "instrument": "ICICIBANK",
+          "quantity": 2500,
+          "price": 1236.1,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T384716",
+          "instrument": "AXISBANK",
+          "quantity": 100,
+          "price": 1163.69,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T735392",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1194.94,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T958273",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 480.19,
+          "settlement_date": "2026-09-03"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-012-2026-09-01",
+    "account_id": "ACC-012",
+    "as_of": "2026-09-01",
+    "broker_statement": {
+      "account_id": "ACC-012",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T393823",
+          "instrument": "AXISBANK",
+          "quantity": 500,
+          "price": 1106.41,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T158359",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1237.81,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T385038",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1677.66,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T037397",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1371.76,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T611792",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1242.11,
+          "settlement_date": "2026-09-03"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-012",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T393823",
+          "instrument": "AXISBANK",
+          "quantity": 500,
+          "price": 1106.41,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T158359",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1237.81,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T385038",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1677.66,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T037397",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1371.76,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T611792",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1242.11,
+          "settlement_date": "2026-09-03"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-013-2026-09-01",
+    "account_id": "ACC-013",
+    "as_of": "2026-09-01",
+    "broker_statement": {
+      "account_id": "ACC-013",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T979112",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1373.09,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T548457",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1640.41,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T344478",
+          "instrument": "ICICIBANK",
+          "quantity": 1000,
+          "price": 1220.65,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T588072",
+          "instrument": "ITC",
+          "quantity": 1000,
+          "price": 465.41,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T836631",
+          "instrument": "SBIN",
+          "quantity": 100,
+          "price": 818.97,
+          "settlement_date": "2026-09-03"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-013",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T979112",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1373.09,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T548457",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1640.41,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T344478",
+          "instrument": "ICICIBANK",
+          "quantity": 900,
+          "price": 1220.65,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T588072",
+          "instrument": "ITC",
+          "quantity": 1000,
+          "price": 465.41,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T836631",
+          "instrument": "SBIN",
+          "quantity": 100,
+          "price": 818.97,
+          "settlement_date": "2026-09-03"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-014-2026-09-01",
+    "account_id": "ACC-014",
+    "as_of": "2026-09-01",
+    "broker_statement": {
+      "account_id": "ACC-014",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T720487",
+          "instrument": "INFY",
+          "quantity": 250,
+          "price": 1864.07,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T393815",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1680.47,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T207660",
+          "instrument": "TCS",
+          "quantity": 100,
+          "price": 4071.66,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T102840",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1581.8,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T470332",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 476.05,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T227806",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1567.52,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T273590",
+          "instrument": "AXISBANK",
+          "quantity": 250,
+          "price": 1135.3,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T375935",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1681.88,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T894287",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1395.94,
+          "settlement_date": "2026-09-03"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-014",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T720487",
+          "instrument": "INFY",
+          "quantity": 250,
+          "price": 1864.07,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T393815",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1680.47,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T207660",
+          "instrument": "TCS",
+          "quantity": 100,
+          "price": 4071.66,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T102840",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1581.8,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T470332",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 476.05,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T227806",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1567.52,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T273590",
+          "instrument": "AXISBANK",
+          "quantity": 250,
+          "price": 1112.59,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T375935",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1681.88,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T894287",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1395.94,
+          "settlement_date": "2026-09-03"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-015-2026-09-01",
+    "account_id": "ACC-015",
+    "as_of": "2026-09-01",
+    "broker_statement": {
+      "account_id": "ACC-015",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T672134",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1410.37,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T109712",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4070.0,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T572932",
+          "instrument": "INFY",
+          "quantity": 100,
+          "price": 1904.24,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T511601",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1839.56,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T712957",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1579.56,
+          "settlement_date": "2026-09-03"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-015",
+      "as_of": "2026-09-01",
+      "positions": [
+        {
+          "trade_id": "T672134",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1410.37,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T109712",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4070.0,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T572932",
+          "instrument": "INFY",
+          "quantity": 100,
+          "price": 1904.24,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T511601",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1903.94,
+          "settlement_date": "2026-09-03"
+        },
+        {
+          "trade_id": "T712957",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1579.56,
+          "settlement_date": "2026-09-03"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-001-2026-09-08",
+    "account_id": "ACC-001",
+    "as_of": "2026-09-08",
+    "broker_statement": {
+      "account_id": "ACC-001",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T917188",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 4127.0,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T229400",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1417.27,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T783327",
+          "instrument": "SBIN",
+          "quantity": 500,
+          "price": 797.15,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T155573",
+          "instrument": "ICICIBANK",
+          "quantity": 2500,
+          "price": 1271.31,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T883250",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1560.51,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T740685",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 478.46,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T541618",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1376.91,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T042605",
+          "instrument": "ICICIBANK",
+          "quantity": 100,
+          "price": 1269.42,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T470379",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 834.79,
+          "settlement_date": "2026-09-10"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-001",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T917188",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 4127.0,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T229400",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1417.27,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T783327",
+          "instrument": "SBIN",
+          "quantity": 500,
+          "price": 797.15,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T155573",
+          "instrument": "ICICIBANK",
+          "quantity": 2500,
+          "price": 1271.31,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T883250",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1560.51,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T740685",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 478.46,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T541618",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1376.91,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T042605",
+          "instrument": "ICICIBANK",
+          "quantity": 100,
+          "price": 1269.42,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T470379",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 834.79,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T470379",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 834.79,
+          "settlement_date": "2026-09-10"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-002-2026-09-08",
+    "account_id": "ACC-002",
+    "as_of": "2026-09-08",
+    "broker_statement": {
+      "account_id": "ACC-002",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T944861",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3499.26,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T095050",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3705.96,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T783249",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1560.06,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T944912",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1162.28,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T505637",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1588.19,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T892670",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1420.22,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T317133",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3546.96,
+          "settlement_date": "2026-09-10"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-002",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T944861",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3499.26,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T095050",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3705.96,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T783249",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1560.06,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T944912",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1162.28,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T505637",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1588.19,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T892670",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1420.22,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T317133",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3546.96,
+          "settlement_date": "2026-09-10"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-003-2026-09-08",
+    "account_id": "ACC-003",
+    "as_of": "2026-09-08",
+    "broker_statement": {
+      "account_id": "ACC-003",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T988751",
+          "instrument": "ICICIBANK",
+          "quantity": 1000,
+          "price": 1241.31,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T402317",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1411.84,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T133505",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4156.44,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T350250",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1398.43,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T147749",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 476.12,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T706261",
+          "instrument": "INFY",
+          "quantity": 500,
+          "price": 1840.14,
+          "settlement_date": "2026-09-10"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-003",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T988751",
+          "instrument": "ICICIBANK",
+          "quantity": 1000,
+          "price": 1266.14,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T402317",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1411.84,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T133505",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4156.44,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T350250",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1398.43,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T147749",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 476.12,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T706261",
+          "instrument": "INFY",
+          "quantity": 500,
+          "price": 1840.14,
+          "settlement_date": "2026-09-10"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-004-2026-09-08",
+    "account_id": "ACC-004",
+    "as_of": "2026-09-08",
+    "broker_statement": {
+      "account_id": "ACC-004",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T815947",
+          "instrument": "INFY",
+          "quantity": 100,
+          "price": 1798.1,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T647391",
+          "instrument": "INFY",
+          "quantity": 500,
+          "price": 1806.19,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T575818",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 814.26,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T814135",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 480.75,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T639756",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 473.73,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T354277",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1629.84,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T890378",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1883.23,
+          "settlement_date": "2026-09-10"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-004",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T815947",
+          "instrument": "INFY",
+          "quantity": 50,
+          "price": 1798.1,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T647391",
+          "instrument": "INFY",
+          "quantity": 500,
+          "price": 1806.19,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T575818",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 814.26,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T814135",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 480.75,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T354277",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1629.84,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T890378",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1883.23,
+          "settlement_date": "2026-09-10"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-005-2026-09-08",
+    "account_id": "ACC-005",
+    "as_of": "2026-09-08",
+    "broker_statement": {
+      "account_id": "ACC-005",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T793369",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4064.71,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T662714",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1689.79,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T041922",
+          "instrument": "ITC",
+          "quantity": 500,
+          "price": 481.31,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T990677",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3615.51,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T226470",
+          "instrument": "TCS",
+          "quantity": 100,
+          "price": 4167.98,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T927660",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3582.74,
+          "settlement_date": "2026-09-10"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-005",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T793369",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4064.71,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T662714",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1689.79,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T041922",
+          "instrument": "ITC",
+          "quantity": 500,
+          "price": 481.31,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T990677",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3615.51,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T226470",
+          "instrument": "TCS",
+          "quantity": 100,
+          "price": 4167.98,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T927660",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3582.74,
+          "settlement_date": "2026-09-10"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-006-2026-09-08",
+    "account_id": "ACC-006",
+    "as_of": "2026-09-08",
+    "broker_statement": {
+      "account_id": "ACC-006",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T152767",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1572.61,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T088113",
+          "instrument": "HDFCBANK",
+          "quantity": 1000,
+          "price": 1606.73,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T435328",
+          "instrument": "INFY",
+          "quantity": 100,
+          "price": 1882.34,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T452026",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1579.68,
+          "settlement_date": "2026-09-10"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-006",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T152767",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1572.61,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T088113",
+          "instrument": "HDFCBANK",
+          "quantity": 1000,
+          "price": 1606.73,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T435328",
+          "instrument": "INFY",
+          "quantity": 100,
+          "price": 1882.34,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T452026",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1579.68,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T152767",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1572.61,
+          "settlement_date": "2026-09-10"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-007-2026-09-08",
+    "account_id": "ACC-007",
+    "as_of": "2026-09-08",
+    "broker_statement": {
+      "account_id": "ACC-007",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T073745",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1668.99,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T362225",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 795.89,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T241689",
+          "instrument": "SBIN",
+          "quantity": 100,
+          "price": 824.75,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T150251",
+          "instrument": "TCS",
+          "quantity": 100,
+          "price": 4027.38,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T706487",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1629.53,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T722958",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1377.56,
+          "settlement_date": "2026-09-10"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-007",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T073745",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1668.99,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T362225",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 795.89,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T241689",
+          "instrument": "SBIN",
+          "quantity": 100,
+          "price": 824.75,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T150251",
+          "instrument": "TCS",
+          "quantity": 100,
+          "price": 4027.38,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T706487",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1629.53,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T722958",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1377.56,
+          "settlement_date": "2026-09-10"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-008-2026-09-08",
+    "account_id": "ACC-008",
+    "as_of": "2026-09-08",
+    "broker_statement": {
+      "account_id": "ACC-008",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T117850",
+          "instrument": "ITC",
+          "quantity": 500,
+          "price": 475.85,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T270762",
+          "instrument": "INFY",
+          "quantity": 100,
+          "price": 1901.78,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T379836",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 842.68,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T310741",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3531.75,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T084734",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1658.0,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T164000",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1622.25,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T843464",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4102.05,
+          "settlement_date": "2026-09-10"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-008",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T117850",
+          "instrument": "ITC",
+          "quantity": 500,
+          "price": 475.85,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T270762",
+          "instrument": "INFY",
+          "quantity": 100,
+          "price": 1901.78,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T379836",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 842.68,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T310741",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3531.75,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T084734",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1658.0,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T164000",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1622.25,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T843464",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4102.05,
+          "settlement_date": "2026-09-10"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-009-2026-09-08",
+    "account_id": "ACC-009",
+    "as_of": "2026-09-08",
+    "broker_statement": {
+      "account_id": "ACC-009",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T305198",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 828.03,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T902797",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1796.78,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T081706",
+          "instrument": "HDFCBANK",
+          "quantity": 250,
+          "price": 1642.1,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T577531",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1588.63,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T312505",
+          "instrument": "SBIN",
+          "quantity": 100,
+          "price": 807.6,
+          "settlement_date": "2026-09-10"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-009",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T305198",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 828.03,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T902797",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1796.78,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T081706",
+          "instrument": "HDFCBANK",
+          "quantity": 250,
+          "price": 1642.1,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T577531",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1588.63,
+          "settlement_date": "2026-09-11"
+        },
+        {
+          "trade_id": "T312505",
+          "instrument": "SBIN",
+          "quantity": 50,
+          "price": 807.6,
+          "settlement_date": "2026-09-10"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-010-2026-09-08",
+    "account_id": "ACC-010",
+    "as_of": "2026-09-08",
+    "broker_statement": {
+      "account_id": "ACC-010",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T763552",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 805.44,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T307559",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 482.7,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T835208",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1611.6,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T634960",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1897.54,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T194385",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1549.17,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T475473",
+          "instrument": "SBIN",
+          "quantity": 2500,
+          "price": 802.41,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T484898",
+          "instrument": "HDFCBANK",
+          "quantity": 1000,
+          "price": 1675.25,
+          "settlement_date": "2026-09-10"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-010",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T763552",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 805.44,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T307559",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 482.7,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T835208",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1611.6,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T634960",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1897.54,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T194385",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1549.17,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T475473",
+          "instrument": "SBIN",
+          "quantity": 2500,
+          "price": 802.41,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T484898",
+          "instrument": "HDFCBANK",
+          "quantity": 1000,
+          "price": 1675.25,
+          "settlement_date": "2026-09-10"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-011-2026-09-08",
+    "account_id": "ACC-011",
+    "as_of": "2026-09-08",
+    "broker_statement": {
+      "account_id": "ACC-011",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T470903",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1106.33,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T313062",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1654.48,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T163809",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1541.37,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T521854",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 4164.45,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T293693",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1380.69,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T700961",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1379.55,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T551657",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1136.21,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T782815",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1233.75,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T791908",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 3997.97,
+          "settlement_date": "2026-09-10"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-011",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T470903",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1106.33,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T313062",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1654.48,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T163809",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1541.37,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T521854",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 4164.45,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T293693",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1380.69,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T700961",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1379.55,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T551657",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1136.21,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T782815",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1233.75,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T791908",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 3997.97,
+          "settlement_date": "2026-09-10"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-012-2026-09-08",
+    "account_id": "ACC-012",
+    "as_of": "2026-09-08",
+    "broker_statement": {
+      "account_id": "ACC-012",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T320448",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3517.53,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T901202",
+          "instrument": "TCS",
+          "quantity": 250,
+          "price": 3993.75,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T902762",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1251.49,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T601863",
+          "instrument": "LT",
+          "quantity": 250,
+          "price": 3606.78,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T430759",
+          "instrument": "LT",
+          "quantity": 1000,
+          "price": 3652.15,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T947960",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1245.68,
+          "settlement_date": "2026-09-10"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-012",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T901202",
+          "instrument": "TCS",
+          "quantity": 250,
+          "price": 3993.75,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T902762",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1251.49,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T601863",
+          "instrument": "LT",
+          "quantity": 250,
+          "price": 3606.78,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T430759",
+          "instrument": "LT",
+          "quantity": 1000,
+          "price": 3652.15,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T947960",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1245.68,
+          "settlement_date": "2026-09-10"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-013-2026-09-08",
+    "account_id": "ACC-013",
+    "as_of": "2026-09-08",
+    "broker_statement": {
+      "account_id": "ACC-013",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T126372",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1588.63,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T146311",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3568.48,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T495625",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1577.79,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T728441",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3598.43,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T063147",
+          "instrument": "ITC",
+          "quantity": 500,
+          "price": 459.93,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T519593",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1376.12,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T372665",
+          "instrument": "ITC",
+          "quantity": 1000,
+          "price": 480.96,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T010601",
+          "instrument": "LT",
+          "quantity": 100,
+          "price": 3640.37,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T085325",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1566.85,
+          "settlement_date": "2026-09-10"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-013",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T126372",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1588.63,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T146311",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3568.48,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T495625",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1577.79,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T728441",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3598.43,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T063147",
+          "instrument": "ITC",
+          "quantity": 500,
+          "price": 459.93,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T519593",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1376.12,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T372665",
+          "instrument": "ITC",
+          "quantity": 1000,
+          "price": 480.96,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T010601",
+          "instrument": "LT",
+          "quantity": 100,
+          "price": 3640.37,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T085325",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1566.85,
+          "settlement_date": "2026-09-10"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-014-2026-09-08",
+    "account_id": "ACC-014",
+    "as_of": "2026-09-08",
+    "broker_statement": {
+      "account_id": "ACC-014",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T283459",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1223.05,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T600677",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1220.41,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T483283",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 803.68,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T442194",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1575.0,
+          "settlement_date": "2026-09-10"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-014",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T600677",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1220.41,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T483283",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 803.68,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T442194",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1575.0,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T600677",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1220.41,
+          "settlement_date": "2026-09-10"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-015-2026-09-08",
+    "account_id": "ACC-015",
+    "as_of": "2026-09-08",
+    "broker_statement": {
+      "account_id": "ACC-015",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T366128",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1609.09,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T408458",
+          "instrument": "TCS",
+          "quantity": 250,
+          "price": 4085.06,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T214191",
+          "instrument": "AXISBANK",
+          "quantity": 100,
+          "price": 1167.76,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T034895",
+          "instrument": "TCS",
+          "quantity": 100,
+          "price": 4191.27,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T381272",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1377.58,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T311979",
+          "instrument": "AXISBANK",
+          "quantity": 100,
+          "price": 1154.02,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T536995",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1243.36,
+          "settlement_date": "2026-09-10"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-015",
+      "as_of": "2026-09-08",
+      "positions": [
+        {
+          "trade_id": "T366128",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1609.09,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T408458",
+          "instrument": "TCS",
+          "quantity": 250,
+          "price": 4085.06,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T214191",
+          "instrument": "AXISBANK",
+          "quantity": 100,
+          "price": 1167.76,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T034895",
+          "instrument": "TCS",
+          "quantity": 100,
+          "price": 4191.27,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T381272",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1377.58,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T311979",
+          "instrument": "AXISBANK",
+          "quantity": 100,
+          "price": 1154.02,
+          "settlement_date": "2026-09-10"
+        },
+        {
+          "trade_id": "T536995",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1243.36,
+          "settlement_date": "2026-09-10"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-001-2026-09-15",
+    "account_id": "ACC-001",
+    "as_of": "2026-09-15",
+    "broker_statement": {
+      "account_id": "ACC-001",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T541195",
+          "instrument": "LT",
+          "quantity": 1000,
+          "price": 3617.49,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T514014",
+          "instrument": "ICICIBANK",
+          "quantity": 1000,
+          "price": 1228.66,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T278787",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1362.41,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T366794",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1412.99,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T147227",
+          "instrument": "HDFCBANK",
+          "quantity": 1000,
+          "price": 1667.87,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T638203",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1619.95,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T475743",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4126.65,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T635808",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1632.47,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T477882",
+          "instrument": "SBIN",
+          "quantity": 500,
+          "price": 796.82,
+          "settlement_date": "2026-09-17"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-001",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T541195",
+          "instrument": "LT",
+          "quantity": 1000,
+          "price": 3617.49,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T514014",
+          "instrument": "ICICIBANK",
+          "quantity": 1000,
+          "price": 1228.66,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T278787",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1362.41,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T366794",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1412.99,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T147227",
+          "instrument": "HDFCBANK",
+          "quantity": 1000,
+          "price": 1667.87,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T638203",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1619.95,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T475743",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4126.65,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T635808",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1632.47,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T477882",
+          "instrument": "SBIN",
+          "quantity": 500,
+          "price": 796.82,
+          "settlement_date": "2026-09-17"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-002-2026-09-15",
+    "account_id": "ACC-002",
+    "as_of": "2026-09-15",
+    "broker_statement": {
+      "account_id": "ACC-002",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T084007",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 4062.05,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T877963",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4142.48,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T771335",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1251.27,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T403357",
+          "instrument": "ICICIBANK",
+          "quantity": 1000,
+          "price": 1238.3,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T747089",
+          "instrument": "TCS",
+          "quantity": 100,
+          "price": 4052.23,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T578786",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1646.13,
+          "settlement_date": "2026-09-17"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-002",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T084007",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 4062.05,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T877963",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4142.48,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T771335",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1251.27,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T403357",
+          "instrument": "ICICIBANK",
+          "quantity": 1000,
+          "price": 1213.53,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T747089",
+          "instrument": "TCS",
+          "quantity": 100,
+          "price": 4052.23,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T578786",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1646.13,
+          "settlement_date": "2026-09-17"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-003-2026-09-15",
+    "account_id": "ACC-003",
+    "as_of": "2026-09-15",
+    "broker_statement": {
+      "account_id": "ACC-003",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T123861",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1624.37,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T866401",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1892.65,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T223835",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 458.08,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T447674",
+          "instrument": "LT",
+          "quantity": 1000,
+          "price": 3500.5,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T189151",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4031.13,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T881285",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1236.47,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T455966",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1689.56,
+          "settlement_date": "2026-09-17"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-003",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T123861",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1624.37,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T866401",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1892.65,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T223835",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 458.08,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T447674",
+          "instrument": "LT",
+          "quantity": 1000,
+          "price": 3500.5,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T189151",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4031.13,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T881285",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1236.47,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T455966",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1689.56,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T455966",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1689.56,
+          "settlement_date": "2026-09-17"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-004-2026-09-15",
+    "account_id": "ACC-004",
+    "as_of": "2026-09-15",
+    "broker_statement": {
+      "account_id": "ACC-004",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T539005",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1142.47,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T273665",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1213.74,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T644739",
+          "instrument": "HDFCBANK",
+          "quantity": 250,
+          "price": 1673.06,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T260858",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4193.43,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T691662",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1401.28,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T900827",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1390.31,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T285721",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1636.03,
+          "settlement_date": "2026-09-17"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-004",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T539005",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1142.47,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T273665",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1213.74,
+          "settlement_date": "2026-09-18"
+        },
+        {
+          "trade_id": "T644739",
+          "instrument": "HDFCBANK",
+          "quantity": 250,
+          "price": 1673.06,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T260858",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4193.43,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T691662",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1401.28,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T900827",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1390.31,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T285721",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1636.03,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T285721",
+          "instrument": "HDFCBANK",
+          "quantity": 2500,
+          "price": 1636.03,
+          "settlement_date": "2026-09-17"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-005-2026-09-15",
+    "account_id": "ACC-005",
+    "as_of": "2026-09-15",
+    "broker_statement": {
+      "account_id": "ACC-005",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T067934",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3637.72,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T244950",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 809.51,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T179707",
+          "instrument": "INFY",
+          "quantity": 100,
+          "price": 1855.9,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T343812",
+          "instrument": "SBIN",
+          "quantity": 2500,
+          "price": 826.63,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T851439",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1811.73,
+          "settlement_date": "2026-09-17"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-005",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T067934",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3637.72,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T244950",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 809.51,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T179707",
+          "instrument": "INFY",
+          "quantity": 100,
+          "price": 1855.9,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T343812",
+          "instrument": "SBIN",
+          "quantity": 2500,
+          "price": 826.63,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T851439",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1811.73,
+          "settlement_date": "2026-09-17"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-006-2026-09-15",
+    "account_id": "ACC-006",
+    "as_of": "2026-09-15",
+    "broker_statement": {
+      "account_id": "ACC-006",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T142166",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4117.1,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T729492",
+          "instrument": "TCS",
+          "quantity": 250,
+          "price": 4157.21,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T855820",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4063.95,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T619737",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1894.49,
+          "settlement_date": "2026-09-17"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-006",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T142166",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4117.1,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T729492",
+          "instrument": "TCS",
+          "quantity": 250,
+          "price": 4157.21,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T855820",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4063.95,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T619737",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1894.49,
+          "settlement_date": "2026-09-17"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-007-2026-09-15",
+    "account_id": "ACC-007",
+    "as_of": "2026-09-15",
+    "broker_statement": {
+      "account_id": "ACC-007",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T552007",
+          "instrument": "AXISBANK",
+          "quantity": 500,
+          "price": 1139.26,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T323694",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1404.66,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T170956",
+          "instrument": "ITC",
+          "quantity": 1000,
+          "price": 471.3,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T738432",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1614.11,
+          "settlement_date": "2026-09-17"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-007",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T552007",
+          "instrument": "AXISBANK",
+          "quantity": 500,
+          "price": 1139.26,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T323694",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1404.66,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T170956",
+          "instrument": "ITC",
+          "quantity": 1000,
+          "price": 471.3,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T738432",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1614.11,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T170956",
+          "instrument": "ITC",
+          "quantity": 1000,
+          "price": 471.3,
+          "settlement_date": "2026-09-17"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-008-2026-09-15",
+    "account_id": "ACC-008",
+    "as_of": "2026-09-15",
+    "broker_statement": {
+      "account_id": "ACC-008",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T989620",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1361.22,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T761748",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4189.29,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T700902",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4061.67,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T170217",
+          "instrument": "ICICIBANK",
+          "quantity": 100,
+          "price": 1239.23,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T565720",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1387.69,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T514963",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1378.28,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T013045",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 3993.37,
+          "settlement_date": "2026-09-17"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-008",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T989620",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1361.22,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T761748",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4189.29,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T700902",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 4061.67,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T170217",
+          "instrument": "ICICIBANK",
+          "quantity": 100,
+          "price": 1239.23,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T565720",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1387.69,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T514963",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1378.28,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T013045",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 3993.37,
+          "settlement_date": "2026-09-17"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-009-2026-09-15",
+    "account_id": "ACC-009",
+    "as_of": "2026-09-15",
+    "broker_statement": {
+      "account_id": "ACC-009",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T443183",
+          "instrument": "INFY",
+          "quantity": 250,
+          "price": 1844.34,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T148955",
+          "instrument": "SBIN",
+          "quantity": 500,
+          "price": 804.11,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T344785",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1533.51,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T934201",
+          "instrument": "ICICIBANK",
+          "quantity": 2500,
+          "price": 1252.35,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T771371",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 471.83,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T128550",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1548.84,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T524869",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1890.94,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T538899",
+          "instrument": "INFY",
+          "quantity": 100,
+          "price": 1831.14,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T880947",
+          "instrument": "INFY",
+          "quantity": 250,
+          "price": 1899.5,
+          "settlement_date": "2026-09-17"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-009",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T443183",
+          "instrument": "INFY",
+          "quantity": 250,
+          "price": 1844.34,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T148955",
+          "instrument": "SBIN",
+          "quantity": 500,
+          "price": 804.11,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T344785",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1533.51,
+          "settlement_date": "2026-09-18"
+        },
+        {
+          "trade_id": "T934201",
+          "instrument": "ICICIBANK",
+          "quantity": 2500,
+          "price": 1252.35,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T771371",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 471.83,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T128550",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1548.84,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T524869",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1890.94,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T538899",
+          "instrument": "INFY",
+          "quantity": 100,
+          "price": 1831.14,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T880947",
+          "instrument": "INFY",
+          "quantity": 250,
+          "price": 1899.5,
+          "settlement_date": "2026-09-17"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-010-2026-09-15",
+    "account_id": "ACC-010",
+    "as_of": "2026-09-15",
+    "broker_statement": {
+      "account_id": "ACC-010",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T082301",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1542.43,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T659063",
+          "instrument": "ITC",
+          "quantity": 250,
+          "price": 473.24,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T041994",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1272.94,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T768311",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1591.92,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T932685",
+          "instrument": "RELIANCE",
+          "quantity": 1000,
+          "price": 1365.53,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T306954",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1820.71,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T373093",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1831.98,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T842346",
+          "instrument": "ITC",
+          "quantity": 1000,
+          "price": 456.32,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T556103",
+          "instrument": "ICICIBANK",
+          "quantity": 2500,
+          "price": 1247.67,
+          "settlement_date": "2026-09-17"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-010",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T082301",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1542.43,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T659063",
+          "instrument": "ITC",
+          "quantity": 250,
+          "price": 473.24,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T041994",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1272.94,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T768311",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1591.92,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T932685",
+          "instrument": "RELIANCE",
+          "quantity": 1000,
+          "price": 1365.53,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T306954",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1820.71,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T373093",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1831.98,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T842346",
+          "instrument": "ITC",
+          "quantity": 1000,
+          "price": 456.32,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T556103",
+          "instrument": "ICICIBANK",
+          "quantity": 2500,
+          "price": 1247.67,
+          "settlement_date": "2026-09-17"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-011-2026-09-15",
+    "account_id": "ACC-011",
+    "as_of": "2026-09-15",
+    "broker_statement": {
+      "account_id": "ACC-011",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T598211",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3693.76,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T040161",
+          "instrument": "ITC",
+          "quantity": 1000,
+          "price": 476.24,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T423392",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 797.92,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T286313",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1415.18,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T610275",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1269.69,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T541338",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 843.54,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T262808",
+          "instrument": "TCS",
+          "quantity": 100,
+          "price": 4116.25,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T345445",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 4142.77,
+          "settlement_date": "2026-09-17"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-011",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T598211",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3693.76,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T040161",
+          "instrument": "ITC",
+          "quantity": 1000,
+          "price": 476.24,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T286313",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1415.18,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T610275",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1269.69,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T541338",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 843.54,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T262808",
+          "instrument": "TCS",
+          "quantity": 100,
+          "price": 4116.25,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T345445",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 4142.77,
+          "settlement_date": "2026-09-17"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-012-2026-09-15",
+    "account_id": "ACC-012",
+    "as_of": "2026-09-15",
+    "broker_statement": {
+      "account_id": "ACC-012",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T887322",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1426.57,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T592308",
+          "instrument": "INFY",
+          "quantity": 500,
+          "price": 1834.81,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T656107",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1249.61,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T423266",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1173.34,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T001061",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1799.34,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T131961",
+          "instrument": "SBIN",
+          "quantity": 100,
+          "price": 842.07,
+          "settlement_date": "2026-09-17"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-012",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T887322",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1426.57,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T592308",
+          "instrument": "INFY",
+          "quantity": 500,
+          "price": 1834.81,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T656107",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1249.61,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T423266",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1173.34,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T001061",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1799.34,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T887322",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1426.57,
+          "settlement_date": "2026-09-17"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-013-2026-09-15",
+    "account_id": "ACC-013",
+    "as_of": "2026-09-15",
+    "broker_statement": {
+      "account_id": "ACC-013",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T292245",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1813.35,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T690866",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1806.72,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T528401",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3575.09,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T455750",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1233.87,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T449528",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1252.84,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T581498",
+          "instrument": "SBIN",
+          "quantity": 500,
+          "price": 804.75,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T820605",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1612.68,
+          "settlement_date": "2026-09-17"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-013",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T292245",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1813.35,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T690866",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1806.72,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T528401",
+          "instrument": "LT",
+          "quantity": 2500,
+          "price": 3575.09,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T455750",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1233.87,
+          "settlement_date": "2026-09-18"
+        },
+        {
+          "trade_id": "T449528",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1252.84,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T581498",
+          "instrument": "SBIN",
+          "quantity": 500,
+          "price": 804.75,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T820605",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1612.68,
+          "settlement_date": "2026-09-17"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-014-2026-09-15",
+    "account_id": "ACC-014",
+    "as_of": "2026-09-15",
+    "broker_statement": {
+      "account_id": "ACC-014",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T486676",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1434.64,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T667591",
+          "instrument": "AXISBANK",
+          "quantity": 250,
+          "price": 1167.35,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T379817",
+          "instrument": "LT",
+          "quantity": 250,
+          "price": 3638.94,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T661554",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 796.34,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T770974",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 4196.37,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T287805",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1803.15,
+          "settlement_date": "2026-09-17"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-014",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T486676",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1434.64,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T667591",
+          "instrument": "AXISBANK",
+          "quantity": 250,
+          "price": 1190.7,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T379817",
+          "instrument": "LT",
+          "quantity": 250,
+          "price": 3638.94,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T661554",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 796.34,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T770974",
+          "instrument": "TCS",
+          "quantity": 2450,
+          "price": 4196.37,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T287805",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1803.15,
+          "settlement_date": "2026-09-17"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-015-2026-09-15",
+    "account_id": "ACC-015",
+    "as_of": "2026-09-15",
+    "broker_statement": {
+      "account_id": "ACC-015",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T665582",
+          "instrument": "BHARTIARTL",
+          "quantity": 500,
+          "price": 1556.55,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T924620",
+          "instrument": "SBIN",
+          "quantity": 2500,
+          "price": 811.53,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T321932",
+          "instrument": "RELIANCE",
+          "quantity": 1000,
+          "price": 1358.92,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T262729",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4072.11,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T813114",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1587.84,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T371807",
+          "instrument": "AXISBANK",
+          "quantity": 250,
+          "price": 1144.41,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T291870",
+          "instrument": "SBIN",
+          "quantity": 100,
+          "price": 814.99,
+          "settlement_date": "2026-09-17"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-015",
+      "as_of": "2026-09-15",
+      "positions": [
+        {
+          "trade_id": "T665582",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1556.55,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T924620",
+          "instrument": "SBIN",
+          "quantity": 2500,
+          "price": 811.53,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T321932",
+          "instrument": "RELIANCE",
+          "quantity": 1000,
+          "price": 1358.92,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T262729",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4072.11,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T813114",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1587.84,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T371807",
+          "instrument": "AXISBANK",
+          "quantity": 250,
+          "price": 1144.41,
+          "settlement_date": "2026-09-17"
+        },
+        {
+          "trade_id": "T291870",
+          "instrument": "SBIN",
+          "quantity": 100,
+          "price": 814.99,
+          "settlement_date": "2026-09-17"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-001-2026-09-22",
+    "account_id": "ACC-001",
+    "as_of": "2026-09-22",
+    "broker_statement": {
+      "account_id": "ACC-001",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T378558",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1374.02,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T116193",
+          "instrument": "LT",
+          "quantity": 1000,
+          "price": 3501.31,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T973217",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1390.98,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T131355",
+          "instrument": "ICICIBANK",
+          "quantity": 1000,
+          "price": 1262.82,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T624598",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1890.69,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T536338",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1368.53,
+          "settlement_date": "2026-09-24"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-001",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T378558",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1374.02,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T116193",
+          "instrument": "LT",
+          "quantity": 1000,
+          "price": 3501.31,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T973217",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1390.98,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T131355",
+          "instrument": "ICICIBANK",
+          "quantity": 1000,
+          "price": 1262.82,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T624598",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1890.69,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T536338",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1368.53,
+          "settlement_date": "2026-09-24"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-002-2026-09-22",
+    "account_id": "ACC-002",
+    "as_of": "2026-09-22",
+    "broker_statement": {
+      "account_id": "ACC-002",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T739574",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1361.65,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T581903",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1565.28,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T614343",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1655.92,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T852805",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1272.52,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T343868",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1251.31,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T478652",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1855.85,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T040476",
+          "instrument": "AXISBANK",
+          "quantity": 250,
+          "price": 1149.68,
+          "settlement_date": "2026-09-24"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-002",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T739574",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1361.65,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T581903",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1565.28,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T614343",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1655.92,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T852805",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1272.52,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T343868",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1251.31,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T478652",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1855.85,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T040476",
+          "instrument": "AXISBANK",
+          "quantity": 250,
+          "price": 1149.68,
+          "settlement_date": "2026-09-24"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-003-2026-09-22",
+    "account_id": "ACC-003",
+    "as_of": "2026-09-22",
+    "broker_statement": {
+      "account_id": "ACC-003",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T857525",
+          "instrument": "HDFCBANK",
+          "quantity": 250,
+          "price": 1664.69,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T478724",
+          "instrument": "AXISBANK",
+          "quantity": 250,
+          "price": 1161.36,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T547632",
+          "instrument": "INFY",
+          "quantity": 500,
+          "price": 1895.81,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T141428",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 457.51,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T086420",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3492.53,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T812504",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1642.85,
+          "settlement_date": "2026-09-24"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-003",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T857525",
+          "instrument": "HDFCBANK",
+          "quantity": 250,
+          "price": 1664.69,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T478724",
+          "instrument": "AXISBANK",
+          "quantity": 250,
+          "price": 1161.36,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T547632",
+          "instrument": "INFY",
+          "quantity": 500,
+          "price": 1895.81,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T141428",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 457.51,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T086420",
+          "instrument": "LT",
+          "quantity": 500,
+          "price": 3492.53,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T812504",
+          "instrument": "HDFCBANK",
+          "quantity": 100,
+          "price": 1642.85,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T141428",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 457.51,
+          "settlement_date": "2026-09-24"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-004-2026-09-22",
+    "account_id": "ACC-004",
+    "as_of": "2026-09-22",
+    "broker_statement": {
+      "account_id": "ACC-004",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T379642",
+          "instrument": "HDFCBANK",
+          "quantity": 250,
+          "price": 1631.87,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T023829",
+          "instrument": "INFY",
+          "quantity": 250,
+          "price": 1796.63,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T928973",
+          "instrument": "AXISBANK",
+          "quantity": 250,
+          "price": 1108.82,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T676743",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1424.93,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T955957",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1422.47,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T745904",
+          "instrument": "INFY",
+          "quantity": 500,
+          "price": 1896.44,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T971881",
+          "instrument": "HDFCBANK",
+          "quantity": 1000,
+          "price": 1605.85,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T372223",
+          "instrument": "AXISBANK",
+          "quantity": 2500,
+          "price": 1157.54,
+          "settlement_date": "2026-09-24"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-004",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T379642",
+          "instrument": "HDFCBANK",
+          "quantity": 250,
+          "price": 1631.87,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T023829",
+          "instrument": "INFY",
+          "quantity": 250,
+          "price": 1796.63,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T928973",
+          "instrument": "AXISBANK",
+          "quantity": 250,
+          "price": 1131.0,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T676743",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1424.93,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T955957",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1422.47,
+          "settlement_date": "2026-09-25"
+        },
+        {
+          "trade_id": "T745904",
+          "instrument": "INFY",
+          "quantity": 500,
+          "price": 1896.44,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T971881",
+          "instrument": "HDFCBANK",
+          "quantity": 1000,
+          "price": 1605.85,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T372223",
+          "instrument": "AXISBANK",
+          "quantity": 2500,
+          "price": 1157.54,
+          "settlement_date": "2026-09-24"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-005-2026-09-22",
+    "account_id": "ACC-005",
+    "as_of": "2026-09-22",
+    "broker_statement": {
+      "account_id": "ACC-005",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T199746",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1566.5,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T129358",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1359.79,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T423376",
+          "instrument": "AXISBANK",
+          "quantity": 100,
+          "price": 1127.88,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T829167",
+          "instrument": "LT",
+          "quantity": 1000,
+          "price": 3594.93,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T899653",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1430.42,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T829139",
+          "instrument": "ICICIBANK",
+          "quantity": 100,
+          "price": 1261.1,
+          "settlement_date": "2026-09-24"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-005",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T199746",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1566.5,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T129358",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1359.79,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T423376",
+          "instrument": "AXISBANK",
+          "quantity": 100,
+          "price": 1127.88,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T829167",
+          "instrument": "LT",
+          "quantity": 1000,
+          "price": 3594.93,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T899653",
+          "instrument": "RELIANCE",
+          "quantity": 2500,
+          "price": 1430.42,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T829139",
+          "instrument": "ICICIBANK",
+          "quantity": 100,
+          "price": 1261.1,
+          "settlement_date": "2026-09-24"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-006-2026-09-22",
+    "account_id": "ACC-006",
+    "as_of": "2026-09-22",
+    "broker_statement": {
+      "account_id": "ACC-006",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T349818",
+          "instrument": "SBIN",
+          "quantity": 100,
+          "price": 818.59,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T034673",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1863.93,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T301026",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1389.64,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T164480",
+          "instrument": "LT",
+          "quantity": 250,
+          "price": 3526.68,
+          "settlement_date": "2026-09-24"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-006",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T349818",
+          "instrument": "SBIN",
+          "quantity": 100,
+          "price": 818.59,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T034673",
+          "instrument": "INFY",
+          "quantity": 2500,
+          "price": 1863.93,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T164480",
+          "instrument": "LT",
+          "quantity": 250,
+          "price": 3526.68,
+          "settlement_date": "2026-09-24"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-007-2026-09-22",
+    "account_id": "ACC-007",
+    "as_of": "2026-09-22",
+    "broker_statement": {
+      "account_id": "ACC-007",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T506374",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1554.07,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T666550",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1225.25,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T249757",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 803.45,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T441186",
+          "instrument": "ITC",
+          "quantity": 500,
+          "price": 480.62,
+          "settlement_date": "2026-09-24"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-007",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T506374",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1554.07,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T666550",
+          "instrument": "ICICIBANK",
+          "quantity": 500,
+          "price": 1225.25,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T249757",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 803.45,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T441186",
+          "instrument": "ITC",
+          "quantity": 500,
+          "price": 480.62,
+          "settlement_date": "2026-09-24"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-008-2026-09-22",
+    "account_id": "ACC-008",
+    "as_of": "2026-09-22",
+    "broker_statement": {
+      "account_id": "ACC-008",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T808199",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1436.15,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T005910",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1627.39,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T020457",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1400.85,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T040036",
+          "instrument": "RELIANCE",
+          "quantity": 100,
+          "price": 1406.13,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T154869",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1881.94,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T439077",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1619.22,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T349095",
+          "instrument": "TCS",
+          "quantity": 250,
+          "price": 4066.55,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T227187",
+          "instrument": "LT",
+          "quantity": 1000,
+          "price": 3507.78,
+          "settlement_date": "2026-09-24"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-008",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T808199",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1436.15,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T005910",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1627.39,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T020457",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1400.85,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T040036",
+          "instrument": "RELIANCE",
+          "quantity": 50,
+          "price": 1406.13,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T154869",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1881.94,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T439077",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1619.22,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T349095",
+          "instrument": "TCS",
+          "quantity": 250,
+          "price": 4066.55,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T227187",
+          "instrument": "LT",
+          "quantity": 1000,
+          "price": 3507.78,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T349095",
+          "instrument": "TCS",
+          "quantity": 250,
+          "price": 4066.55,
+          "settlement_date": "2026-09-24"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-009-2026-09-22",
+    "account_id": "ACC-009",
+    "as_of": "2026-09-22",
+    "broker_statement": {
+      "account_id": "ACC-009",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T400303",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4036.05,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T504556",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1539.14,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T264627",
+          "instrument": "ICICIBANK",
+          "quantity": 2500,
+          "price": 1240.38,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T022782",
+          "instrument": "AXISBANK",
+          "quantity": 2500,
+          "price": 1159.12,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T919340",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 3986.91,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T337190",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1583.27,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T893976",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1417.93,
+          "settlement_date": "2026-09-24"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-009",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T400303",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4036.05,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T504556",
+          "instrument": "BHARTIARTL",
+          "quantity": 2500,
+          "price": 1539.14,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T264627",
+          "instrument": "ICICIBANK",
+          "quantity": 2500,
+          "price": 1240.38,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T022782",
+          "instrument": "AXISBANK",
+          "quantity": 2500,
+          "price": 1159.12,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T919340",
+          "instrument": "TCS",
+          "quantity": 500,
+          "price": 3986.91,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T337190",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1583.27,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T893976",
+          "instrument": "RELIANCE",
+          "quantity": 250,
+          "price": 1417.93,
+          "settlement_date": "2026-09-24"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-010-2026-09-22",
+    "account_id": "ACC-010",
+    "as_of": "2026-09-22",
+    "broker_statement": {
+      "account_id": "ACC-010",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T766511",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1620.25,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T747839",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 468.93,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T177847",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 815.63,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T618874",
+          "instrument": "ICICIBANK",
+          "quantity": 2500,
+          "price": 1220.94,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T386172",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 826.33,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T803347",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 477.15,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T205198",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1266.76,
+          "settlement_date": "2026-09-24"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-010",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T766511",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1620.25,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T747839",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 468.93,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T177847",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 815.63,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T618874",
+          "instrument": "ICICIBANK",
+          "quantity": 2500,
+          "price": 1220.94,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T386172",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 826.33,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T803347",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 477.15,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T205198",
+          "instrument": "ICICIBANK",
+          "quantity": 250,
+          "price": 1266.76,
+          "settlement_date": "2026-09-24"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-011-2026-09-22",
+    "account_id": "ACC-011",
+    "as_of": "2026-09-22",
+    "broker_statement": {
+      "account_id": "ACC-011",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T665240",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1404.32,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T036596",
+          "instrument": "BHARTIARTL",
+          "quantity": 500,
+          "price": 1568.17,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T218287",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 801.9,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T642912",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 796.94,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T604709",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1539.82,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T745296",
+          "instrument": "HDFCBANK",
+          "quantity": 1000,
+          "price": 1654.45,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T580823",
+          "instrument": "INFY",
+          "quantity": 250,
+          "price": 1811.48,
+          "settlement_date": "2026-09-24"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-011",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T665240",
+          "instrument": "RELIANCE",
+          "quantity": 500,
+          "price": 1404.32,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T036596",
+          "instrument": "BHARTIARTL",
+          "quantity": 500,
+          "price": 1568.17,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T218287",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 801.9,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T642912",
+          "instrument": "SBIN",
+          "quantity": 250,
+          "price": 796.94,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T604709",
+          "instrument": "BHARTIARTL",
+          "quantity": 1000,
+          "price": 1539.82,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T745296",
+          "instrument": "HDFCBANK",
+          "quantity": 1000,
+          "price": 1654.45,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T580823",
+          "instrument": "INFY",
+          "quantity": 250,
+          "price": 1811.48,
+          "settlement_date": "2026-09-24"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-012-2026-09-22",
+    "account_id": "ACC-012",
+    "as_of": "2026-09-22",
+    "broker_statement": {
+      "account_id": "ACC-012",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T550820",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1834.12,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T924709",
+          "instrument": "AXISBANK",
+          "quantity": 500,
+          "price": 1154.8,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T351453",
+          "instrument": "HDFCBANK",
+          "quantity": 1000,
+          "price": 1677.07,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T274484",
+          "instrument": "INFY",
+          "quantity": 500,
+          "price": 1864.21,
+          "settlement_date": "2026-09-24"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-012",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T550820",
+          "instrument": "INFY",
+          "quantity": 1000,
+          "price": 1797.44,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T924709",
+          "instrument": "AXISBANK",
+          "quantity": 500,
+          "price": 1154.8,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T274484",
+          "instrument": "INFY",
+          "quantity": 500,
+          "price": 1864.21,
+          "settlement_date": "2026-09-24"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-013-2026-09-22",
+    "account_id": "ACC-013",
+    "as_of": "2026-09-22",
+    "broker_statement": {
+      "account_id": "ACC-013",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T409222",
+          "instrument": "ITC",
+          "quantity": 2500,
+          "price": 464.53,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T430022",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1597.39,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T161495",
+          "instrument": "INFY",
+          "quantity": 100,
+          "price": 1859.27,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T664851",
+          "instrument": "LT",
+          "quantity": 100,
+          "price": 3642.52,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T678801",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 4135.5,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T538393",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1668.67,
+          "settlement_date": "2026-09-24"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-013",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T409222",
+          "instrument": "ITC",
+          "quantity": 2450,
+          "price": 464.53,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T430022",
+          "instrument": "BHARTIARTL",
+          "quantity": 100,
+          "price": 1597.39,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T161495",
+          "instrument": "INFY",
+          "quantity": 100,
+          "price": 1859.27,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T664851",
+          "instrument": "LT",
+          "quantity": 100,
+          "price": 3642.52,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T678801",
+          "instrument": "TCS",
+          "quantity": 2500,
+          "price": 4135.5,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T538393",
+          "instrument": "HDFCBANK",
+          "quantity": 500,
+          "price": 1668.67,
+          "settlement_date": "2026-09-24"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-014-2026-09-22",
+    "account_id": "ACC-014",
+    "as_of": "2026-09-22",
+    "broker_statement": {
+      "account_id": "ACC-014",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T935761",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 811.06,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T708810",
+          "instrument": "ITC",
+          "quantity": 500,
+          "price": 472.38,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T266216",
+          "instrument": "ITC",
+          "quantity": 250,
+          "price": 481.92,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T588927",
+          "instrument": "LT",
+          "quantity": 100,
+          "price": 3660.59,
+          "settlement_date": "2026-09-24"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-014",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T935761",
+          "instrument": "SBIN",
+          "quantity": 1000,
+          "price": 811.06,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T708810",
+          "instrument": "ITC",
+          "quantity": 250,
+          "price": 472.38,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T266216",
+          "instrument": "ITC",
+          "quantity": 250,
+          "price": 481.92,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T588927",
+          "instrument": "LT",
+          "quantity": 100,
+          "price": 3660.59,
+          "settlement_date": "2026-09-24"
+        }
+      ]
+    }
+  },
+  {
+    "session_id": "ACC-015-2026-09-22",
+    "account_id": "ACC-015",
+    "as_of": "2026-09-22",
+    "broker_statement": {
+      "account_id": "ACC-015",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T637800",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4151.2,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T424691",
+          "instrument": "ICICIBANK",
+          "quantity": 100,
+          "price": 1256.56,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T964332",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1616.52,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T592384",
+          "instrument": "RELIANCE",
+          "quantity": 1000,
+          "price": 1436.08,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T091011",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1128.68,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T531413",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 469.43,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T106751",
+          "instrument": "ICICIBANK",
+          "quantity": 2500,
+          "price": 1249.27,
+          "settlement_date": "2026-09-24"
+        }
+      ],
+      "notes": ""
+    },
+    "internal_ledger": {
+      "account_id": "ACC-015",
+      "as_of": "2026-09-22",
+      "positions": [
+        {
+          "trade_id": "T637800",
+          "instrument": "TCS",
+          "quantity": 1000,
+          "price": 4151.2,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T424691",
+          "instrument": "ICICIBANK",
+          "quantity": 100,
+          "price": 1256.56,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T964332",
+          "instrument": "BHARTIARTL",
+          "quantity": 250,
+          "price": 1616.52,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T592384",
+          "instrument": "RELIANCE",
+          "quantity": 1000,
+          "price": 1436.08,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T091011",
+          "instrument": "AXISBANK",
+          "quantity": 1000,
+          "price": 1128.68,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T531413",
+          "instrument": "ITC",
+          "quantity": 100,
+          "price": 469.43,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T106751",
+          "instrument": "ICICIBANK",
+          "quantity": 2500,
+          "price": 1249.27,
+          "settlement_date": "2026-09-24"
+        },
+        {
+          "trade_id": "T424691",
+          "instrument": "ICICIBANK",
+          "quantity": 100,
+          "price": 1256.56,
+          "settlement_date": "2026-09-24"
+        }
+      ]
+    }
+  }
+]

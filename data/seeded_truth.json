@@ -1,0 +1,760 @@
+[
+  {
+    "session_id": "ACC-001-2026-09-01",
+    "account_id": "ACC-001",
+    "as_of": "2026-09-01",
+    "discrepancies": [
+      {
+        "type": "settlement_date_shift",
+        "trade_id": "T794772",
+        "instrument": "BHARTIARTL",
+        "broker_settlement": "2026-09-03",
+        "ledger_settlement": "2026-09-04"
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-002-2026-09-01",
+    "account_id": "ACC-002",
+    "as_of": "2026-09-01",
+    "discrepancies": [
+      {
+        "type": "missing_trade",
+        "trade_id": "T418196",
+        "instrument": "RELIANCE",
+        "broker_quantity": 2500,
+        "ledger_quantity": 0
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-003-2026-09-01",
+    "account_id": "ACC-003",
+    "as_of": "2026-09-01",
+    "discrepancies": [
+      {
+        "type": "duplicate_booking",
+        "trade_id": "T250206",
+        "instrument": "INFY",
+        "ledger_occurrences": 2
+      },
+      {
+        "type": "price_variance",
+        "trade_id": "T967048",
+        "instrument": "LT",
+        "broker_price": 3700.19,
+        "ledger_price": 3626.19,
+        "tolerance": 0.005
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-004-2026-09-01",
+    "account_id": "ACC-004",
+    "as_of": "2026-09-01",
+    "discrepancies": [
+      {
+        "type": "duplicate_booking",
+        "trade_id": "T878565",
+        "instrument": "LT",
+        "ledger_occurrences": 2
+      },
+      {
+        "type": "quantity_mismatch",
+        "trade_id": "T883383",
+        "instrument": "HDFCBANK",
+        "broker_quantity": 2500,
+        "ledger_quantity": 2450
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-005-2026-09-01",
+    "account_id": "ACC-005",
+    "as_of": "2026-09-01",
+    "discrepancies": [
+      {
+        "type": "quantity_mismatch",
+        "trade_id": "T390133",
+        "instrument": "INFY",
+        "broker_quantity": 500,
+        "ledger_quantity": 450
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-006-2026-09-01",
+    "account_id": "ACC-006",
+    "as_of": "2026-09-01",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-007-2026-09-01",
+    "account_id": "ACC-007",
+    "as_of": "2026-09-01",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-008-2026-09-01",
+    "account_id": "ACC-008",
+    "as_of": "2026-09-01",
+    "discrepancies": [
+      {
+        "type": "settlement_date_shift",
+        "trade_id": "T570760",
+        "instrument": "ICICIBANK",
+        "broker_settlement": "2026-09-03",
+        "ledger_settlement": "2026-09-04"
+      },
+      {
+        "type": "missing_trade",
+        "trade_id": "T680456",
+        "instrument": "SBIN",
+        "broker_quantity": 1000,
+        "ledger_quantity": 0
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-009-2026-09-01",
+    "account_id": "ACC-009",
+    "as_of": "2026-09-01",
+    "discrepancies": [
+      {
+        "type": "settlement_date_shift",
+        "trade_id": "T784844",
+        "instrument": "BHARTIARTL",
+        "broker_settlement": "2026-09-03",
+        "ledger_settlement": "2026-09-04"
+      },
+      {
+        "type": "quantity_mismatch",
+        "trade_id": "T914031",
+        "instrument": "AXISBANK",
+        "broker_quantity": 1000,
+        "ledger_quantity": 900
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-010-2026-09-01",
+    "account_id": "ACC-010",
+    "as_of": "2026-09-01",
+    "discrepancies": [
+      {
+        "type": "missing_trade",
+        "trade_id": "T878430",
+        "instrument": "ITC",
+        "broker_quantity": 100,
+        "ledger_quantity": 0
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-011-2026-09-01",
+    "account_id": "ACC-011",
+    "as_of": "2026-09-01",
+    "discrepancies": [
+      {
+        "type": "price_variance",
+        "trade_id": "T735392",
+        "instrument": "AXISBANK",
+        "broker_price": 1154.53,
+        "ledger_price": 1194.94,
+        "tolerance": 0.005
+      },
+      {
+        "type": "duplicate_booking",
+        "trade_id": "T958273",
+        "instrument": "ITC",
+        "ledger_occurrences": 2
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-012-2026-09-01",
+    "account_id": "ACC-012",
+    "as_of": "2026-09-01",
+    "discrepancies": [
+      {
+        "type": "quantity_mismatch",
+        "trade_id": "T037397",
+        "instrument": "RELIANCE",
+        "broker_quantity": 500,
+        "ledger_quantity": 250
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-013-2026-09-01",
+    "account_id": "ACC-013",
+    "as_of": "2026-09-01",
+    "discrepancies": [
+      {
+        "type": "quantity_mismatch",
+        "trade_id": "T344478",
+        "instrument": "ICICIBANK",
+        "broker_quantity": 1000,
+        "ledger_quantity": 900
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-014-2026-09-01",
+    "account_id": "ACC-014",
+    "as_of": "2026-09-01",
+    "discrepancies": [
+      {
+        "type": "price_variance",
+        "trade_id": "T273590",
+        "instrument": "AXISBANK",
+        "broker_price": 1135.3,
+        "ledger_price": 1112.59,
+        "tolerance": 0.005
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-015-2026-09-01",
+    "account_id": "ACC-015",
+    "as_of": "2026-09-01",
+    "discrepancies": [
+      {
+        "type": "price_variance",
+        "trade_id": "T511601",
+        "instrument": "INFY",
+        "broker_price": 1839.56,
+        "ledger_price": 1903.94,
+        "tolerance": 0.005
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-001-2026-09-08",
+    "account_id": "ACC-001",
+    "as_of": "2026-09-08",
+    "discrepancies": [
+      {
+        "type": "duplicate_booking",
+        "trade_id": "T470379",
+        "instrument": "SBIN",
+        "ledger_occurrences": 2
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-002-2026-09-08",
+    "account_id": "ACC-002",
+    "as_of": "2026-09-08",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-003-2026-09-08",
+    "account_id": "ACC-003",
+    "as_of": "2026-09-08",
+    "discrepancies": [
+      {
+        "type": "price_variance",
+        "trade_id": "T988751",
+        "instrument": "ICICIBANK",
+        "broker_price": 1241.31,
+        "ledger_price": 1266.14,
+        "tolerance": 0.005
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-004-2026-09-08",
+    "account_id": "ACC-004",
+    "as_of": "2026-09-08",
+    "discrepancies": [
+      {
+        "type": "quantity_mismatch",
+        "trade_id": "T815947",
+        "instrument": "INFY",
+        "broker_quantity": 100,
+        "ledger_quantity": 50
+      },
+      {
+        "type": "missing_trade",
+        "trade_id": "T639756",
+        "instrument": "ITC",
+        "broker_quantity": 2500,
+        "ledger_quantity": 0
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-005-2026-09-08",
+    "account_id": "ACC-005",
+    "as_of": "2026-09-08",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-006-2026-09-08",
+    "account_id": "ACC-006",
+    "as_of": "2026-09-08",
+    "discrepancies": [
+      {
+        "type": "duplicate_booking",
+        "trade_id": "T152767",
+        "instrument": "BHARTIARTL",
+        "ledger_occurrences": 2
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-007-2026-09-08",
+    "account_id": "ACC-007",
+    "as_of": "2026-09-08",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-008-2026-09-08",
+    "account_id": "ACC-008",
+    "as_of": "2026-09-08",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-009-2026-09-08",
+    "account_id": "ACC-009",
+    "as_of": "2026-09-08",
+    "discrepancies": [
+      {
+        "type": "settlement_date_shift",
+        "trade_id": "T577531",
+        "instrument": "BHARTIARTL",
+        "broker_settlement": "2026-09-10",
+        "ledger_settlement": "2026-09-11"
+      },
+      {
+        "type": "quantity_mismatch",
+        "trade_id": "T312505",
+        "instrument": "SBIN",
+        "broker_quantity": 100,
+        "ledger_quantity": 50
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-010-2026-09-08",
+    "account_id": "ACC-010",
+    "as_of": "2026-09-08",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-011-2026-09-08",
+    "account_id": "ACC-011",
+    "as_of": "2026-09-08",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-012-2026-09-08",
+    "account_id": "ACC-012",
+    "as_of": "2026-09-08",
+    "discrepancies": [
+      {
+        "type": "missing_trade",
+        "trade_id": "T320448",
+        "instrument": "LT",
+        "broker_quantity": 500,
+        "ledger_quantity": 0
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-013-2026-09-08",
+    "account_id": "ACC-013",
+    "as_of": "2026-09-08",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-014-2026-09-08",
+    "account_id": "ACC-014",
+    "as_of": "2026-09-08",
+    "discrepancies": [
+      {
+        "type": "duplicate_booking",
+        "trade_id": "T600677",
+        "instrument": "ICICIBANK",
+        "ledger_occurrences": 2
+      },
+      {
+        "type": "missing_trade",
+        "trade_id": "T283459",
+        "instrument": "ICICIBANK",
+        "broker_quantity": 250,
+        "ledger_quantity": 0
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-015-2026-09-08",
+    "account_id": "ACC-015",
+    "as_of": "2026-09-08",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-001-2026-09-15",
+    "account_id": "ACC-001",
+    "as_of": "2026-09-15",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-002-2026-09-15",
+    "account_id": "ACC-002",
+    "as_of": "2026-09-15",
+    "discrepancies": [
+      {
+        "type": "price_variance",
+        "trade_id": "T403357",
+        "instrument": "ICICIBANK",
+        "broker_price": 1238.3,
+        "ledger_price": 1213.53,
+        "tolerance": 0.005
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-003-2026-09-15",
+    "account_id": "ACC-003",
+    "as_of": "2026-09-15",
+    "discrepancies": [
+      {
+        "type": "duplicate_booking",
+        "trade_id": "T455966",
+        "instrument": "HDFCBANK",
+        "ledger_occurrences": 2
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-004-2026-09-15",
+    "account_id": "ACC-004",
+    "as_of": "2026-09-15",
+    "discrepancies": [
+      {
+        "type": "settlement_date_shift",
+        "trade_id": "T273665",
+        "instrument": "ICICIBANK",
+        "broker_settlement": "2026-09-17",
+        "ledger_settlement": "2026-09-18"
+      },
+      {
+        "type": "duplicate_booking",
+        "trade_id": "T285721",
+        "instrument": "HDFCBANK",
+        "ledger_occurrences": 2
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-005-2026-09-15",
+    "account_id": "ACC-005",
+    "as_of": "2026-09-15",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-006-2026-09-15",
+    "account_id": "ACC-006",
+    "as_of": "2026-09-15",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-007-2026-09-15",
+    "account_id": "ACC-007",
+    "as_of": "2026-09-15",
+    "discrepancies": [
+      {
+        "type": "duplicate_booking",
+        "trade_id": "T170956",
+        "instrument": "ITC",
+        "ledger_occurrences": 2
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-008-2026-09-15",
+    "account_id": "ACC-008",
+    "as_of": "2026-09-15",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-009-2026-09-15",
+    "account_id": "ACC-009",
+    "as_of": "2026-09-15",
+    "discrepancies": [
+      {
+        "type": "settlement_date_shift",
+        "trade_id": "T344785",
+        "instrument": "BHARTIARTL",
+        "broker_settlement": "2026-09-17",
+        "ledger_settlement": "2026-09-18"
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-010-2026-09-15",
+    "account_id": "ACC-010",
+    "as_of": "2026-09-15",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-011-2026-09-15",
+    "account_id": "ACC-011",
+    "as_of": "2026-09-15",
+    "discrepancies": [
+      {
+        "type": "missing_trade",
+        "trade_id": "T423392",
+        "instrument": "SBIN",
+        "broker_quantity": 1000,
+        "ledger_quantity": 0
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-012-2026-09-15",
+    "account_id": "ACC-012",
+    "as_of": "2026-09-15",
+    "discrepancies": [
+      {
+        "type": "duplicate_booking",
+        "trade_id": "T887322",
+        "instrument": "RELIANCE",
+        "ledger_occurrences": 2
+      },
+      {
+        "type": "missing_trade",
+        "trade_id": "T131961",
+        "instrument": "SBIN",
+        "broker_quantity": 100,
+        "ledger_quantity": 0
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-013-2026-09-15",
+    "account_id": "ACC-013",
+    "as_of": "2026-09-15",
+    "discrepancies": [
+      {
+        "type": "settlement_date_shift",
+        "trade_id": "T455750",
+        "instrument": "ICICIBANK",
+        "broker_settlement": "2026-09-17",
+        "ledger_settlement": "2026-09-18"
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-014-2026-09-15",
+    "account_id": "ACC-014",
+    "as_of": "2026-09-15",
+    "discrepancies": [
+      {
+        "type": "price_variance",
+        "trade_id": "T667591",
+        "instrument": "AXISBANK",
+        "broker_price": 1167.35,
+        "ledger_price": 1190.7,
+        "tolerance": 0.005
+      },
+      {
+        "type": "quantity_mismatch",
+        "trade_id": "T770974",
+        "instrument": "TCS",
+        "broker_quantity": 2500,
+        "ledger_quantity": 2450
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-015-2026-09-15",
+    "account_id": "ACC-015",
+    "as_of": "2026-09-15",
+    "discrepancies": [
+      {
+        "type": "quantity_mismatch",
+        "trade_id": "T665582",
+        "instrument": "BHARTIARTL",
+        "broker_quantity": 500,
+        "ledger_quantity": 250
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-001-2026-09-22",
+    "account_id": "ACC-001",
+    "as_of": "2026-09-22",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-002-2026-09-22",
+    "account_id": "ACC-002",
+    "as_of": "2026-09-22",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-003-2026-09-22",
+    "account_id": "ACC-003",
+    "as_of": "2026-09-22",
+    "discrepancies": [
+      {
+        "type": "duplicate_booking",
+        "trade_id": "T141428",
+        "instrument": "ITC",
+        "ledger_occurrences": 2
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-004-2026-09-22",
+    "account_id": "ACC-004",
+    "as_of": "2026-09-22",
+    "discrepancies": [
+      {
+        "type": "price_variance",
+        "trade_id": "T928973",
+        "instrument": "AXISBANK",
+        "broker_price": 1108.82,
+        "ledger_price": 1131.0,
+        "tolerance": 0.005
+      },
+      {
+        "type": "settlement_date_shift",
+        "trade_id": "T955957",
+        "instrument": "RELIANCE",
+        "broker_settlement": "2026-09-24",
+        "ledger_settlement": "2026-09-25"
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-005-2026-09-22",
+    "account_id": "ACC-005",
+    "as_of": "2026-09-22",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-006-2026-09-22",
+    "account_id": "ACC-006",
+    "as_of": "2026-09-22",
+    "discrepancies": [
+      {
+        "type": "missing_trade",
+        "trade_id": "T301026",
+        "instrument": "RELIANCE",
+        "broker_quantity": 100,
+        "ledger_quantity": 0
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-007-2026-09-22",
+    "account_id": "ACC-007",
+    "as_of": "2026-09-22",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-008-2026-09-22",
+    "account_id": "ACC-008",
+    "as_of": "2026-09-22",
+    "discrepancies": [
+      {
+        "type": "duplicate_booking",
+        "trade_id": "T349095",
+        "instrument": "TCS",
+        "ledger_occurrences": 2
+      },
+      {
+        "type": "quantity_mismatch",
+        "trade_id": "T040036",
+        "instrument": "RELIANCE",
+        "broker_quantity": 100,
+        "ledger_quantity": 50
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-009-2026-09-22",
+    "account_id": "ACC-009",
+    "as_of": "2026-09-22",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-010-2026-09-22",
+    "account_id": "ACC-010",
+    "as_of": "2026-09-22",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-011-2026-09-22",
+    "account_id": "ACC-011",
+    "as_of": "2026-09-22",
+    "discrepancies": []
+  },
+  {
+    "session_id": "ACC-012-2026-09-22",
+    "account_id": "ACC-012",
+    "as_of": "2026-09-22",
+    "discrepancies": [
+      {
+        "type": "missing_trade",
+        "trade_id": "T351453",
+        "instrument": "HDFCBANK",
+        "broker_quantity": 1000,
+        "ledger_quantity": 0
+      },
+      {
+        "type": "price_variance",
+        "trade_id": "T550820",
+        "instrument": "INFY",
+        "broker_price": 1834.12,
+        "ledger_price": 1797.44,
+        "tolerance": 0.005
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-013-2026-09-22",
+    "account_id": "ACC-013",
+    "as_of": "2026-09-22",
+    "discrepancies": [
+      {
+        "type": "quantity_mismatch",
+        "trade_id": "T409222",
+        "instrument": "ITC",
+        "broker_quantity": 2500,
+        "ledger_quantity": 2450
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-014-2026-09-22",
+    "account_id": "ACC-014",
+    "as_of": "2026-09-22",
+    "discrepancies": [
+      {
+        "type": "quantity_mismatch",
+        "trade_id": "T708810",
+        "instrument": "ITC",
+        "broker_quantity": 500,
+        "ledger_quantity": 250
+      }
+    ]
+  },
+  {
+    "session_id": "ACC-015-2026-09-22",
+    "account_id": "ACC-015",
+    "as_of": "2026-09-22",
+    "discrepancies": [
+      {
+        "type": "duplicate_booking",
+        "trade_id": "T424691",
+        "instrument": "ICICIBANK",
+        "ledger_occurrences": 2
+      }
+    ]
+  }
+]
