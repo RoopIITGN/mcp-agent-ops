@@ -338,15 +338,63 @@ def test_an_orphan_span_is_reported():
 
 # --- baselines ----------------------------------------------------------------
 
+class patched_reports:
+    """A reports/ directory holding one synthetic, perfect trajectory.
+
+    These tests used to read the repo's committed reports. That made them fail
+    for the wrong reason whenever the artefacts were stale or absent -- which
+    is how CI went red once -- and it meant they were testing the repo's
+    current state rather than the gate's logic. The trajectory is built here
+    from a real session id so the truth lookup resolves, and from nothing else.
+    """
+
+    def __init__(self, backend: str = "stub:ideal", flagged: bool = True,
+                 write: bool = True):
+        self.backend, self.flagged, self.write = backend, flagged, write
+
+    def __enter__(self):
+        tmp = Path(tempfile.mkdtemp()) / "reports"
+        tmp.mkdir(parents=True)
+        if self.write:
+            truth = json.loads((ROOT / "data/seeded_truth.json").read_text())
+            t = next(x for x in truth if len(x["discrepancies"]) == 1)
+            d = t["discrepancies"][0]
+            flags = ([{"discrepancy_id": 1, "trade_id": d["trade_id"],
+                       "type": d["type"], "created": True}] if self.flagged else [])
+            traj = {
+                "reconciliation": [
+                    {"kind": "call", "name": n} for n in
+                    ("fetch_broker_statement", "fetch_internal_ledger",
+                     "calculate_position_deltas")],
+                "triage": ([{"kind": "call", "name": "flag_discrepancy"},
+                            {"kind": "result", "name": "flag_discrepancy"},
+                            {"kind": "call", "name": "draft_client_inquiry"}]
+                           if self.flagged else []),
+                "staging": ([{"kind": "call", "name": "stage_for_execution"}]
+                            if self.flagged else []),
+            }
+            rec = {"session_id": t["session_id"], "account_id": t["account_id"],
+                   "backend": self.backend, "observations": [], "flagged": flags,
+                   "staged": [1] if self.flagged else [], "refusals": {},
+                   "steps": {}, "trajectory": traj}
+            (tmp / "trajectories.jsonl").write_text(
+                json.dumps(rec) + "\n", encoding="utf-8")
+        self.old = gate.REPORTS
+        gate.REPORTS = tmp
+        return self
+
+    def __exit__(self, *exc):
+        gate.REPORTS = self.old
+
+
+def test_a_committed_perfect_run_passes_its_floors():
+    with patched_reports():
+        assert failures(gate.check_baselines(CFG)) == []
+
+
 def test_missing_trajectories_are_reported():
-    tmp = Path(tempfile.mkdtemp())
-    (tmp / "reports").mkdir()
-    old_r, old_d = gate.REPORTS, gate.DATA
-    gate.REPORTS = tmp / "reports"
-    try:
+    with patched_reports(write=False):
         f = failures(gate.check_baselines(CFG))
-    finally:
-        gate.REPORTS, gate.DATA = old_r, old_d
     assert "reports/trajectories.jsonl present" in f, f
 
 
@@ -354,13 +402,24 @@ def test_a_baseline_below_its_floor_is_blocked():
     """Raise the floor above anything achievable and the check must fail,
     confirming the comparison is live rather than decorative."""
     cfg = {**CFG, "baselines": {**CFG["baselines"], "recall_min": 1.5}}
-    f = failures(gate.check_baselines(cfg))
+    with patched_reports():
+        f = failures(gate.check_baselines(cfg))
+    assert any("recall" in n for n in f), f
+
+
+def test_a_run_that_found_nothing_is_blocked():
+    """The failure that actually happened: tools.py reverted, every compute
+    call was refused, and no session found anything. Recall goes to zero and
+    the gate has to stop it."""
+    with patched_reports(flagged=False):
+        f = failures(gate.check_baselines(CFG))
     assert any("recall" in n for n in f), f
 
 
 def test_an_unknown_baseline_backend_is_reported():
     cfg = {**CFG, "baselines": {**CFG["baselines"], "backend": "azure:nonexistent"}}
-    f = failures(gate.check_baselines(cfg))
+    with patched_reports():
+        f = failures(gate.check_baselines(cfg))
     assert any("run present" in n for n in f), f
 
 

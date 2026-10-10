@@ -24,6 +24,7 @@ Usage
 from __future__ import annotations
 
 import asyncio
+import json
 import shutil
 import sys
 import tempfile
@@ -69,8 +70,25 @@ def text(result) -> str:
     return result.content[0].text if result.content else ""
 
 
+def unwrap(e: BaseException) -> BaseException:
+    """Dig the real error out of a TaskGroup's ExceptionGroup.
+
+    An assertion that fails inside `async with Client(...)` is collected by
+    anyio's task group and re-raised wrapped, sometimes two layers deep. The
+    runner then reports `ExceptionGroup: unhandled errors in a TaskGroup` and
+    the assertion message -- the only part that says what went wrong -- is
+    lost. That cost a CI round trip, so the unwrapping lives here.
+    """
+    while isinstance(e, BaseExceptionGroup) and e.exceptions:
+        e = e.exceptions[0]
+    return e
+
+
 def run(coro):
-    return asyncio.run(coro)
+    try:
+        return asyncio.run(coro)
+    except BaseException as e:                                 # noqa: BLE001
+        raise unwrap(e) from None
 
 
 # --- what the agent can see ---------------------------------------------------
@@ -132,24 +150,32 @@ def test_full_trajectory_over_stdio():
 
     async def go():
         async with Client(subprocess_params("reconciliation", db)) as c:
+            listed = {t.name for t in (await c.list_tools()).tools}
+            assert listed == set(tools.ROLE_TOOLS["reconciliation"]), listed
+
             b = await c.call_tool("fetch_broker_statement",
                                   {"args": {"session_id": SESSION}})
-            assert not b.is_error, text(b)
+            assert not b.is_error, f"fetch_broker_statement: {text(b)}"
             l = await c.call_tool("fetch_internal_ledger",
                                   {"args": {"session_id": SESSION}})
-            assert not l.is_error, text(l)
+            assert not l.is_error, f"fetch_internal_ledger: {text(l)}"
 
             import json as _json
-            broker = _json.loads(text(b))
-            ledger = _json.loads(text(l))
             d = await c.call_tool("calculate_position_deltas",
-                                  {"args": {"session_id": SESSION,
-                                            "broker_positions": broker["positions"],
-                                            "ledger_positions": ledger["positions"]}})
-            assert not d.is_error, text(d)
+                                  {"args": {"session_id": SESSION}})
+            assert not d.is_error, f"calculate_position_deltas: {text(d)}"
             obs = _json.loads(text(d))["observations"]
 
-        assert obs, "ACC-001-2026-09-01 is a seeded session and should differ"
+        # Checked against the committed truth rather than asserted on faith, so
+        # a failure here says whether the corpus changed or the comparison did.
+        seeded = [t for t in json.loads(
+            (ROOT / "data/seeded_truth.json").read_text())
+            if t["session_id"] == SESSION]
+        assert seeded, f"{SESSION} is missing from seeded_truth.json"
+        expected = len(seeded[0]["discrepancies"])
+        assert obs, (f"{SESSION} has {expected} seeded discrepancy(ies) but the "
+                     f"comparison reported none -- check src/tools.py is the "
+                     f"version where DeltasIn takes only session_id")
         trade = obs[0]["trade_id"]
 
         async with Client(subprocess_params("triage", db)) as c:

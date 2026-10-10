@@ -48,19 +48,46 @@ jobs:
       - name: Build the database
         run: python src/store.py --init --force
 
+      # Before the tests, not after. These two groups name their cause in one
+      # line -- "harness ceiling 0/52 visible" says a stale tools.py in a way
+      # that a failing async test, which surfaces as an ExceptionGroup, does
+      # not. Cheap, and it turns a confusing red build into an obvious one.
+      - name: Gate — integrity and structure (fail fast)
+        run: PYTHONPATH=src python src/gate.py --only integrity --only structural
+
+      # Each suite's full output goes in a collapsed group, but its verdict and
+      # any failing test name are printed OUTSIDE the group and repeated in the
+      # summary. A CI log that hides which test failed behind a fold costs more
+      # than the scrolling it saves.
       - name: Tests
         run: |
           fail=0
+          summary=""
           for f in tests/test_*.py; do
             echo "::group::$f"
-            if python "$f"; then :; else fail=1; fi
+            out=$(python "$f" 2>&1) && rc=0 || rc=1
+            echo "$out"
             echo "::endgroup::"
+            line=$(echo "$out" | grep -E '^[0-9]+ tests,' | tail -1)
+            if [ "$rc" -ne 0 ]; then
+              fail=1
+              echo "::error file=$f::$f — $line"
+              echo "$out" | grep -E '^\s+(FAIL|ERROR)' | while read -r l; do
+                echo "::error file=$f::$l"
+              done
+              summary="$summary- FAIL  \`$f\` — $line"$'\n'
+            else
+              echo "  ok   $f — $line"
+              summary="$summary- pass  \`$f\` — $line"$'\n'
+            fi
           done
+          printf '## Test suites\n\n%s' "$summary" >> "$GITHUB_STEP_SUMMARY"
           exit $fail
 
-      # Structural, integrity and committed baselines. Fast, and the group that
-      # turns a README sentence going false into a red build.
-      - name: Gate — structure, integrity, baselines
+      # The full fast gate, including the committed baselines recomputed from
+      # the committed trajectories. This is the group that turns a README
+      # sentence going false into a red build.
+      - name: Gate — baselines and trace
         run: PYTHONPATH=src python src/gate.py --skip-calibration
 
       # The slow one, about 95 seconds: re-run every deliberately broken stub

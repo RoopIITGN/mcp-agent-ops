@@ -202,6 +202,22 @@ def test_miss_one_keeps_a_single_finding():
 
 # --- the loop over a live server ---------------------------------------------
 
+def unwrap(e: BaseException) -> BaseException:
+    """Dig the real error out of a TaskGroup's ExceptionGroup, so an assertion
+    failing inside `async with Client(...)` reports its message instead of
+    'unhandled errors in a TaskGroup'."""
+    while isinstance(e, BaseExceptionGroup) and e.exceptions:
+        e = e.exceptions[0]
+    return e
+
+
+def arun(coro):
+    try:
+        return asyncio.run(coro)
+    except BaseException as e:                                 # noqa: BLE001
+        raise unwrap(e) from None
+
+
 def one_session(policy: str, db: Path) -> dict:
     async def go():
         from mcp import Client
@@ -212,7 +228,7 @@ def one_session(policy: str, db: Path) -> dict:
                 SESSION, ACCOUNT,
                 {"reconciliation": r, "triage": t, "staging": s},
                 StubBackend(policy))
-    return asyncio.run(go())
+    return arun(go())
 
 
 def test_ideal_session_flags_and_stages_with_no_refusals():
@@ -266,7 +282,7 @@ def test_step_cap_terminates_a_stuck_worker():
         async with Client(agent.params(ACCOUNT, "reconciliation", db, "t")) as c:
             return await agent.run_role(c, "reconciliation", {"session_id": SESSION},
                                         Stuck(), [])
-    hist = asyncio.run(go())
+    hist = arun(go())
     calls = [t for t in hist if t.kind == "call"]
     assert len(calls) == agent.MAX_STEPS, len(calls)
     assert hist[-1].kind == "error" and "stopped after" in hist[-1].text
@@ -285,12 +301,12 @@ def test_resume_skips_sessions_already_recorded():
 
     a = Args()
     a.db, a.out = str(db), str(out)
-    asyncio.run(agent.amain(a))
+    arun(agent.amain(a))
     first = [json.loads(l) for l in out.read_text().splitlines() if l.strip()]
     assert len(first) == 2
 
     a.limit = 4
-    asyncio.run(agent.amain(a))
+    arun(agent.amain(a))
     rows = [json.loads(l) for l in out.read_text().splitlines() if l.strip()]
     ids = [r["session_id"] for r in rows]
     assert len(ids) == len(set(ids)), f"a session was run twice: {ids}"
@@ -307,9 +323,9 @@ def test_fresh_ignores_the_resume_file():
 
     a = Args()
     a.db, a.out = str(db), str(out)
-    asyncio.run(agent.amain(a))
+    arun(agent.amain(a))
     a.fresh = True
-    asyncio.run(agent.amain(a))
+    arun(agent.amain(a))
     rows = [json.loads(l) for l in out.read_text().splitlines() if l.strip()]
     assert len(rows) == 2, "--fresh did not re-run the session"
     assert rows[0]["session_id"] == rows[1]["session_id"]
