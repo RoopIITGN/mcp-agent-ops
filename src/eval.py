@@ -277,6 +277,98 @@ def compare(a: list[dict], b: list[dict], label_a: str, label_b: str) -> dict:
     }
 
 
+# --- variance -----------------------------------------------------------------
+
+def raw_runs(path: Path, backend: str) -> dict[str, dict]:
+    """Trajectory records for one backend, keyed by session."""
+    out: dict[str, dict] = {}
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if line.strip():
+            r = json.loads(line)
+            if r["backend"] == backend:
+                out[r["session_id"]] = r
+    return out
+
+
+def variance(a: dict[str, dict], b: dict[str, dict], truth: dict) -> dict:
+    """How much does the same configuration disagree with itself?
+
+    The floor under every other comparison in this project. A difference
+    smaller than this is not a result -- it is the system's own noise. The
+    retrieval project measured a 20% flip rate between identical generator
+    runs, which is why a 25-to-21 improvement there had to be reported as
+    inconclusive rather than as a fix.
+
+    Compared per session on three things, because they can disagree
+    independently: the set of (trade, type) findings, how many corrections were
+    staged, and whether the trajectory was clean. A run that finds the same
+    discrepancies by a different route is stable in outcome and unstable in
+    behaviour, and only the second shows up in a trajectory metric.
+    """
+    shared = sorted(set(a) & set(b))
+    rows = []
+    for sid in shared:
+        fa = {(f["trade_id"], f["type"]) for f in a[sid]["flagged"]}
+        fb = {(f["trade_id"], f["type"]) for f in b[sid]["flagged"]}
+        sa, sb = len(a[sid]["staged"]), len(b[sid]["staged"])
+        ta = score_session(a[sid], truth[sid])["trajectory_clean"]
+        tb = score_session(b[sid], truth[sid])["trajectory_clean"]
+        rows.append({
+            "session_id": sid,
+            "findings_match": fa == fb,
+            "only_in_a": sorted(fa - fb), "only_in_b": sorted(fb - fa),
+            "staged_match": sa == sb, "staged_a": sa, "staged_b": sb,
+            "trajectory_match": ta == tb,
+            "identical": fa == fb and sa == sb and ta == tb,
+        })
+    n = len(rows)
+    return {
+        "sessions": n,
+        "identical": sum(1 for r in rows if r["identical"]),
+        "findings_flips": sum(1 for r in rows if not r["findings_match"]),
+        "staged_flips": sum(1 for r in rows if not r["staged_match"]),
+        "trajectory_flips": sum(1 for r in rows if not r["trajectory_match"]),
+        "flip_rate": (sum(1 for r in rows if not r["identical"]) / n) if n else 0.0,
+        "findings_flip_rate": (sum(1 for r in rows if not r["findings_match"]) / n)
+                              if n else 0.0,
+        "rows": [r for r in rows if not r["identical"]],
+    }
+
+
+def render_variance(v: dict, backend: str) -> str:
+    L = ["# Variance floor", "",
+         f"Two runs of `{backend}` over the same sessions, same configuration, "
+         f"nothing changed between them. Anything smaller than this is noise, "
+         f"not a result.", ""]
+    L.append(f"**{v['sessions']} paired session(s). {v['identical']} identical "
+             f"in findings, staging and trajectory — a flip rate of "
+             f"{pct(v['flip_rate'])}.**")
+    L.append("")
+    L += ["| measure | sessions that disagreed | rate |", "|---|---|---|",
+          f"| findings, as (trade, type) | {v['findings_flips']} | "
+          f"{pct(v['findings_flip_rate'])} |",
+          f"| corrections staged | {v['staged_flips']} | "
+          f"{pct(v['staged_flips'] / v['sessions']) if v['sessions'] else '-'} |",
+          f"| trajectory clean | {v['trajectory_flips']} | "
+          f"{pct(v['trajectory_flips'] / v['sessions']) if v['sessions'] else '-'} |",
+          ""]
+    if v["rows"]:
+        L += ["## Sessions that disagreed", "",
+              "| session | only in run A | only in run B | staged A/B |",
+              "|---|---|---|---|"]
+        for r in v["rows"][:20]:
+            L.append(f"| {r['session_id']} | {r['only_in_a'] or '-'} | "
+                     f"{r['only_in_b'] or '-'} | {r['staged_a']}/{r['staged_b']} |")
+        L.append("")
+    else:
+        L += ["No session disagreed with itself. At this sample size the floor "
+              "is below 1 in " + str(v["sessions"]) + ", which is the most that "
+              "can be said -- a zero observed in 60 trials is not a zero rate. "
+              "It does mean every difference reported elsewhere in these results "
+              "is larger than the noise this measurement could detect.", ""]
+    return "\n".join(L)
+
+
 # --- report -------------------------------------------------------------------
 
 def pct(x: float) -> str:
@@ -380,10 +472,34 @@ def main() -> None:
                     help="only these backends (repeatable)")
     ap.add_argument("--compare", nargs=2, metavar=("A", "B"), action="append",
                     default=[], help="paired McNemar between two backends")
+    ap.add_argument("--variance", nargs=2, metavar=("RUN_A", "RUN_B"),
+                    help="two trajectory files from the same configuration; "
+                         "reports how much it disagrees with itself")
     ap.add_argument("--out", default="")
     a = ap.parse_args()
 
     truth = {t["session_id"]: t for t in json.loads(TRUTH.read_text())}
+
+    if a.variance:
+        if len(a.backend) != 1:
+            raise SystemExit("--variance needs exactly one --backend, so both "
+                             "files are read for the same configuration")
+        label = a.backend[0]
+        pa, pb = (Path(x) for x in a.variance)
+        ra, rb = raw_runs(pa, label), raw_runs(pb, label)
+        for p, r in ((pa, ra), (pb, rb)):
+            if not r:
+                raise SystemExit(f"{p} holds no run for backend {label!r}")
+        v = variance({k: x for k, x in ra.items() if k in truth},
+                     {k: x for k, x in rb.items() if k in truth}, truth)
+        report = render_variance(v, label)
+        if a.out:
+            Path(a.out).parent.mkdir(parents=True, exist_ok=True)
+            Path(a.out).write_text(report + "\n", encoding="utf-8")
+            print(f"-> {a.out}")
+        else:
+            print(report)
+        return
     scored = load(Path(a.traj), truth)
     if a.backend:
         scored = {k: v for k, v in scored.items() if k in a.backend}

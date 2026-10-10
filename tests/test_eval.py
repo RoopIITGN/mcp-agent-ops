@@ -69,8 +69,9 @@ def rec(flagged: list[dict], *, read_ledger: bool = True, compared: bool = True,
         triage += [{"kind": "call", "name": "draft_client_inquiry"},
                    {"kind": "result", "name": "draft_client_inquiry"}]
 
+    n_stage = n if stages is None else stages
     staging = []
-    for _ in range(n if stages is None else stages):
+    for _ in range(n_stage):
         staging += [{"kind": "call", "name": "stage_for_execution"},
                     {"kind": "result", "name": "stage_for_execution"}]
     for role, tool, text in errors:
@@ -80,7 +81,12 @@ def rec(flagged: list[dict], *, read_ledger: bool = True, compared: bool = True,
 
     return {"session_id": SESSION, "account_id": "ACC-001", "backend": "stub:test",
             "observations": [], "flagged": flagged,
-            "staged": [f["discrepancy_id"] for f in flagged],
+            # From the staging CALLS, which is how agent.py builds this field.
+            # Deriving it from `flagged` instead made the fixture unable to
+            # express "staged more times than it flagged" -- the exact shape the
+            # first model run produced -- so a test written against it passed
+            # for the wrong reason.
+            "staged": list(range(1, n_stage + 1)),
             "refusals": {}, "steps": {},
             "trajectory": {"reconciliation": recon, "triage": triage,
                            "staging": staging}}
@@ -270,6 +276,60 @@ def test_aggregate_handles_an_all_clean_run():
 
 
 # --- comparison ---------------------------------------------------------------
+
+def test_variance_is_zero_when_two_runs_agree():
+    t = {SESSION: truth(disc("T1", "quantity_mismatch"))}
+    r = rec([flag(1, "T1", "quantity_mismatch")])
+    v = ev.variance({SESSION: r}, {SESSION: dict(r)}, t)
+    assert v["sessions"] == 1 and v["identical"] == 1
+    assert v["flip_rate"] == 0.0 and v["rows"] == []
+
+
+def test_variance_detects_a_different_finding():
+    """The check that matters: a floor measurement that can only report zero
+    has not measured anything."""
+    t = {SESSION: truth(disc("T1", "quantity_mismatch"))}
+    a = rec([flag(1, "T1", "quantity_mismatch")])
+    b = rec([])
+    v = ev.variance({SESSION: a}, {SESSION: b}, t)
+    assert v["findings_flips"] == 1 and v["flip_rate"] == 1.0
+    assert v["rows"][0]["only_in_a"] == [("T1", "quantity_mismatch")]
+    assert v["rows"][0]["only_in_b"] == []
+
+
+def test_variance_separates_behaviour_from_outcome():
+    """Same findings, different route. A run can be stable in what it finds and
+    unstable in how it got there, and only one of those shows up in a
+    trajectory metric."""
+    t = {SESSION: truth(disc("T1", "quantity_mismatch"))}
+    a = rec([flag(1, "T1", "quantity_mismatch")])
+    b = rec([flag(1, "T1", "quantity_mismatch")], stages=4)
+    v = ev.variance({SESSION: a}, {SESSION: b}, t)
+    assert v["findings_flips"] == 0, "the findings were identical"
+    assert v["staged_flips"] == 1
+    assert v["trajectory_flips"] == 1, "staging more than flagged is a violation"
+    assert v["flip_rate"] == 1.0
+
+
+def test_variance_only_compares_sessions_both_runs_covered():
+    t = {SESSION: truth(disc("T1", "quantity_mismatch"))}
+    a = {SESSION: rec([flag(1, "T1", "quantity_mismatch")])}
+    other = dict(rec([]))
+    other["session_id"] = "ACC-002-2026-09-01"
+    v = ev.variance(a, {"ACC-002-2026-09-01": other}, t)
+    assert v["sessions"] == 0 and v["flip_rate"] == 0.0
+
+
+def test_variance_report_states_what_a_zero_does_not_mean():
+    """A zero observed in n trials is not a zero rate, and the report has to
+    say so or the number gets quoted as certainty."""
+    t = {SESSION: truth(disc("T1", "quantity_mismatch"))}
+    r = rec([flag(1, "T1", "quantity_mismatch")])
+    v = ev.variance({SESSION: r}, {SESSION: dict(r)}, t)
+    report = ev.render_variance(v, "azure:test@t0.0")
+    assert "not a zero rate" in report, report
+    assert "flip rate of 0.0%" in report
+
 
 def test_compare_pairs_on_session_id():
     t = truth(disc("T1", "quantity_mismatch"))
