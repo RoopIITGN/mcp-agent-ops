@@ -3,4 +3,21 @@
 .env.*
 !.env.example
 __pycache__/
+*.py[cod]
+.pytest_cache/
 *Zone.Identifier
+
+# Generated database. Rebuilt from data/*.json by `python src/store.py --init`.
+# Committing it would ship a stale copy of committed inputs, and it accumulates
+# run rows -- so a clone would start with someone else's state and every
+# measurement taken against it would be polluted.
+data/ops.db
+data/ops.db-journal
+data/ops.db-wal
+data/ops.db-shm
+
+# NOT ignored, deliberately:
+#   data/sessions.json, data/seeded_truth.json, data/accounts.json
+#       inputs and ground truth -- recomputing the numbers needs these bytes
+#   reports/
+#       committed results, same argument as runs.jsonl in the retrieval repo
