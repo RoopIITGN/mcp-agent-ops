@@ -2,7 +2,13 @@
 # time rather than up front: a requirements file listing packages the repo does
 # not use yet is a list of things a reader has to check against the code.
 #
-# Phase 2 (tools + schemas) needs only pydantic. The database is stdlib sqlite3
-# and the tests have no dependencies at all, which is what lets the CI gate in
-# Phase 6 run without credentials or a model.
+# The database is stdlib sqlite3 and tests/test_gates.py plus
+# tests/test_tools.py have no dependencies beyond pydantic, which is what lets
+# most of the CI gate in Phase 6 run without credentials or a model.
 pydantic>=2.7,<3
+
+# MCP 2.x only. The 2.0 release renamed FastMCP to MCPServer, moved the result
+# and schema fields from camelCase to snake_case (inputSchema -> input_schema,
+# isError -> is_error), and changed how tool errors reach the client. src/server.py
+# uses the 2.x API throughout and will not import under mcp 1.x.
+mcp>=2.2,<3
