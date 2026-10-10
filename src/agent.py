@@ -88,7 +88,19 @@ async def run_role(client: Client, role: str, task: dict, backend: Backend,
     history: list[Turn] = [Turn(kind="task", text=json.dumps(task, default=str))]
     with tr.role(role, len(schemas)):
         for seq in range(MAX_STEPS):
-            step = backend.step(role, task, history, schemas)
+            try:
+                step = backend.step(role, task, history, schemas)
+            except Exception as e:                             # noqa: BLE001
+                # A backend failure ends this role and is recorded, rather than
+                # taking the run with it. One session's 400 aborted a full
+                # sixty-session run before this existed -- and the 400 in
+                # question was itself a result worth keeping: Azure's content
+                # filter rejecting an injected prompt before the model saw it.
+                # An unhandled exception loses the finding and the fifty-nine
+                # sessions after it.
+                history.append(Turn(kind="error", name="__backend__",
+                                    text=f"{type(e).__name__}: {e}"))
+                return history
             if isinstance(step, Done):
                 history.append(Turn(kind="result", name="__done__", text=step.note))
                 return history
@@ -224,7 +236,19 @@ async def run_account(account: str, session_ids: list[str], backend: Backend,
         clients = {"reconciliation": recon, "triage": triage, "staging": staging}
         done = 0
         for sid in session_ids:
-            rec = await run_session(sid, account, clients, backend, tr)
+            try:
+                rec = await run_session(sid, account, clients, backend, tr)
+            except Exception as e:                             # noqa: BLE001
+                # Belt and braces around the per-role guard: a transport failure
+                # or a dead subprocess costs this session, not the run. The
+                # record is written anyway so resume skips it and the report can
+                # count it, instead of the session vanishing silently.
+                print(f"  {sid}  FAILED  {type(e).__name__}: {str(e)[:120]}")
+                rec = {"session_id": sid, "account_id": account,
+                       "backend": backend.label, "observations": [], "flagged": [],
+                       "staged": [], "refusals": {}, "steps": {}, "elapsed_s": 0.0,
+                       "failed": f"{type(e).__name__}: {e}",
+                       "trajectory": {r: [] for r in WORKER_ROLES}}
             rec["run_id"] = run_id
             sink.write(json.dumps(rec, default=str) + "\n")
             sink.flush()                  # flushed per session: a crash at
