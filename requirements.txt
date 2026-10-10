@@ -1,0 +1,8 @@
+# Pinned to what the code actually imports today. This grows one phase at a
+# time rather than up front: a requirements file listing packages the repo does
+# not use yet is a list of things a reader has to check against the code.
+#
+# Phase 2 (tools + schemas) needs only pydantic. The database is stdlib sqlite3
+# and the tests have no dependencies at all, which is what lets the CI gate in
+# Phase 6 run without credentials or a model.
+pydantic>=2.7,<3

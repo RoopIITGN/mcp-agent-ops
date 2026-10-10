@@ -21,6 +21,7 @@ Usage
 
 from __future__ import annotations
 
+import ast
 import json
 import sqlite3
 import sys
@@ -144,15 +145,46 @@ def test_status_column_rejects_invented_states():
 def test_no_tool_wraps_decide_action():
     """The capability gate is only real while tools.py does not expose approval.
 
-    Skipped until tools.py exists; becomes a real assertion then. Left here so
-    the omission is tracked by the suite rather than by memory."""
+    Parsed, not grepped. A substring search over the file text flags the
+    docstring in stage_for_execution that explains why approval is absent --
+    the comment that documents the gate would break the test that checks it.
+    The AST walk only sees code, so prose about the gate is free and a call to
+    it is not.
+    """
     tools_py = Path(__file__).resolve().parents[1] / "src/tools.py"
     if not tools_py.exists():
         print("    (skipped: src/tools.py not written yet)")
         return
-    src = tools_py.read_text(encoding="utf-8")
-    assert "decide_action" not in src, \
-        "src/tools.py references decide_action -- the capability gate is broken"
+
+    tree = ast.parse(tools_py.read_text(encoding="utf-8"))
+    hits = [n for n in ast.walk(tree)
+            if (isinstance(n, ast.Attribute) and n.attr == "decide_action")
+            or (isinstance(n, ast.Name) and n.id == "decide_action")]
+    assert not hits, (f"src/tools.py references decide_action in code at line(s) "
+                      f"{sorted({n.lineno for n in hits})} -- the capability gate is broken")
+
+
+def test_approval_is_absent_from_every_role():
+    """No role's tool list may contain anything that approves or executes.
+
+    The tool registry is the agent's whole vocabulary. This asserts the shape
+    of that vocabulary rather than the implementation behind it."""
+    tools_py = Path(__file__).resolve().parents[1] / "src/tools.py"
+    if not tools_py.exists():
+        print("    (skipped: src/tools.py not written yet)")
+        return
+    import tools
+
+    assert set(tools.TOOLS) == {
+        "fetch_broker_statement", "fetch_internal_ledger", "calculate_position_deltas",
+        "flag_discrepancy", "draft_client_inquiry", "stage_for_execution",
+    }, f"the tool set changed: {sorted(tools.TOOLS)}"
+
+    banned = ("approve", "execute", "decide", "confirm", "release", "settle")
+    for role, names in tools.ROLE_TOOLS.items():
+        for n in names:
+            assert not any(b in n for b in banned), f"{role} holds {n}"
+        assert set(names) <= set(tools.TOOLS), f"{role} names a tool that does not exist"
 
 
 # --- draft preservation ------------------------------------------------------
