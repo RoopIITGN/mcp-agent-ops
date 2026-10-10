@@ -299,10 +299,21 @@ def upsert_draft(con: sqlite3.Connection, discrepancy_id: int,
     return new_id, "created"
 
 
-def idempotency_key(session_id: str, payload: dict) -> str:
-    """Stable over payload key order, so the same correction proposed twice in a
-    different field order is still the same correction."""
-    blob = json.dumps({"session_id": session_id, "payload": payload},
+def idempotency_key(session_id: str, discrepancy_id: int) -> str:
+    """One pending correction per discrepancy, per session.
+
+    This used to hash the payload, on the reasoning that identical corrections
+    should collapse. They did -- for the stub, which sends byte-identical
+    payloads because they were written by hand. A real model rewords its
+    proposal on every retry, so each retry produced a different hash and a new
+    PENDING_HUMAN row: a hundred rows for fifty-two discrepancies, and a human
+    approval queue mostly full of duplicates.
+
+    The business rule was never "one row per distinct wording". It is one
+    pending correction per thing being corrected, so that is what the key is.
+    Rewording cannot defeat it because the wording is not in it.
+    """
+    blob = json.dumps({"session_id": session_id, "discrepancy_id": discrepancy_id},
                       sort_keys=True, separators=(",", ":"))
     return hashlib.sha256(blob.encode()).hexdigest()[:32]
 
@@ -313,8 +324,13 @@ def stage_action(con: sqlite3.Connection, session_id: str, discrepancy_id: int,
 
     Note what is absent: no status argument. A caller cannot stage something
     already approved, because the column defaults to PENDING_HUMAN and this
-    function never writes it."""
-    key = idempotency_key(session_id, payload)
+    function never writes it.
+
+    On a repeat the stored payload is left as the first one wrote it. The
+    alternative -- letting a retry overwrite the rationale a human may already
+    be reading -- is the same mistake as letting the agent overwrite an edited
+    draft."""
+    key = idempotency_key(session_id, discrepancy_id)
     cur = con.execute(
         """INSERT INTO pending_actions
                (idempotency_key, session_id, discrepancy_id, payload, created_at)

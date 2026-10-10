@@ -98,7 +98,8 @@ def test_triage_cannot_stage():
     con = fresh()
     did = flagged(con)
     why = refused(tools.call, con, ACCOUNT, "stage_for_execution",
-                  {"discrepancy_id": did, "payload": {"fix": "x"}}, role="triage")
+                  {"discrepancy_id": did, "action": "align_quantity_to_broker", "trade_id": "T1",
+                   "rationale": "quantity differs on T1; align the ledger"}, role="triage")
     assert "not available to the triage agent" in why, why
 
 
@@ -110,7 +111,8 @@ def test_reconciliation_cannot_write():
                        ("draft_client_inquiry",
                         {"discrepancy_id": 1, "body": "x" * 30}),
                        ("stage_for_execution",
-                        {"discrepancy_id": 1, "payload": {}})):
+                        {"discrepancy_id": 1, "action": "align_quantity_to_broker", "trade_id": "T1",
+                   "rationale": "quantity differs on T1; align the ledger"})):
         why = refused(tools.call, con, ACCOUNT, name, args, role="reconciliation")
         assert "not available" in why, why
 
@@ -143,7 +145,8 @@ def test_injected_status_field_is_rejected():
     con = fresh()
     did = flagged(con)
     why = refused(tools.call, con, ACCOUNT, "stage_for_execution",
-                  {"discrepancy_id": did, "payload": {"fix": "x"},
+                  {"discrepancy_id": did, "action": "align_quantity_to_broker", "trade_id": "T1",
+                   "rationale": "quantity differs on T1; align the ledger",
                    "status": "APPROVED"})
     assert "invalid arguments" in why and "extra" in why.lower(), why
 
@@ -198,7 +201,8 @@ def test_stage_before_flag_names_the_missing_step():
     or the agent retries the same wrong call."""
     con = fresh()
     why = refused(tools.call, con, ACCOUNT, "stage_for_execution",
-                  {"discrepancy_id": 42, "payload": {"fix": "x"}})
+                  {"discrepancy_id": 42, "action": "align_quantity_to_broker", "trade_id": "T1",
+                   "rationale": "quantity differs on T1; align the ledger"})
     assert "does not exist" in why and "flag_discrepancy first" in why, why
 
 
@@ -208,15 +212,74 @@ def test_cannot_stage_against_a_resolved_discrepancy():
     con.execute("UPDATE discrepancies SET status = 'resolved' WHERE id = ?", (did,))
     con.commit()
     why = refused(tools.call, con, ACCOUNT, "stage_for_execution",
-                  {"discrepancy_id": did, "payload": {"fix": "x"}})
+                  {"discrepancy_id": did, "action": "align_quantity_to_broker", "trade_id": "T1",
+                   "rationale": "quantity differs on T1; align the ledger"})
     assert "resolved, not flagged" in why, why
+
+
+def test_a_placeholder_correction_cannot_be_submitted():
+    """What a real model actually did when it was given a discrepancy id and no
+    detail: staged "TBD", "Insufficient context provided", "Please provide the
+    exact correction" -- a hundred of them, all accepted, because the payload
+    was a free-form dict. An enum makes the whole class unrepresentable."""
+    con = fresh()
+    did = flagged(con)
+    for junk in ("TBD", "pending", "Insufficient context provided",
+                 "Please provide the exact correction"):
+        why = refused(tools.call, con, ACCOUNT, "stage_for_execution",
+                      {"discrepancy_id": did, "action": junk, "trade_id": "T1",
+                       "rationale": "a sentence long enough to pass the floor"})
+        assert "invalid arguments" in why, (junk, why)
+
+
+def test_the_remedy_must_match_the_discrepancy_type():
+    """A price fix for a quantity break is refused, not queued for a human to
+    catch. Checked against the type the server recorded, not the agent's claim."""
+    con = fresh()
+    did = flagged(con, kind="quantity_mismatch")
+    why = refused(tools.call, con, ACCOUNT, "stage_for_execution",
+                  {"discrepancy_id": did, "action": "align_price_to_broker",
+                   "trade_id": "T1",
+                   "rationale": "proposing a price alignment for this break"})
+    assert "quantity_mismatch" in why and "align_quantity_to_broker" in why, why
+
+
+def test_every_discrepancy_type_has_a_remedy_that_is_accepted():
+    con = fresh()
+    for i, (kind, action) in enumerate(tools.ACTION_FOR_TYPE.items()):
+        did = flagged(con, tid=f"T{i}", kind=kind)
+        out = tools.call(con, ACCOUNT, "stage_for_execution",
+                         {"discrepancy_id": did, "action": action,
+                          "trade_id": f"T{i}",
+                          "rationale": f"{kind} observed; applying the remedy"})
+        assert out["status"] == "PENDING_HUMAN", (kind, out)
+
+
+def test_the_correction_must_name_the_discrepancys_own_trade():
+    con = fresh()
+    did = flagged(con, tid="T1")
+    why = refused(tools.call, con, ACCOUNT, "stage_for_execution",
+                  {"discrepancy_id": did, "action": "align_quantity_to_broker",
+                   "trade_id": "T999",
+                   "rationale": "correcting a trade this discrepancy is not about"})
+    assert "T1" in why and "T999" in why, why
+
+
+def test_an_empty_rationale_is_rejected():
+    con = fresh()
+    did = flagged(con)
+    why = refused(tools.call, con, ACCOUNT, "stage_for_execution",
+                  {"discrepancy_id": did, "action": "align_quantity_to_broker",
+                   "trade_id": "T1", "rationale": "TBD"})
+    assert "invalid arguments" in why, why
 
 
 def test_staging_reports_that_nothing_executed():
     con = fresh()
     did = flagged(con)
     r = tools.call(con, ACCOUNT, "stage_for_execution",
-                   {"discrepancy_id": did, "payload": {"fix": "x"}})
+                   {"discrepancy_id": did, "action": "align_quantity_to_broker", "trade_id": "T1",
+                   "rationale": "quantity differs on T1; align the ledger"})
     assert r["status"] == "PENDING_HUMAN"
     assert "no tool" in r["note"], r["note"]
 

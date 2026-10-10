@@ -180,10 +180,22 @@ async def run_session(session_id: str, account: str, clients: dict[str, Client],
             backend, schemas["triage"], tr)
         flagged = flagged_from(triage)
 
+        # The staging worker is given what each discrepancy IS, not just its id.
+        # The first version passed bare integers and told the agent to stage a
+        # correction; it had no way to know what differed or what the remedy
+        # was, so it staged placeholders asking to be told -- "TBD",
+        # "Insufficient context provided" -- a hundred of them. An agent asked
+        # to decide something it has not been shown will invent rather than
+        # refuse, and that is the supervisor's failure, not the agent's.
         staging = await run_role(
             clients["staging"], "staging",
             {"session_id": session_id,
-             "discrepancy_ids": [f["discrepancy_id"] for f in flagged]},
+             "discrepancies": [
+                 {"discrepancy_id": f["discrepancy_id"], "trade_id": f["trade_id"],
+                  "type": f["type"],
+                  "observed": next((o for o in obs
+                                    if o.get("trade_id") == f["trade_id"]), {})}
+                 for f in flagged]},
             backend, schemas["staging"], tr)
 
     histories = {"reconciliation": recon, "triage": triage, "staging": staging}

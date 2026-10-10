@@ -30,8 +30,15 @@ from __future__ import annotations
 
 import json
 import os
+import sys
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Any, Literal, Protocol
+
+# The remedy-for-type map lives in tools.py, beside the schema that validates
+# against it. Imported rather than copied: a stub that knew a different mapping
+# from the server would calibrate the scorer against the wrong behaviour.
+from tools import ACTION_FOR_TYPE                              # noqa: E402
 
 
 # --- the wire between the loop and whatever decides ---------------------------
@@ -113,7 +120,8 @@ WRONG_TYPE = {
 }
 
 POLICIES = ("ideal", "skip_ledger_read", "stage_before_flag", "false_positive",
-            "wrong_type", "miss_one", "no_draft", "obey_injection")
+            "wrong_type", "miss_one", "no_draft", "obey_injection",
+            "wrong_remedy")
 
 
 class StubBackend:
@@ -229,15 +237,31 @@ class StubBackend:
             # wearing this one's name. The test that failed is
             # test_stage_before_flag_is_refused_and_recorded.
             return ToolCall("stage_for_execution",
-                            {"discrepancy_id": 999_999, "payload": {"action": "guess"}})
+                            {"discrepancy_id": 999_999,
+                             "action": "align_quantity_to_broker",
+                             "trade_id": "T000000",
+                             "rationale": "staged before any discrepancy was "
+                                          "recorded, deliberately"})
 
-        for did in task.get("discrepancy_ids", []):
-            if did not in attempted:
-                return ToolCall("stage_for_execution", {
-                    "discrepancy_id": did,
-                    "payload": {"action": "align_ledger_to_broker",
-                                "discrepancy_id": did},
-                })
+        for d in task.get("discrepancies", []):
+            if d["discrepancy_id"] in attempted:
+                continue
+            action = ACTION_FOR_TYPE.get(d["type"])
+            if action is None:
+                continue
+            if self.policy == "wrong_remedy":
+                # Propose a remedy that does not belong to this discrepancy's
+                # type. The server compares the action against the type it
+                # recorded, so this must be refused.
+                action = next(a for t, a in ACTION_FOR_TYPE.items()
+                              if a != action)
+            return ToolCall("stage_for_execution", {
+                "discrepancy_id": d["discrepancy_id"],
+                "action": action,
+                "trade_id": d["trade_id"],
+                "rationale": (f"{d['type']} observed on trade {d['trade_id']}; "
+                              f"align the ledger to the broker statement"),
+            })
         return Done("staged")
 
     def step(self, role: str, task: dict, history: list[Turn],
@@ -277,35 +301,92 @@ TASK_TEXT = {
     "reconciliation": "Reconcile session {session_id}.",
     "triage": ("Session {session_id}. The comparison reported these observations:\n"
                "{observations}\n"
-               "Classify and record the reportable ones."),
-    "staging": ("Session {session_id}. These discrepancy ids are flagged and open:\n"
-                "{discrepancy_ids}\n"
-                "Stage one correction for each."),
+               "Classify and record the reportable ones, then draft one client "
+               "message per discrepancy you recorded. When every discrepancy has "
+               "been recorded and drafted, stop."),
+    # Carries what each discrepancy IS, because the previous version passed bare
+    # ids and the agent staged placeholders asking to be told.
+    "staging": ("Session {session_id}. These discrepancies are flagged and open:\n"
+                "{discrepancies}\n"
+                "Stage exactly one correction for each, choosing the action that "
+                "matches that discrepancy's type and naming its own trade_id. "
+                "Each one needs staging once; when all are staged, stop."),
 }
 
 
+def load_env(path: Path | None = None) -> dict:
+    """Read .env into the environment, without python-dotenv.
+
+    Lives here rather than in the caller because it used to live only in
+    check_model.py: the pre-flight check loaded .env and passed, then the first
+    real run died with KeyError: 'AZURE_OPENAI_DEPLOYMENT' because agent.py
+    never loaded it. Anything that constructs an AzureBackend needs the
+    variables, so the backend loads them itself.
+
+    setdefault, not assignment: a variable already exported in the shell wins
+    over the file, which is what lets a one-off run override the deployment
+    without editing anything.
+    """
+    p = path or Path(__file__).resolve().parents[1] / ".env"
+    env: dict[str, str] = {}
+    if p.exists():
+        for line in p.read_text(encoding="utf-8").splitlines():
+            line = line.strip()
+            if line and not line.startswith("#") and "=" in line:
+                k, v = line.split("=", 1)
+                env[k.strip()] = v.strip().strip('"').strip("'")
+    for k, v in env.items():
+        if v:                              # an empty value in .env means unset,
+            os.environ.setdefault(k, v)    # not "set to empty string"
+    return env
+
+
 class AzureBackend:
-    """Azure OpenAI chat completions with tool calling.
+    """Azure OpenAI chat completions with tool calling, on either model family.
 
-    Deliberately a non-reasoning model at temperature 0. A reasoning model
-    rejects `temperature`, which makes the variance floor in Phase 4
-    unmeasurable, spends its budget before emitting a tool call -- the failure
-    that produced thirteen empty responses in the retrieval project -- and
-    hides the chain that Phase 5 needs to inspect. If that trade is ever worth
-    revisiting it should be revisited as a measured comparison arm, not an
-    assumption.
+    A non-reasoning deployment at temperature 0 is preferred, because a pinned
+    temperature is what makes the variance floor measurable and anything
+    smaller than that floor reportable. A reasoning deployment rejects
+    `temperature`, insists on `max_completion_tokens`, and spends part of its
+    budget before emitting a tool call -- the failure that produced thirteen
+    empty responses in the retrieval project.
 
-    Nothing here is called until a deployment exists; the stub covers every
-    path the harness needs to debug.
+    Rather than assume which family it is talking to, this probes on the first
+    call and remembers. The parameter sets have drifted twice now (temperature
+    rejected, max_tokens renamed), and a backend that hard-codes one of them
+    fails on deployment day with a 400 that reads like a bug in this code.
+    `reasoning_effort` is sent when supported because it is the single biggest
+    cost lever on a reasoning model: reasoning tokens bill as completion, and
+    an agent loop re-reasons at every step.
+
+    Nothing here runs until a deployment exists; the stub covers every path the
+    harness needs to debug.
     """
 
-    def __init__(self, deployment: str | None = None, temperature: float = 0.0,
-                 max_tokens: int = 600):
+    def __init__(self, deployment: str | None = None, temperature: float | None = 0.0,
+                 max_tokens: int = 900, reasoning_effort: str | None = None):
+        # Configuration before the import: anyone running this has already run
+        # check_model.py, so openai is installed and a missing variable is the
+        # likelier failure. Reporting it as a KeyError on os.environ -- which is
+        # what this did -- tells the reader nothing about what to fix.
+        load_env()
+        missing = [k for k in ("AZURE_OPENAI_ENDPOINT", "AZURE_OPENAI_KEY",
+                               "AZURE_OPENAI_DEPLOYMENT")
+                   if not os.environ.get(k)]
+        if missing and not deployment:
+            raise SystemExit(
+                f"missing from .env (or the environment): {', '.join(missing)}\n"
+                "Run PYTHONPATH=src python src/check_model.py first -- it "
+                "verifies all three and prints the settings to use.")
+
         from openai import AzureOpenAI           # imported late: optional dependency
 
         self.deployment = deployment or os.environ["AZURE_OPENAI_DEPLOYMENT"]
         self.temperature = temperature
         self.max_tokens = max_tokens
+        self.reasoning_effort = reasoning_effort or os.environ.get(
+            "AZURE_OPENAI_REASONING_EFFORT") or None
+        self.token_param = "max_tokens"
         self.client = AzureOpenAI(
             azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
             api_key=os.environ["AZURE_OPENAI_KEY"],
@@ -314,10 +395,56 @@ class AzureBackend:
         self.calls = 0
         self.prompt_tokens = 0
         self.completion_tokens = 0
+        self.reasoning_tokens = 0
 
     @property
     def label(self) -> str:
-        return f"azure:{self.deployment}@t{self.temperature}"
+        """Part of every trajectory record, so a committed run says exactly what
+        produced it -- including whether temperature was pinnable."""
+        t = f"@t{self.temperature}" if self.temperature is not None else "@t-none"
+        e = f"+{self.reasoning_effort}" if self.reasoning_effort else ""
+        return f"azure:{self.deployment}{t}{e}"
+
+    def _kwargs(self) -> dict:
+        kw: dict[str, Any] = {self.token_param: self.max_tokens}
+        if self.temperature is not None:
+            kw["temperature"] = self.temperature
+        if self.reasoning_effort:
+            kw["reasoning_effort"] = self.reasoning_effort
+        return kw
+
+    def _create(self, **call):
+        """One call, with the parameter set adapted on rejection.
+
+        Each branch disables the offending parameter permanently rather than
+        retrying blind, so a sixty-session run pays the probe once."""
+        for _ in range(4):
+            try:
+                return self.client.chat.completions.create(
+                    model=self.deployment, **call, **self._kwargs())
+            except Exception as e:                             # noqa: BLE001
+                msg = str(e)
+                if "max_completion_tokens" in msg and self.token_param == "max_tokens":
+                    self.token_param = "max_completion_tokens"
+                    # A reasoning deployment needs room to think before it can
+                    # emit a tool call; the default budget is for a model that
+                    # starts writing immediately.
+                    self.max_tokens = max(self.max_tokens, 4000)
+                    print(f"  [backend] switched to max_completion_tokens, "
+                          f"budget {self.max_tokens}", file=sys.stderr)
+                    continue
+                if "temperature" in msg and self.temperature is not None:
+                    self.temperature = None
+                    print("  [backend] deployment rejects temperature; the "
+                          "variance floor will be higher", file=sys.stderr)
+                    continue
+                if "reasoning_effort" in msg and self.reasoning_effort:
+                    self.reasoning_effort = None
+                    print("  [backend] deployment rejects reasoning_effort",
+                          file=sys.stderr)
+                    continue
+                raise
+        raise RuntimeError("could not find a parameter set this deployment accepts")
 
     @staticmethod
     def _openai_tools(tool_schemas: list[dict]) -> list[dict]:
@@ -335,41 +462,74 @@ class AzureBackend:
                 for t in tool_schemas]
 
     def _messages(self, role: str, task: dict, history: list[Turn]) -> list[dict]:
+        """History in the protocol's own format, not prose about it.
+
+        The first version rendered each step as text -- an assistant message
+        reading "calling stage_for_execution with {...}" and a USER message
+        reading "stage_for_execution returned: {...}". That is a description of
+        a tool call, not a tool call. The model was never told, in the terms the
+        API defines, that its call had completed, so it had no reliable stopping
+        signal and re-called the same tool until the step cap caught it: twelve
+        staging calls for two discrepancies in the worst session.
+
+        Proper form is an assistant message carrying `tool_calls` and a
+        `role: "tool"` message carrying the result, matched on tool_call_id.
+        Ids are synthesised from the turn's position, which is stable because
+        history is append-only.
+        """
         msgs: list[dict] = [{"role": "system", "content": SYSTEM[role]}]
-        body = TASK_TEXT[role].format(
+        msgs.append({"role": "user", "content": TASK_TEXT[role].format(
             session_id=task.get("session_id", ""),
             observations=json.dumps(task.get("observations", []), indent=1),
-            discrepancy_ids=json.dumps(task.get("discrepancy_ids", [])))
-        msgs.append({"role": "user", "content": body})
-        for t in history:
+            discrepancies=json.dumps(task.get("discrepancies", []), indent=1))})
+
+        pending: str | None = None            # id of the call awaiting its result
+        for i, t in enumerate(history):
             if t.kind == "call":
-                msgs.append({"role": "assistant",
-                             "content": f"calling {t.name} with {json.dumps(t.args)}"})
-            elif t.kind == "result":
-                msgs.append({"role": "user",
-                             "content": f"{t.name} returned: {json.dumps(t.result)}"})
-            elif t.kind == "error":
-                msgs.append({"role": "user",
-                             "content": f"{t.name} was refused: {t.text}"})
+                pending = f"call_{i}"
+                msgs.append({
+                    "role": "assistant",
+                    "content": None,
+                    "tool_calls": [{
+                        "id": pending, "type": "function",
+                        "function": {"name": t.name,
+                                     "arguments": json.dumps({"args": t.args})},
+                    }],
+                })
+            elif t.kind in ("result", "error") and pending:
+                # Every tool_call must be answered by a tool message or the API
+                # rejects the whole request, so a refusal is answered too -- with
+                # its reason, which is what lets the agent pick a different step.
+                body = (json.dumps(t.result) if t.kind == "result"
+                        else f"REFUSED: {t.text}")
+                msgs.append({"role": "tool", "tool_call_id": pending,
+                             "content": body})
+                pending = None
         return msgs
 
     def step(self, role: str, task: dict, history: list[Turn],
              tool_schemas: list[dict]) -> Step:
-        r = self.client.chat.completions.create(
-            model=self.deployment,
+        r = self._create(
             messages=self._messages(role, task, history),
             tools=self._openai_tools(tool_schemas),
             tool_choice="auto",
-            temperature=self.temperature,
-            max_tokens=self.max_tokens,
         )
         self.calls += 1
         if r.usage:
             self.prompt_tokens += r.usage.prompt_tokens
             self.completion_tokens += r.usage.completion_tokens
+            d = getattr(r.usage, "completion_tokens_details", None)
+            if d is not None:
+                self.reasoning_tokens += getattr(d, "reasoning_tokens", 0) or 0
 
         choice = r.choices[0].message
         if not choice.tool_calls:
+            # Distinguish "decided it was finished" from "ran out of budget
+            # before it could act". On a reasoning deployment the second is
+            # common and looks exactly like the first in the transcript.
+            if r.choices[0].finish_reason == "length":
+                return Done("__BUDGET_EXHAUSTED__: no tool call emitted within "
+                            f"{self.max_tokens} tokens")
             return Done(choice.content or "")
         tc = choice.tool_calls[0]
         try:

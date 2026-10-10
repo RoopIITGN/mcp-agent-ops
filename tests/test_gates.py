@@ -71,14 +71,58 @@ def test_staging_twice_is_one_action():
     assert n == 1, f"a retry created {n} pending actions"
 
 
-def test_idempotency_key_ignores_field_order():
-    assert (store.idempotency_key(SESSION, {"a": 1, "b": 2})
-            == store.idempotency_key(SESSION, {"b": 2, "a": 1}))
+def test_idempotency_key_is_one_per_discrepancy():
+    assert (store.idempotency_key(SESSION, 7)
+            == store.idempotency_key(SESSION, 7))
+    assert (store.idempotency_key(SESSION, 7)
+            != store.idempotency_key(SESSION, 8))
+    assert (store.idempotency_key(SESSION, 7)
+            != store.idempotency_key("ACC-002-2026-09-01", 7))
 
 
-def test_idempotency_key_separates_different_payloads():
-    assert (store.idempotency_key(SESSION, {"a": 1})
-            != store.idempotency_key(SESSION, {"a": 2}))
+def test_rewording_a_correction_cannot_create_a_second_pending_action():
+    """The bug a real model found and the stub never could.
+
+    The key used to hash the payload, so identical corrections collapsed --
+    which held for the stub, whose payloads are byte-identical because they
+    were written by hand. A model rewords its proposal on each retry, so every
+    retry hashed differently and wrote another PENDING_HUMAN row: a hundred
+    rows for fifty-two discrepancies, and an approval queue mostly duplicates.
+
+    The rule was never "one row per distinct wording". It is one pending
+    correction per thing being corrected.
+    """
+    con = fresh()
+    did = a_discrepancy(con)
+    wordings = [
+        {"action": "align_settlement_date_to_broker", "trade_id": "T794772",
+         "rationale": "settlement date differs; align the ledger to the broker"},
+        {"action": "align_settlement_date_to_broker", "trade_id": "T794772",
+         "rationale": "Proposed correction: set the ledger settlement date to "
+                      "match the broker statement"},
+        {"action": "align_settlement_date_to_broker", "trade_id": "T794772",
+         "rationale": "[Stage 1] align settlement date to the broker record"},
+    ]
+    ids = [store.stage_action(con, SESSION, did, w) for w in wordings]
+    assert len({i for i, _ in ids}) == 1, f"three wordings produced {ids}"
+    assert [c for _, c in ids] == [True, False, False]
+
+    n = con.execute("SELECT count(*) AS n FROM pending_actions").fetchone()["n"]
+    assert n == 1, f"an approval queue of {n} for one discrepancy"
+
+
+def test_the_first_rationale_survives_a_retry():
+    """A human may already be reading it. Same argument as not overwriting an
+    edited draft."""
+    con = fresh()
+    did = a_discrepancy(con)
+    first = {"action": "align_settlement_date_to_broker", "trade_id": "T794772",
+             "rationale": "the wording a human approver sees"}
+    store.stage_action(con, SESSION, did, first)
+    store.stage_action(con, SESSION, did,
+                       {**first, "rationale": "a later retry's wording"})
+    payload = con.execute("SELECT payload FROM pending_actions").fetchone()["payload"]
+    assert "a human approver sees" in payload, payload
 
 
 # --- precondition gate -------------------------------------------------------

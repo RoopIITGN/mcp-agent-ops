@@ -196,7 +196,9 @@ def test_full_trajectory_over_stdio():
         async with Client(subprocess_params("staging", db)) as c:
             s = await c.call_tool("stage_for_execution",
                                   {"args": {"discrepancy_id": did,
-                                            "payload": {"set_settlement_date": "2026-09-03"}}})
+                                            "action": "align_settlement_date_to_broker",
+                                            "trade_id": trade,
+                                            "rationale": "settlement date differs; align to the broker statement"}})
             assert not s.is_error, text(s)
             assert "PENDING_HUMAN" in text(s)
 
@@ -226,7 +228,9 @@ def test_injected_field_is_refused_over_the_wire():
         async with Client(subprocess_params("staging", db)) as c:
             bad = await c.call_tool(
                 "stage_for_execution",
-                {"args": {"discrepancy_id": did, "payload": {"fix": "x"},
+                {"args": {"discrepancy_id": did,
+                          "action": "align_quantity_to_broker", "trade_id": "T1",
+                          "rationale": "quantity differs on T1; align the ledger",
                           "status": "APPROVED"}})
             assert bad.is_error, \
                 "an injected status field was ACCEPTED -- the schema gate is not holding"
@@ -257,7 +261,9 @@ def test_tool_outside_the_role_is_refused_over_stdio():
     async def go():
         async with Client(subprocess_params("reconciliation", db)) as c:
             r = await c.call_tool("stage_for_execution",
-                                  {"args": {"discrepancy_id": 1, "payload": {}}})
+                                  {"args": {"discrepancy_id": 1, "action": "align_quantity_to_broker",
+                                            "trade_id": "T1",
+                                            "rationale": "quantity differs on T1; align the ledger"}})
             assert r.is_error, "a reconciliation process staged a correction"
     run(go())
 
@@ -268,7 +274,9 @@ def test_stage_before_flag_refused_over_stdio():
     async def go():
         async with Client(subprocess_params("staging", db)) as c:
             r = await c.call_tool("stage_for_execution",
-                                  {"args": {"discrepancy_id": 999, "payload": {"fix": "x"}}})
+                                  {"args": {"discrepancy_id": 999, "action": "align_quantity_to_broker",
+                                   "trade_id": "T1",
+                                   "rationale": "quantity differs on T1; align the ledger"}})
             assert r.is_error
             assert "flag_discrepancy first" in text(r), text(r)
     run(go())

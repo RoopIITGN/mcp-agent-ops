@@ -96,9 +96,54 @@ class DraftIn(Strict):
     body: str = Field(min_length=20, description="The client-facing message")
 
 
+CorrectionAction = Literal["align_quantity_to_broker", "insert_missing_trade",
+                           "remove_duplicate_booking", "align_price_to_broker",
+                           "align_settlement_date_to_broker"]
+
+# Which remedy belongs to which discrepancy. The server checks the agent's
+# chosen action against the type it recorded, so proposing a price fix for a
+# quantity break is refused rather than queued for a human to notice.
+ACTION_FOR_TYPE: dict[str, str] = {
+    "quantity_mismatch": "align_quantity_to_broker",
+    "missing_trade": "insert_missing_trade",
+    "duplicate_booking": "remove_duplicate_booking",
+    "price_variance": "align_price_to_broker",
+    "settlement_date_shift": "align_settlement_date_to_broker",
+}
+
+
 class StageIn(Strict):
+    """The correction, typed.
+
+    `payload` used to be `dict[str, Any]`, and it was the only unconstrained
+    field in this surface. A real model, given nothing but a discrepancy id and
+    told to stage a correction, staged placeholders -- "TBD", "Insufficient
+    context provided", "Please provide the exact correction" -- and the server
+    accepted all of them, because a free-form dict accepts anything. The human
+    approval queue filled with a hundred rows asking to be told what to do.
+
+    Every gate held and the content was worthless, which is the sharper lesson:
+    enforcing at the boundary stops an agent causing damage, it does not make an
+    agent useful. The boundary has to constrain what a correction IS, not merely
+    who is allowed to propose one.
+
+    `action` is an enum, so "TBD" cannot be submitted at all. `trade_id` must
+    match the discrepancy. `rationale` has a floor, though the enum does the
+    real work -- a placeholder sentence clears a length check easily.
+    """
     discrepancy_id: int = Field(description="Must already be flagged and still open")
-    payload: dict[str, Any] = Field(description="The proposed correction")
+    action: CorrectionAction = Field(
+        description="The remedy, which must match this discrepancy's type: "
+                    "quantity_mismatch -> align_quantity_to_broker, "
+                    "missing_trade -> insert_missing_trade, "
+                    "duplicate_booking -> remove_duplicate_booking, "
+                    "price_variance -> align_price_to_broker, "
+                    "settlement_date_shift -> align_settlement_date_to_broker.")
+    trade_id: str = Field(description="The trade this corrects. Must match the "
+                                      "discrepancy's trade.")
+    rationale: str = Field(min_length=25,
+                           description="One sentence naming the observed difference "
+                                       "and the remedy, for the human approver.")
 
 
 # --- isolation ---------------------------------------------------------------
@@ -277,13 +322,33 @@ def stage_for_execution(con: sqlite3.Connection, bound_account: str,
     is wrapped by nothing in this module, so approval is absent from the
     agent's list_tools response. The response says so explicitly, because an
     agent that believes it has executed will report success it did not achieve.
+
+    Two checks the schema cannot express. The remedy must be the one that
+    belongs to this discrepancy's type -- a price fix for a quantity break is
+    refused rather than queued for a human to catch -- and the trade must be
+    the discrepancy's trade. Both compare the agent's claim against what the
+    server already recorded, which is the only comparison worth making.
     """
-    _require_flagged(con, bound_account, args.discrepancy_id)
+    row = _require_flagged(con, bound_account, args.discrepancy_id)
+
+    expected = ACTION_FOR_TYPE.get(row["type"])
+    if expected and args.action != expected:
+        raise ToolError(
+            f"discrepancy {args.discrepancy_id} is a {row['type']}; the remedy for "
+            f"that is {expected}, not {args.action}")
+    if args.trade_id != row["trade_id"]:
+        raise ToolError(
+            f"discrepancy {args.discrepancy_id} is on trade {row['trade_id']}, "
+            f"not {args.trade_id}")
+
     action_id, created = store.stage_action(
-        con, store.discrepancy(con, args.discrepancy_id)["session_id"],
-        args.discrepancy_id, args.payload)
+        con, row["session_id"], args.discrepancy_id,
+        {"action": args.action, "trade_id": args.trade_id,
+         "rationale": args.rationale})
     return {"action_id": action_id, "created": created, "status": "PENDING_HUMAN",
-            "note": "queued for human approval; no tool in this server can execute it"}
+            "note": ("queued for human approval; no tool in this server can "
+                     "execute it. This discrepancy is now staged -- do not stage "
+                     "it again.")}
 
 
 # --- registry ----------------------------------------------------------------

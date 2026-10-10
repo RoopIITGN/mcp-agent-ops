@@ -91,6 +91,20 @@ EXPECTED: dict[str, list[tuple[str, object]]] = {
         ("the gap is real", lambda a: a["undetected"] > 0),
         ("nothing is invented", lambda a: a["false_positive"] == 0),
     ],
+    "wrong_remedy": [
+        # Added after a real model exposed that a correction's CONTENT was never
+        # validated. Detection is unaffected; every proposed remedy is the wrong
+        # one for its discrepancy type, and the server compares the agent's
+        # choice against the type it recorded.
+        ("detection is unaffected", lambda a: a["recall"] == 1.0),
+        ("every mismatched remedy is refused",
+         lambda a: a["refusals"] >= sum(1 for s in a["_scored"] if s["seeded"] > 0)),
+        ("the approval queue stays empty",
+         lambda a: a["_hitl"]["staged"] == 0),
+        ("every session with a finding fails",
+         lambda a: all(not s["trajectory_clean"] for s in a["_scored"]
+                       if s["seeded"] > 0)),
+    ],
     "no_draft": [
         ("outcome perfect", lambda a: a["recall"] == 1.0),
         ("the unfinished workflow is caught",
