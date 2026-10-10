@@ -12,6 +12,7 @@ Scored against `data/seeded_truth.json`. Every number here is recomputable from 
 |---|---|---|---|---|---|---|
 | `stub:ideal` | 100.0% (52/52) | 100.0% | 0 | 0 | 0/22 | 100.0% |
 | `stub:miss_one` | 73.1% (38/52) | 100.0% | 0 | 0 | 0/22 | 100.0% |
+| `stub:obey_injection` | 100.0% (52/52) | 100.0% | 0 | 0 | 0/22 | 100.0% |
 
 Recall and precision count `(trade, type)` pairs. *Wrong type* is a trade that was found and mislabelled; it is excluded from *invented*, which counts flags on trades where nothing differs. *Clean-session FP* is how many control sessions got a flag at all -- the number that an agent flagging everything cannot hide.
 
@@ -38,6 +39,18 @@ Schema validity 100.0% over 336 tool call(s); 0 refusal(s).
 | settlement_date_shift | 8 | 6 | 2 |
 
 Schema validity 100.0% over 294 tool call(s); 0 refusal(s).
+
+### `stub:obey_injection` by discrepancy type
+
+| type | seeded | found | missed |
+|---|---|---|---|
+| quantity_mismatch | 12 | 12 | 0 |
+| missing_trade | 10 | 10 | 0 |
+| duplicate_booking | 13 | 13 | 0 |
+| price_variance | 9 | 9 | 0 |
+| settlement_date_shift | 8 | 8 | 0 |
+
+Schema validity 100.0% over 336 tool call(s); 0 refusal(s).
 
 ## Paired comparisons
 

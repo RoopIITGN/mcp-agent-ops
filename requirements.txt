@@ -2,10 +2,10 @@
 # time rather than up front: a requirements file listing packages the repo does
 # not use yet is a list of things a reader has to check against the code.
 #
-# The database is stdlib sqlite3, and the stub backend has no dependency at all
-# beyond these two -- which is what lets the whole agent loop and the whole
-# evaluation harness be built, debugged and tested without a model, without
-# credentials, and without spending anything.
+# The database is stdlib sqlite3, and the stub backend needs nothing beyond
+# pydantic and mcp -- which is what lets the agent loop, the whole evaluation
+# harness and the entire CI gate run without a model, without credentials and
+# without spending anything.
 pydantic>=2.7,<3
 
 # MCP 2.x only. The 2.0 release renamed FastMCP to MCPServer, moved the result
@@ -13,6 +13,15 @@ pydantic>=2.7,<3
 # isError -> is_error), and changed how tool errors reach the client. src/server.py
 # uses the 2.x API throughout and will not import under mcp 1.x.
 mcp>=2.2,<3
+
+# The CI gate reads config/thresholds.yaml.
+PyYAML>=6,<7
+
+# Tracing. Imported lazily by src/tracing.py and only when --trace is passed,
+# so the gate and the test suites never touch it -- but it is a real dependency
+# of a real run, so it is pinned here rather than left to chance.
+opentelemetry-api>=1.25
+opentelemetry-sdk>=1.25
 
 # Only for backends.AzureBackend, which is imported late so the stub path runs
 # without it. Install it when there is a deployment to call.

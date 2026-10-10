@@ -1,0 +1,80 @@
+name: eval
+
+# No secrets, no model, no network beyond the package index. Everything this
+# workflow checks is either a property of committed files or something the
+# scripted agent reproduces deterministically -- which is the reason the stub
+# backend exists. A pipeline that needs an API key to verify itself cannot run
+# on a fork's pull request, and cannot run at all once the key expires.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install
+        run: pip install -r requirements.txt
+
+      # The corpus is committed, and it has to be reproducible from the seed or
+      # the ground truth is just a file somebody edited. Regenerating over the
+      # checkout is safe: the working copy is thrown away after the job.
+      - name: The committed corpus is reproducible from its seed
+        run: |
+          mkdir -p /tmp/corpus
+          cp data/sessions.json data/seeded_truth.json data/accounts.json /tmp/corpus/
+          python src/generate_data.py
+          for f in sessions.json seeded_truth.json accounts.json; do
+            if ! diff -q "/tmp/corpus/$f" "data/$f" >/dev/null; then
+              echo "::error::data/$f does not match what generate_data.py produces"
+              diff "/tmp/corpus/$f" "data/$f" | head -20
+              exit 1
+            fi
+          done
+          echo "corpus reproduces byte-for-byte"
+
+      - name: Build the database
+        run: python src/store.py --init --force
+
+      - name: Tests
+        run: |
+          fail=0
+          for f in tests/test_*.py; do
+            echo "::group::$f"
+            if python "$f"; then :; else fail=1; fi
+            echo "::endgroup::"
+          done
+          exit $fail
+
+      # Structural, integrity and committed baselines. Fast, and the group that
+      # turns a README sentence going false into a red build.
+      - name: Gate — structure, integrity, baselines
+        run: PYTHONPATH=src python src/gate.py --skip-calibration
+
+      # The slow one, about 95 seconds: re-run every deliberately broken stub
+      # policy and confirm the scorer still tells them apart. Asserting a
+      # committed number only catches a change in that number; asserting that a
+      # broken agent still scores badly catches a scorer that has stopped
+      # working, which no numeric threshold can see.
+      - name: Gate — scorer calibration
+        run: PYTHONPATH=src python src/gate.py --only calibration
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: reports
+          path: reports/
+          retention-days: 14

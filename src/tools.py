@@ -70,25 +70,15 @@ class Strict(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
 
-class Position(Strict):
-    trade_id: str
-    instrument: str
-    quantity: int
-    price: float
-    settlement_date: str
-
-
 class FetchIn(Strict):
     session_id: str = Field(description="The (account, as-of) session to read. "
                                         "Must belong to this connection's account.")
 
 
 class DeltasIn(Strict):
-    broker_positions: list[Position] = Field(description="positions[] from the broker statement")
-    ledger_positions: list[Position] = Field(description="positions[] from the internal ledger")
-    session_id: str = Field(description="Session the positions came from. Used only to look "
-                                        "up the account's price tolerance, which the caller "
-                                        "cannot set.")
+    session_id: str = Field(description="Session to compare. The server reads both books and "
+                                        "the account's price tolerance; none of the three can "
+                                        "be supplied by the caller.")
 
 
 class FlagIn(Strict):
@@ -170,14 +160,12 @@ def fetch_internal_ledger(con: sqlite3.Connection, bound_account: str,
     return store.internal_ledger(con, args.session_id)
 
 
-def calculate_position_deltas(con: sqlite3.Connection, bound_account: str,
-                              args: DeltasIn) -> dict:
-    """Pure comparison. Reports what differs; does not say what it means.
+def compare(broker: list[dict], ledger: list[dict], tol: float) -> list[dict]:
+    """The comparison itself: a pure function, no I/O, no database, no state.
 
-    The only database read is the account's price tolerance, which is why this
-    takes a session_id it otherwise has no use for. Everything else is a
-    function of the two lists passed in, so this is the one tool that can be
-    tested exhaustively without any state at all.
+    Kept separate from the tool that calls it so it can be tested exhaustively
+    on hand-built books, which is where the five observation shapes are pinned
+    down. The tool is the thin wrapper; this is the part worth trusting.
 
     Observation shapes, one per differing trade:
       {trade_id, field: "quantity", broker, ledger}
@@ -186,47 +174,72 @@ def calculate_position_deltas(con: sqlite3.Connection, bound_account: str,
       {trade_id, present_in: ["broker"], absent_from: ["ledger"]}
       {trade_id, broker_occurrences: 1, ledger_occurrences: 2}
     """
-    _require_session(con, bound_account, args.session_id)
-    tol = store.tolerance(con, store.session_account(con, args.session_id))
-
-    broker = {p.trade_id: p for p in args.broker_positions}
-    ledger_counts: dict[str, int] = {}
-    ledger: dict[str, Position] = {}
-    for p in args.ledger_positions:
-        ledger_counts[p.trade_id] = ledger_counts.get(p.trade_id, 0) + 1
-        ledger.setdefault(p.trade_id, p)
+    b_by_id = {p["trade_id"]: p for p in broker}
+    counts: dict[str, int] = {}
+    l_by_id: dict[str, dict] = {}
+    for p in ledger:
+        counts[p["trade_id"]] = counts.get(p["trade_id"], 0) + 1
+        l_by_id.setdefault(p["trade_id"], p)
 
     obs: list[dict] = []
-
-    for tid, b in broker.items():
-        if tid not in ledger:
-            obs.append({"trade_id": tid, "instrument": b.instrument,
+    for tid, b in b_by_id.items():
+        if tid not in l_by_id:
+            obs.append({"trade_id": tid, "instrument": b["instrument"],
                         "present_in": ["broker"], "absent_from": ["ledger"]})
             continue
-        if ledger_counts[tid] > 1:
-            obs.append({"trade_id": tid, "instrument": b.instrument,
-                        "broker_occurrences": 1,
-                        "ledger_occurrences": ledger_counts[tid]})
-        l = ledger[tid]
-        if b.quantity != l.quantity:
-            obs.append({"trade_id": tid, "instrument": b.instrument, "field": "quantity",
-                        "broker": b.quantity, "ledger": l.quantity})
-        if b.price != l.price:
-            pct = abs(b.price - l.price) / b.price if b.price else 0.0
-            obs.append({"trade_id": tid, "instrument": b.instrument, "field": "price",
-                        "broker": b.price, "ledger": l.price,
-                        "pct_diff": round(pct, 6),
-                        "within_tolerance": pct <= tol})
-        if b.settlement_date != l.settlement_date:
-            obs.append({"trade_id": tid, "instrument": b.instrument,
+        if counts[tid] > 1:
+            obs.append({"trade_id": tid, "instrument": b["instrument"],
+                        "broker_occurrences": 1, "ledger_occurrences": counts[tid]})
+        l = l_by_id[tid]
+        if b["quantity"] != l["quantity"]:
+            obs.append({"trade_id": tid, "instrument": b["instrument"], "field": "quantity",
+                        "broker": b["quantity"], "ledger": l["quantity"]})
+        if b["price"] != l["price"]:
+            pct = abs(b["price"] - l["price"]) / b["price"] if b["price"] else 0.0
+            obs.append({"trade_id": tid, "instrument": b["instrument"], "field": "price",
+                        "broker": b["price"], "ledger": l["price"],
+                        "pct_diff": round(pct, 6), "within_tolerance": pct <= tol})
+        if b["settlement_date"] != l["settlement_date"]:
+            obs.append({"trade_id": tid, "instrument": b["instrument"],
                         "field": "settlement_date",
-                        "broker": b.settlement_date, "ledger": l.settlement_date})
+                        "broker": b["settlement_date"], "ledger": l["settlement_date"]})
 
-    for tid, l in ledger.items():
-        if tid not in broker:
-            obs.append({"trade_id": tid, "instrument": l.instrument,
+    for tid, l in l_by_id.items():
+        if tid not in b_by_id:
+            obs.append({"trade_id": tid, "instrument": l["instrument"],
                         "present_in": ["ledger"], "absent_from": ["broker"]})
+    return obs
 
+
+def calculate_position_deltas(con: sqlite3.Connection, bound_account: str,
+                              args: DeltasIn) -> dict:
+    """Compare the two books for a session. Reports what differs; does not say
+    what it means.
+
+    The server reads both books rather than accepting them as arguments. The
+    first version took two position lists, to make the tool itself pure. That
+    was wrong twice over: the agent had to retype both books as tool arguments,
+    which is around a thousand output tokens per session at four times the
+    input price to hand the server data it already had, and a model
+    transcribing nine trades will occasionally corrupt a digit -- turning a
+    clean account into a false positive for no reason anyone could trace.
+
+    Purity is preserved where it earns its keep: `compare` above is a pure
+    function and the tests exercise it directly. What moved is only who does
+    the reading.
+
+    The two fetch tools are not thereby pointless. A reconciliation acted on
+    without reading the statement is not a reconciliation, and the statement
+    carries the free-text `notes` field that the deltas do not. The expected
+    trajectory reads both books before comparing them, and skipping a read is
+    scored as a trajectory error rather than rewarded as efficiency.
+    """
+    _require_session(con, bound_account, args.session_id)
+    account = store.session_account(con, args.session_id)
+    tol = store.tolerance(con, account)
+    broker = store.broker_statement(con, args.session_id)["positions"]
+    ledger = store.internal_ledger(con, args.session_id)["positions"]
+    obs = compare(broker, ledger, tol)
     return {"session_id": args.session_id, "price_tolerance": tol,
             "observations": obs, "observation_count": len(obs)}
 
@@ -284,8 +297,10 @@ TOOLS: dict[str, tuple[Callable, type[Strict], str]] = {
         "Read the internal ledger for a session. Read-only."),
     "calculate_position_deltas": (
         calculate_position_deltas, DeltasIn,
-        "Compare broker and ledger positions and report every field that differs. "
-        "Does not classify discrepancies; that is the caller's judgement."),
+        "Compare this session's broker statement against its internal ledger and "
+        "report every field that differs. Does not classify discrepancies; that is "
+        "the caller's judgement. Read both books first -- this reports differences, "
+        "not the statement's notes."),
     "flag_discrepancy": (
         flag_discrepancy, FlagIn,
         "Record one discrepancy of a known type. Idempotent: flagging the same "

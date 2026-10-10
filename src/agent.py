@@ -57,6 +57,7 @@ from mcp import Client, StdioServerParameters                  # noqa: E402
 import store                                                   # noqa: E402
 import tools                                                   # noqa: E402
 from backends import Backend, Done, ToolCall, Turn, make_backend  # noqa: E402
+from tracing import Tracing                                   # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "reports/trajectories.jsonl"
@@ -74,7 +75,7 @@ def params(account: str, role: str, db: Path, run_id: str) -> StdioServerParamet
 
 
 async def run_role(client: Client, role: str, task: dict, backend: Backend,
-                   schemas: list[dict]) -> list[Turn]:
+                   schemas: list[dict], tr: Tracing | None = None) -> list[Turn]:
     """One worker's loop: ask the backend for a step, execute it, repeat.
 
     A refused call is appended to the history as an error turn and the loop
@@ -83,25 +84,32 @@ async def run_role(client: Client, role: str, task: dict, backend: Backend,
     the same wrong call until the step cap stops it. Whether it recovers is one
     of the things worth measuring.
     """
+    tr = tr or Tracing(None)
     history: list[Turn] = [Turn(kind="task", text=json.dumps(task, default=str))]
-    for _ in range(MAX_STEPS):
-        step = backend.step(role, task, history, schemas)
-        if isinstance(step, Done):
-            history.append(Turn(kind="result", name="__done__", text=step.note))
-            return history
-        history.append(Turn(kind="call", name=step.name, args=step.args))
-        res = await client.call_tool(step.name, {"args": step.args})
-        text = res.content[0].text if res.content else ""
-        if res.is_error:
-            history.append(Turn(kind="error", name=step.name, text=text))
-            continue
-        try:
-            parsed = json.loads(text)
-        except json.JSONDecodeError:
-            parsed = text
-        history.append(Turn(kind="result", name=step.name, result=parsed))
-    history.append(Turn(kind="error", name="__cap__",
-                        text=f"stopped after {MAX_STEPS} steps"))
+    with tr.role(role, len(schemas)):
+        for seq in range(MAX_STEPS):
+            step = backend.step(role, task, history, schemas)
+            if isinstance(step, Done):
+                history.append(Turn(kind="result", name="__done__", text=step.note))
+                return history
+            history.append(Turn(kind="call", name=step.name, args=step.args))
+            with tr.tool(step.name, step.args, seq) as span:
+                res = await client.call_tool(step.name, {"args": step.args})
+                text = res.content[0].text if res.content else ""
+                if res.is_error:
+                    # ERROR status on the span, because a gate firing is the
+                    # most interesting event in a trace.
+                    tr.refused(span, text)
+                    history.append(Turn(kind="error", name=step.name, text=text))
+                    continue
+                tr.ok(span, **{"tool.bytes": len(text)})
+                try:
+                    parsed = json.loads(text)
+                except json.JSONDecodeError:
+                    parsed = text
+                history.append(Turn(kind="result", name=step.name, result=parsed))
+        history.append(Turn(kind="error", name="__cap__",
+                            text=f"stopped after {MAX_STEPS} steps"))
     return history
 
 
@@ -153,28 +161,30 @@ def serialise(history: list[Turn]) -> list[dict]:
 
 
 async def run_session(session_id: str, account: str, clients: dict[str, Client],
-                      backend: Backend) -> dict:
+                      backend: Backend, tr: Tracing | None = None) -> dict:
     """The supervisor's unit of work: three workers, each fed by the last."""
     t0 = time.perf_counter()
+    tr = tr or Tracing(None)
     schemas = {r: tools.list_tools(r) for r in WORKER_ROLES}
 
-    recon = await run_role(clients["reconciliation"], "reconciliation",
-                           {"session_id": session_id}, backend,
-                           schemas["reconciliation"])
-    obs = observations_from(recon)
+    with tr.session(session_id, account, backend.label):
+        recon = await run_role(clients["reconciliation"], "reconciliation",
+                               {"session_id": session_id}, backend,
+                               schemas["reconciliation"], tr)
+        obs = observations_from(recon)
 
-    triage = await run_role(
-        clients["triage"], "triage",
-        {"session_id": session_id, "observations": obs,
-         "notes": notes_from(recon), "any_trade_id": first_trade_from(recon)},
-        backend, schemas["triage"])
-    flagged = flagged_from(triage)
+        triage = await run_role(
+            clients["triage"], "triage",
+            {"session_id": session_id, "observations": obs,
+             "notes": notes_from(recon), "any_trade_id": first_trade_from(recon)},
+            backend, schemas["triage"], tr)
+        flagged = flagged_from(triage)
 
-    staging = await run_role(
-        clients["staging"], "staging",
-        {"session_id": session_id,
-         "discrepancy_ids": [f["discrepancy_id"] for f in flagged]},
-        backend, schemas["staging"])
+        staging = await run_role(
+            clients["staging"], "staging",
+            {"session_id": session_id,
+             "discrepancy_ids": [f["discrepancy_id"] for f in flagged]},
+            backend, schemas["staging"], tr)
 
     histories = {"reconciliation": recon, "triage": triage, "staging": staging}
     refusals = {r: sum(1 for t in h if t.kind == "error") for r, h in histories.items()}
@@ -194,7 +204,7 @@ async def run_session(session_id: str, account: str, clients: dict[str, Client],
 
 
 async def run_account(account: str, session_ids: list[str], backend: Backend,
-                      db: Path, run_id: str, sink) -> int:
+                      db: Path, run_id: str, sink, tr: Tracing | None = None) -> int:
     """Three server processes, bound to this account, reused across its sessions."""
     async with Client(params(account, "reconciliation", db, run_id)) as recon, \
                Client(params(account, "triage", db, run_id)) as triage, \
@@ -202,7 +212,7 @@ async def run_account(account: str, session_ids: list[str], backend: Backend,
         clients = {"reconciliation": recon, "triage": triage, "staging": staging}
         done = 0
         for sid in session_ids:
-            rec = await run_session(sid, account, clients, backend)
+            rec = await run_session(sid, account, clients, backend, tr)
             rec["run_id"] = run_id
             sink.write(json.dumps(rec, default=str) + "\n")
             sink.flush()                  # flushed per session: a crash at
@@ -262,14 +272,30 @@ async def amain(a) -> None:
     print(f"{backend.label}: {total} session(s) across {len(by_account)} account(s), "
           f"run {run_id}\n")
 
+    # getattr, not a.trace: calibrate.py and the tests call amain with a
+    # hand-built args object, and adding a flag to the parser should not break
+    # every in-process caller. The gate caught exactly that when --trace landed.
+    trace_path = getattr(a, "trace", "") or ""
+    tr = Tracing(Path(trace_path) if trace_path else None)
+    if tr.enabled:
+        print(f"tracing -> {trace_path}")
+
     t0 = time.perf_counter()
     with out.open("a", encoding="utf-8") as sink:
         done = 0
         for acct, sids in by_account.items():
             print(f"{acct}")
-            done += await run_account(acct, sids, backend, db, run_id, sink)
+            done += await run_account(acct, sids, backend, db, run_id, sink, tr)
+    tr.shutdown()
 
     print(f"\n{done} session(s) in {time.perf_counter() - t0:.1f}s -> {out}")
+    if tr.enabled:
+        from tracing import summarise
+        s = summarise(Path(trace_path))
+        print(f"trace: {s['spans']} span(s) over {s['traces']} trace(s), "
+              f"{s['tool_spans']} tool call(s), "
+              f"{s['refused_tool_spans']} refused, "
+              f"p50 {s['tool_ms_p50']}ms")
     if hasattr(backend, "prompt_tokens"):
         pt, ct = backend.prompt_tokens, backend.completion_tokens
         print(f"model calls {backend.calls}, {pt:,} prompt + {ct:,} completion tokens")
@@ -287,6 +313,9 @@ def main() -> None:
     ap.add_argument("--run-id", default="")
     ap.add_argument("--fresh", action="store_true",
                     help="do not skip sessions already in the output file")
+    ap.add_argument("--trace", default="",
+                    help="write OpenTelemetry spans to this JSONL file "
+                         "(e.g. reports/trace.jsonl); off by default")
     asyncio.run(amain(ap.parse_args()))
 
 

@@ -154,8 +154,18 @@ def test_agent_cannot_set_price_tolerance():
     con = fresh()
     assert "tolerance" not in tools.DeltasIn.model_json_schema()["properties"]
     why = refused(tools.call, con, ACCOUNT, "calculate_position_deltas",
-                  {"session_id": SESSION, "broker_positions": [], "ledger_positions": [],
-                   "tolerance": 0.99})
+                  {"session_id": SESSION, "tolerance": 0.99})
+    assert "invalid arguments" in why, why
+
+
+def test_agent_cannot_supply_the_books():
+    """The server reads both books. If the agent could pass them, it could pass
+    edited ones -- and it would be retyping nine trades per session to do it."""
+    con = fresh()
+    props = set(tools.DeltasIn.model_json_schema()["properties"])
+    assert props == {"session_id"}, props
+    why = refused(tools.call, con, ACCOUNT, "calculate_position_deltas",
+                  {"session_id": SESSION, "broker_positions": [], "ledger_positions": []})
     assert "invalid arguments" in why, why
 
 
@@ -213,70 +223,63 @@ def test_staging_reports_that_nothing_executed():
 
 # --- the compute tool --------------------------------------------------------
 
-def deltas(con, broker, ledger) -> list[dict]:
-    return tools.call(con, ACCOUNT, "calculate_position_deltas",
-                      {"session_id": SESSION,
-                       "broker_positions": broker,
-                       "ledger_positions": ledger})["observations"]
+TOL = 0.005                      # every account's tolerance in the fixtures
+
+
+def deltas(broker, ledger, tol: float = TOL) -> list[dict]:
+    """The pure comparison, called directly. No database, no session, no tool
+    dispatch -- the five observation shapes are pinned down here because this
+    is the function that decides them."""
+    return tools.compare(broker, ledger, tol)
 
 
 def test_identical_books_produce_no_observations():
     """The control. An agent that flags something here is the failure mode the
     clean sessions exist to catch, and it must not be the tool's fault."""
-    con = fresh()
     book = [pos("T1"), pos("T2", "TCS", 100, 4100.0)]
-    assert deltas(con, book, [dict(p) for p in book]) == []
+    assert deltas(book, [dict(p) for p in book]) == []
 
 
 def test_quantity_mismatch_observed():
-    con = fresh()
-    o = deltas(con, [pos("T1", qty=500)], [pos("T1", qty=450)])
+    o = deltas([pos("T1", qty=500)], [pos("T1", qty=450)])
     assert len(o) == 1 and o[0]["field"] == "quantity"
     assert (o[0]["broker"], o[0]["ledger"]) == (500, 450)
 
 
 def test_missing_trade_observed_in_both_directions():
-    con = fresh()
-    o = deltas(con, [pos("T1"), pos("T2")], [pos("T1")])
+    o = deltas([pos("T1"), pos("T2")], [pos("T1")])
     assert len(o) == 1 and o[0]["trade_id"] == "T2"
     assert o[0]["absent_from"] == ["ledger"]
 
-    o = deltas(con, [pos("T1")], [pos("T1"), pos("T9")])
+    o = deltas([pos("T1")], [pos("T1"), pos("T9")])
     assert len(o) == 1 and o[0]["trade_id"] == "T9"
     assert o[0]["absent_from"] == ["broker"], "a ledger-only trade was not reported"
 
 
 def test_duplicate_booking_observed():
-    con = fresh()
-    o = deltas(con, [pos("T1")], [pos("T1"), pos("T1")])
+    o = deltas([pos("T1")], [pos("T1"), pos("T1")])
     assert len(o) == 1 and o[0]["ledger_occurrences"] == 2
 
 
 def test_settlement_shift_observed():
-    con = fresh()
-    o = deltas(con, [pos("T1", settle="2026-09-03")],
-               [pos("T1", settle="2026-09-04")])
+    o = deltas([pos("T1", settle="2026-09-03")], [pos("T1", settle="2026-09-04")])
     assert len(o) == 1 and o[0]["field"] == "settlement_date"
 
 
-def test_price_variance_respects_the_account_tolerance():
-    con = fresh()
-    tol = store.tolerance(con, ACCOUNT)                 # 0.005
-
-    inside = 1000.0 * (1 + tol / 2)
-    o = deltas(con, [pos("T1", price=1000.0)], [pos("T1", price=round(inside, 2))])
+def test_price_variance_respects_the_tolerance():
+    inside = round(1000.0 * (1 + TOL / 2), 2)
+    o = deltas([pos("T1", price=1000.0)], [pos("T1", price=inside)])
     assert len(o) == 1 and o[0]["within_tolerance"] is True, o
 
-    outside = 1000.0 * (1 + tol * 4)
-    o = deltas(con, [pos("T1", price=1000.0)], [pos("T1", price=round(outside, 2))])
+    outside = round(1000.0 * (1 + TOL * 4), 2)
+    o = deltas([pos("T1", price=1000.0)], [pos("T1", price=outside)])
     assert len(o) == 1 and o[0]["within_tolerance"] is False, o
 
 
 def test_compute_tool_does_not_classify():
     """If the tool named the discrepancy kind, flag_discrepancy would be relay
     and outcome accuracy would measure a for-loop instead of the agent."""
-    con = fresh()
-    o = deltas(con, [pos("T1", qty=500), pos("T2")], [pos("T1", qty=450)])
+    o = deltas([pos("T1", qty=500), pos("T2")], [pos("T1", qty=450)])
     blob = str(o)
     for kind in tools.DISCREPANCY_TYPES:
         assert kind not in blob, f"the compute tool classified: {kind}"
@@ -284,10 +287,31 @@ def test_compute_tool_does_not_classify():
 
 
 def test_one_trade_can_carry_several_observations():
-    con = fresh()
-    o = deltas(con, [pos("T1", qty=500, price=1000.0, settle="2026-09-03")],
+    o = deltas([pos("T1", qty=500, price=1000.0, settle="2026-09-03")],
                [pos("T1", qty=450, price=1100.0, settle="2026-09-04")])
     assert {x["field"] for x in o} == {"quantity", "price", "settlement_date"}
+
+
+def test_the_tool_reads_both_books_itself():
+    """End to end through dispatch: session_id in, observations out, with the
+    agent supplying neither the books nor the tolerance."""
+    con = fresh()
+    out = tools.call(con, ACCOUNT, "calculate_position_deltas",
+                     {"session_id": SESSION})
+    assert out["session_id"] == SESSION
+    assert out["price_tolerance"] == TOL
+    assert out["observation_count"] == len(out["observations"])
+    assert out["observations"], "ACC-001-2026-09-01 is a seeded session"
+
+
+def test_the_tool_agrees_with_the_pure_function():
+    """The wrapper must not quietly change the answer."""
+    con = fresh()
+    out = tools.call(con, ACCOUNT, "calculate_position_deltas",
+                     {"session_id": SESSION})
+    direct = tools.compare(store.broker_statement(con, SESSION)["positions"],
+                           store.internal_ledger(con, SESSION)["positions"], TOL)
+    assert out["observations"] == direct
 
 
 # --- untrusted text ----------------------------------------------------------
