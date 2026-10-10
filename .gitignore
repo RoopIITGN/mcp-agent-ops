@@ -1,23 +1,36 @@
-.venv/
-.env
-.env.*
-!.env.example
-__pycache__/
-*.py[cod]
-.pytest_cache/
-*Zone.Identifier
-
-# Generated database. Rebuilt from data/*.json by `python src/store.py --init`.
-# Committing it would ship a stale copy of committed inputs, and it accumulates
-# run rows -- so a clone would start with someone else's state and every
-# measurement taken against it would be polluted.
+# Generated database. Rebuilt from data/*.json by `python src/store.py --init`,
+# so committing it would just be a stale copy of committed inputs -- and it
+# accumulates run rows, which makes every diff noise.
 data/ops.db
 data/ops.db-journal
 data/ops.db-wal
 data/ops.db-shm
 
+# The injected corpus, rebuilt by `python src/injection.py build` from the same
+# inputs plus the payload catalogue in src/injection.py. data/injections.json
+# IS committed -- it is the manifest saying which payload landed on which
+# session, and without it the injection report cannot be reproduced.
+data/ops_injected.db
+data/ops_injected.db-journal
+data/ops_injected.db-wal
+data/ops_injected.db-shm
+
+# Credentials. `.env` alone does not match `.env.old-account`, which is how a
+# key gets committed.
+.env
+.env.*
+!.env.example
+
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
 # NOT ignored, deliberately:
 #   data/sessions.json, data/seeded_truth.json, data/accounts.json
-#       inputs and ground truth -- recomputing the numbers needs these bytes
+#       the inputs and the ground truth -- anyone recomputing the numbers
+#       needs these exact bytes
 #   reports/
 #       committed results, same argument as runs.jsonl in the retrieval repo
+*Zone.Identifier
