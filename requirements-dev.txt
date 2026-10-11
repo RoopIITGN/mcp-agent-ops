@@ -1,0 +1,15 @@
+# Test-time only. Separate from requirements.txt on purpose: the harness, the
+# evaluation and the whole CI gate run on the runtime list alone, with no model,
+# no credentials and no spend. Nothing here is imported by src/.
+#
+# Why this file exists at all. The seven original suites each carry their own
+# __main__ runner, so CI ran them as plain scripts and the repo needed no test
+# dependency. Then two suites arrived using fixtures and parametrize and no
+# runner -- and `python tests/test_plan.py` exits 0 having executed nothing. CI
+# reported green over a hundred and twenty tests that never ran.
+#
+# A test dependency is cheap. A suite that silently does not run is not, because
+# it reports the same colour as a suite that passes.
+-r requirements.txt
+
+pytest>=8,<9

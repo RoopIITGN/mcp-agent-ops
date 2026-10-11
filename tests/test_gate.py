@@ -443,5 +443,69 @@ def main() -> int:
     return 1 if failed else 0
 
 
+
+
+# --- the suite has to actually run ------------------------------------------
+#
+# These are meta-tests, and they exist because of a real failure rather than for
+# tidiness. CI ran each suite as a script, `python tests/test_x.py`. A file with
+# no __main__ runner exits 0 having executed nothing, so when two suites arrived
+# using fixtures and parametrize and no runner, CI reported green over a hundred
+# and twenty-three tests that never ran. Green over nothing looks exactly like
+# green over everything.
+
+def test_every_suite_contains_tests():
+    """A suite that collects nothing would pass silently under any runner."""
+    import re
+    suites = sorted((ROOT / "tests").glob("test_*.py"))
+    assert len(suites) >= 9, f"only {len(suites)} suites found"
+    for f in suites:
+        n = len(re.findall(r"^def test_", f.read_text(encoding="utf-8"), re.M))
+        assert n > 0, f"{f.name} defines no tests"
+
+
+def test_ci_runs_the_suites_with_a_real_collector():
+    """The invariant that was broken. Executing suites as scripts is fine as a
+    convenience, but something in CI has to collect every suite regardless of
+    whether it carries its own runner."""
+    wf = (ROOT / ".github/workflows/eval.yml").read_text(encoding="utf-8")
+    assert "pytest tests/" in wf, (
+        "CI does not run a collector over tests/ -- a suite without a __main__ "
+        "runner would exit 0 having run nothing")
+
+
+def test_ci_installs_the_test_dependency():
+    wf = (ROOT / ".github/workflows/eval.yml").read_text(encoding="utf-8")
+    assert "requirements-dev.txt" in wf
+    dev = (ROOT / "requirements-dev.txt").read_text(encoding="utf-8")
+    assert "pytest" in dev
+    assert "-r requirements.txt" in dev, (
+        "dev requirements must include the runtime list, or CI installs the "
+        "test runner and none of the code's own dependencies")
+
+
+def test_runtime_requirements_do_not_carry_the_test_runner():
+    """The property worth keeping: the harness, the evaluation and the gate run
+    on the runtime list alone, with no model and no spend."""
+    runtime = (ROOT / "requirements.txt").read_text(encoding="utf-8")
+    assert "pytest" not in runtime
+
+
+def test_script_runner_sits_at_the_end_of_every_suite():
+    """A __main__ block in the middle of a file runs before anything defined
+    below it exists, so the script runner silently under-reports. This file hit
+    exactly that: four tests appended after the block, 25 reported, 29 real.
+    The script count and the collected count have to agree."""
+    import re
+    for f in sorted((ROOT / "tests").glob("test_*.py")):
+        src = f.read_text(encoding="utf-8")
+        if '__main__' not in src:
+            continue          # collected by pytest only; that is checked above
+        after = src.split('if __name__ ==', 1)[1]
+        assert not re.search(r"^def test_", after, re.M), (
+            f"{f.name} defines tests after its __main__ block, so running it as "
+            f"a script skips them")
+
+
 if __name__ == "__main__":
     sys.exit(main())

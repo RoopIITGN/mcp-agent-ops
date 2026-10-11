@@ -26,7 +26,7 @@ jobs:
           cache: pip
 
       - name: Install
-        run: pip install -r requirements.txt
+        run: pip install -r requirements-dev.txt
 
       # The corpus is committed, and it has to be reproducible from the seed or
       # the ground truth is just a file somebody edited. Regenerating over the
@@ -59,7 +59,16 @@ jobs:
       # any failing test name are printed OUTSIDE the group and repeated in the
       # summary. A CI log that hides which test failed behind a fold costs more
       # than the scrolling it saves.
-      - name: Tests
+      # The authoritative run. The per-file loop below is kept for its readable
+      # per-suite verdicts, but it executes each file as a script -- so a suite
+      # with no __main__ runner exits 0 having run nothing, and CI reports green
+      # over tests that never executed. That happened: two suites, a hundred and
+      # twenty-three tests, silently skipped. This step collects every suite
+      # whether it has a runner or not.
+      - name: Tests (pytest, authoritative)
+        run: python -m pytest tests/ -q --tb=short
+
+      - name: Tests (per-suite verdicts)
         run: |
           fail=0
           summary=""
