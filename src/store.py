@@ -152,13 +152,41 @@ def now() -> str:
     return datetime.now(timezone.utc).isoformat(timespec="milliseconds")
 
 
+BUSY_TIMEOUT_MS = 5000
+
+
 def connect(path: Path = DB_PATH) -> sqlite3.Connection:
-    """Foreign keys are OFF by default in SQLite. Without this line the
+    """One connection, with the three pragmas that make the gates real.
+
+    `foreign_keys` is OFF by default in SQLite. Without that line the
     precondition gate silently does nothing, which is the kind of failure that
-    looks like success."""
-    con = sqlite3.connect(path)
+    looks like success.
+
+    The other two exist because requests now run concurrently, one worker
+    process each, all writing the same file. The default rollback journal takes
+    a whole-database write lock, so two workers racing produced "database is
+    locked" rather than two correct writes -- an outage dressed as a
+    concurrency bug. WAL lets readers and one writer proceed together, and
+    `busy_timeout` makes a second writer wait its turn instead of failing
+    instantly.
+
+    What this does NOT do is make concurrency safe. That comes from the
+    constraints: flagging is idempotent on (session, trade, type) and staging on
+    (session_id, discrepancy_id), so two requests doing the same work converge
+    on one row set rather than two. These pragmas only stop the database
+    refusing work it is perfectly able to do.
+
+    Honest limit, and it belongs in the README rather than in a footnote:
+    SQLite with WAL handles this corpus at concurrency eight. It is not what I
+    would run in production. The design survives the swap because isolation is
+    per-process argv and idempotency is per-row constraints, neither of which is
+    SQLite-specific.
+    """
+    con = sqlite3.connect(path, timeout=BUSY_TIMEOUT_MS / 1000)
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA foreign_keys = ON")
+    con.execute("PRAGMA journal_mode = WAL")
+    con.execute(f"PRAGMA busy_timeout = {BUSY_TIMEOUT_MS}")
     return con
 
 
@@ -389,15 +417,19 @@ def main() -> None:
     ap.add_argument("--init", action="store_true")
     ap.add_argument("--force", action="store_true")
     ap.add_argument("--stats", action="store_true")
+    # The request-driven runner writes to its own file, so the committed
+    # session baselines' database is not polluted by a query run.
+    ap.add_argument("--db", default=str(DB_PATH))
     a = ap.parse_args()
 
+    db = Path(a.db)
     if a.init:
-        con = init_db(force=a.force)
-        print(f"schema built -> {DB_PATH}")
+        con = init_db(force=a.force, path=db)
+        print(f"schema built -> {db}")
     else:
-        if not DB_PATH.exists():
-            raise SystemExit(f"{DB_PATH} does not exist -- run with --init")
-        con = connect()
+        if not db.exists():
+            raise SystemExit(f"{db} does not exist -- run with --init")
+        con = connect(db)
 
     if a.init or a.stats:
         for t in ("accounts", "sessions", "discrepancies", "drafts",

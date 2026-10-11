@@ -86,6 +86,7 @@ class Result:
     supervisor_calls: int = 0
     worker_refusals: int = 0
     stopped: str = "terminal"      # terminal | supervisor_cap | supervisor_error
+    worker_tokens: tuple[int, int] | None = None
 
     @property
     def rejections_by_gate(self) -> dict[str, int]:
