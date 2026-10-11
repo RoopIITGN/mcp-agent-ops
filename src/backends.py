@@ -491,6 +491,52 @@ class AzureBackend:
                                              "additionalProperties": False}}}
                 for t in tool_schemas]
 
+    def one_call(self, system: str, user: str, tool: dict,
+                 reasoning: bool = False) -> dict:
+        """One stateless call that must answer by calling one function.
+
+        Used by the supervisor, whose shape is different from a worker's: a
+        worker loops inside one role with a growing transcript, while the
+        supervisor is asked for exactly one decision from a context the
+        orchestration layer assembles fresh each time. There is no message
+        history here on purpose -- carrying one would let the supervisor
+        accumulate worker detail across turns and quietly defeat the context
+        boundary.
+
+        `tool_choice` is forced, because a supervisor that replies in prose has
+        not made a decision, and parsing prose into one would be inventing the
+        decision on its behalf.
+
+        Returns the arguments the model passed, unwrapped from `args`. Raises if
+        it answered without calling the function.
+        """
+        want = tool["name"]
+        if reasoning and not self.reasoning_effort:
+            self.reasoning_effort = os.environ.get(
+                "AZURE_OPENAI_REASONING_EFFORT") or "low"
+
+        res = self._create(
+            messages=[{"role": "system", "content": system},
+                      {"role": "user", "content": user}],
+            tools=self._openai_tools([tool]),
+            tool_choice={"type": "function", "function": {"name": want}})
+
+        self.calls += 1
+        if res.usage:
+            self.prompt_tokens += res.usage.prompt_tokens
+            self.completion_tokens += res.usage.completion_tokens
+
+        calls = res.choices[0].message.tool_calls or []
+        if not calls:
+            raise RuntimeError(
+                f"no {want} call returned; the model replied with prose: "
+                f"{(res.choices[0].message.content or '')[:200]!r}")
+        raw = json.loads(calls[0].function.arguments or "{}")
+        # The nesting under `args` is what makes an injected extra field a
+        # validation error rather than a silently dropped one, so it is kept
+        # here too and unwrapped only after the transport has delivered it.
+        return raw.get("args", raw)
+
     def _messages(self, role: str, task: dict, history: list[Turn]) -> list[dict]:
         """History in the protocol's own format, not prose about it.
 

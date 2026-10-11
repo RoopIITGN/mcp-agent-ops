@@ -87,6 +87,12 @@ MAX_WORKER_CALLS = 5      # a query needing more has lost the thread
 MAX_PER_ROLE = 2          # one retry per role: enough to recover from a gate
                           # firing, not enough to loop
 
+# A separate, larger cap on model calls. The worker cap alone does not bound the
+# loop: a supervisor whose every decision is REJECTED invokes no worker, so the
+# worker count never rises and it would spin forever. A stub that emits an
+# invented role does exactly that, which is how this was found.
+MAX_SUPERVISOR_CALLS = 10
+
 OUTPUT_CHANNEL = "submit_decision"
 
 #: The clock the supervisor resolves dates against. Global and public: it is not
@@ -247,6 +253,10 @@ class Decision(Strict):
                 raise ValueError(
                     f"action '{self.action}' must not name a role; a role is only "
                     f"named when invoking one")
+        if self.action == "invoke" and not self.session_date:
+            raise ValueError(
+                "action 'invoke' requires a session_date: a worker reads one "
+                "client's books for one as-of date, and there is no default")
         if self.action in ("refuse", "clarify") and not (self.message or "").strip():
             raise ValueError(f"action '{self.action}' requires a message to the client")
         if self.action == "clarify" and self.session_date is not None:
