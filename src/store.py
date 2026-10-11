@@ -185,9 +185,53 @@ def connect(path: Path = DB_PATH) -> sqlite3.Connection:
     con = sqlite3.connect(path, timeout=BUSY_TIMEOUT_MS / 1000)
     con.row_factory = sqlite3.Row
     con.execute("PRAGMA foreign_keys = ON")
-    con.execute("PRAGMA journal_mode = WAL")
     con.execute(f"PRAGMA busy_timeout = {BUSY_TIMEOUT_MS}")
+    _try_wal(con)
     return con
+
+
+def _try_wal(con: sqlite3.Connection) -> str:
+    """Turn on WAL, and fall back cleanly where the filesystem cannot host it.
+
+    WAL needs a shared-memory file (`-shm`) that it maps into every connected
+    process. When that file cannot be mapped -- a network mount, some FUSE
+    filesystems, or an `-shm` left stale by a killed concurrent run -- the
+    failure is nasty and late: the PRAGMA reports success, then the first real
+    write dies with "disk I/O error", and reopening the database afterwards
+    kills the process outright with a bus error, because by then the header
+    says WAL and SQLite maps the file before any code of ours runs.
+
+    Found by interrupting a concurrent run on a network-mounted working copy.
+    The database was fine; the orphaned `-shm` beside it was not, and it could
+    not even be deleted. Someone keeping this repo on a mounted drive would hit
+    the same thing.
+
+    So the mode is set and then PROBED with a throwaway write inside a rolled-
+    back transaction. If the probe fails, the rollback journal is restored --
+    slower under concurrency, because it takes a whole-database write lock, but
+    correct, and the header never keeps a WAL setting the filesystem cannot
+    honour. `busy_timeout` is set before this either way, so a second writer
+    waits its turn rather than failing instantly.
+
+    What this cannot repair is a database already marked WAL with an
+    unmappable `-shm`: nothing in process survives that. Deleting the `-wal`
+    and `-shm` files and rebuilding is the recovery, and both are gitignored
+    precisely so that is cheap.
+
+    Returns the journal mode actually in force, so a caller can report it.
+    """
+    try:
+        con.execute("PRAGMA journal_mode = WAL")
+        con.execute("BEGIN IMMEDIATE")
+        con.execute("CREATE TABLE IF NOT EXISTS _wal_probe (x INTEGER)")
+        con.execute("ROLLBACK")
+    except (sqlite3.OperationalError, sqlite3.DatabaseError):
+        try:
+            con.execute("ROLLBACK")
+        except sqlite3.Error:
+            pass
+        con.execute("PRAGMA journal_mode = DELETE")
+    return con.execute("PRAGMA journal_mode").fetchone()[0].lower()
 
 
 # --- setup -------------------------------------------------------------------

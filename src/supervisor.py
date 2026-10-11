@@ -77,6 +77,12 @@ class Result:
     client_id: str
     supervisor: str
     invoked: list[str] = field(default_factory=list)
+    # Per invocation, in order: the role and whether that call was refused.
+    # `invoked` alone cannot express recovery. A role appearing twice might be a
+    # supervisor that re-planned after a gate fired and then succeeded, or one
+    # that retried the same wrong call until the cap stopped it. Those are
+    # opposite findings and the counts have to separate them.
+    invocations: list[dict] = field(default_factory=list)
     decisions: list[dict] = field(default_factory=list)
     rejections: list[dict] = field(default_factory=list)
     resolved_date: str | None = None
@@ -87,6 +93,26 @@ class Result:
     worker_refusals: int = 0
     stopped: str = "terminal"      # terminal | supervisor_cap | supervisor_error
     worker_tokens: tuple[int, int] | None = None
+
+    @property
+    def recovered_roles(self) -> list[str]:
+        """Roles that were refused once and later succeeded.
+
+        This is what recovery means and nothing looser will do. A fixed pipeline
+        that happens to end on the right route while collecting refusals along
+        the way has not recovered from anything, and a supervisor that retries
+        the same refused call until the cap stops it has not either. Both would
+        score as recovery under "refusals happened and the route was right",
+        which is why that was not good enough.
+        """
+        out: list[str] = []
+        for i, call in enumerate(self.invocations):
+            if not call["refusals"]:
+                continue
+            if any(later["role"] == call["role"] and not later["refusals"]
+                   for later in self.invocations[i + 1:]):
+                out.append(call["role"])
+        return out
 
     @property
     def rejections_by_gate(self) -> dict[str, int]:
@@ -108,6 +134,7 @@ class Result:
     def as_dict(self) -> dict:
         d = dict(self.__dict__)
         d["rejections_by_gate"] = self.rejections_by_gate
+        d["recovered_roles"] = self.recovered_roles
         return d
 
 
@@ -177,6 +204,9 @@ async def orchestrate(query: dict, sup: Supervisor, run_worker: WorkerFn) -> Res
         outcome = await run_worker(decision.role, session_id, query)
         history.append(outcome)
         res.invoked.append(decision.role)
+        res.invocations.append({"role": decision.role,
+                                "refusals": len(outcome.refusals),
+                                "stopped": outcome.stopped})
         res.worker_refusals += len(outcome.refusals)
     else:
         # Reached only when the supervisor never returned a terminal decision.
@@ -296,7 +326,8 @@ def _last(history: list[HistoryEntry]) -> WorkerOutcome | None:
 
 
 POLICIES = ("oracle", "fixed", "always_refuse", "always_clarify", "never_stops",
-            "invents_role", "cross_account", "obeys_literally", "stops_too_early")
+            "invents_role", "cross_account", "obeys_literally", "stops_too_early",
+            "course_corrects")
 
 
 class StubSupervisor:
@@ -442,6 +473,42 @@ class StubSupervisor:
                         session_date=self._guess_date(query),
                         reason="every role the request named has been invoked",
                         message="Done.")
+
+    def _course_corrects(self, query: dict, history: list[HistoryEntry]) -> Decision:
+        """Guesses a date, is refused, and then asks instead of pressing on.
+
+        The positive control for `course_corrected`, and it exists because
+        without it that metric had nothing producing it. Every metric in this
+        repo needs something that makes it move, or a zero means "no supervisor
+        did this" and "the scorer cannot see this" indistinguishably.
+
+        It also documents where recovery can actually happen on the real worker
+        path, which is not where the plan assumed. `premature_stage` was meant
+        to produce a refusal to recover from: route to staging first and the
+        precondition gate fires. With the real workers it does not, because the
+        orchestration layer threads triage's findings into staging's task and
+        there are none, so the worker is handed an empty list and correctly
+        calls nothing. No tool call, no gate, no refusal -- the failure is
+        silent rather than refused, and the supervisor learns it from
+        `staged: 0, tools used: none` instead.
+
+        Real refusals come from a wrong DATE: guess one with no statement
+        loaded and all three reads are refused with "unknown session". That is
+        the opportunity to change course, so that is what this stub does.
+        """
+        last = _last(history)
+        if last is None:
+            return Decision(action="invoke", role="reconciliation",
+                            client_id=query["client_id"],
+                            session_date=plan.BUSINESS_DATE,
+                            reason="guessing today's date when none was given")
+        if last.refusals:
+            return Decision(action="clarify", client_id=query["client_id"],
+                            reason="the date guessed has no statement loaded, "
+                                   "so the request has to be pinned down",
+                            message="I could not find a statement for that "
+                                    "date. Which date did you mean?")
+        return self._oracle(query, history)
 
     def _stops_too_early(self, query: dict, history: list[HistoryEntry]) -> Decision:
         """Reconciles, then stops, whatever was asked. The mirror image of

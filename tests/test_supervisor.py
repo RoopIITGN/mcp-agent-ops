@@ -311,7 +311,7 @@ def test_oracle_recovers_on_the_same_class(corpus, worker):
 
 
 def test_every_stub_produces_its_own_signature(corpus, worker):
-    """Calibration in miniature. Nine supervisors, nine distinguishable
+    """Calibration in miniature. Ten supervisors, ten distinguishable
     behaviours -- if two were identical, one of them would be measuring
     nothing."""
     sigs: dict[str, tuple] = {}
@@ -444,7 +444,9 @@ def test_policies_list_matches_the_implementations():
     reached it."""
     for policy in sup_mod.POLICIES:
         assert hasattr(StubSupervisor, f"_{policy}"), policy
-    assert len(sup_mod.POLICIES) == 9
+    # Grows when a metric turns out to have nothing producing it, which is how
+    # course_corrects arrived. Pinned so adding one is deliberate.
+    assert len(sup_mod.POLICIES) == 10
 
 
 def test_azure_supervisor_labels_distinguish_the_two_arms():
