@@ -52,8 +52,17 @@ jobs:
       # line -- "harness ceiling 0/52 visible" says a stale tools.py in a way
       # that a failing async test, which surfaces as an ExceptionGroup, does
       # not. Cheap, and it turns a confusing red build into an obvious one.
-      - name: Gate — integrity and structure (fail fast)
-        run: PYTHONPATH=src python src/gate.py --only integrity --only structural
+      - name: Gate — integrity, structure, planning (fail fast)
+        run: |
+          PYTHONPATH=src python src/gate.py \
+            --only integrity --only structural --only planning
+
+      # Fast and free: ten deliberately broken supervisors over eighty requests
+      # with simulated workers, asserting each still produces its own signature.
+      # A routing number is only worth reporting if a broken orchestrator scores
+      # badly, and this is how that stays true.
+      - name: Routing scorer calibration
+        run: PYTHONPATH=src python src/calibrate_routing.py
 
       # Each suite's full output goes in a collapsed group, but its verdict and
       # any failing test name are printed OUTSIDE the group and repeated in the

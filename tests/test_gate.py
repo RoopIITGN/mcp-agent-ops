@@ -497,14 +497,28 @@ def test_script_runner_sits_at_the_end_of_every_suite():
     exactly that: four tests appended after the block, 25 reported, 29 real.
     The script count and the collected count have to agree."""
     import re
+    # Line-anchored, because this test's own body contains the literal string
+    # it is looking for. An unanchored split found that occurrence first and
+    # reported this file as broken -- a guard that fails on itself.
+    guard = re.compile(r"^if __name__ ==", re.M)
     for f in sorted((ROOT / "tests").glob("test_*.py")):
         src = f.read_text(encoding="utf-8")
-        if '__main__' not in src:
+        m = guard.search(src)
+        if not m:
             continue          # collected by pytest only; that is checked above
-        after = src.split('if __name__ ==', 1)[1]
+        after = src[m.end():]
         assert not re.search(r"^def test_", after, re.M), (
             f"{f.name} defines tests after its __main__ block, so running it as "
             f"a script skips them")
+        # The other half of the same invariant. A suite with a script runner
+        # cannot use pytest fixtures: those tests pass under pytest and fail
+        # under the runner, which is how test_gate.py came to report 43
+        # collected and 8 failed at the same time. Fixture-dependent suites get
+        # their own file.
+        for fixture in ("monkeypatch", "tmp_path", "capsys"):
+            assert f"{fixture})" not in src and f"{fixture}," not in src, (
+                f"{f.name} has a __main__ runner and uses the {fixture} "
+                f"fixture; move those tests to a pytest-only suite")
 
 
 if __name__ == "__main__":

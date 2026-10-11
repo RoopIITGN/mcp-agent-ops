@@ -304,7 +304,148 @@ def check_trace(cfg: dict) -> list[Result]:
 
 # --- cli ----------------------------------------------------------------------
 
+def check_planning(cfg: dict) -> list[Result]:
+    """The orchestration layer's claims, asserted statically.
+
+    The `structural` group above asserts what the WORKERS cannot do. This one
+    asserts what the SUPERVISOR cannot do, which is a different set of claims
+    and became a separate group when the supervisor stopped being a hardcoded
+    dispatcher.
+
+    Every check here corresponds to a sentence in the README. If one fails, that
+    sentence has become false, which is why this group blocks rather than warns.
+    """
+    import plan
+    import queries
+    import supervisor
+    import tools
+
+    s = cfg["planning"]
+    out: list[Result] = []
+
+    # The central claim: the supervisor chooses the route, not the privileges.
+    out.append(Result("planning", "the supervisor holds no MCP tool",
+                      tools.ROLE_TOOLS.get("supervisor") == (),
+                      f"holds {tools.ROLE_TOOLS.get('supervisor')}"
+                      if tools.ROLE_TOOLS.get("supervisor") else
+                      "it names a role; what that role may call is fixed in code"))
+
+    chan = plan.OUTPUT_CHANNEL
+    leaked = (chan in tools.TOOLS
+              or any(chan in g for g in tools.ROLE_TOOLS.values()))
+    out.append(Result("planning",
+                      f"{chan} is an output schema, not a tool",
+                      not leaked,
+                      "it has appeared in the tool registry" if leaked else
+                      "nothing serves it; it reads and writes nothing"))
+
+    # A field named here would let a decision widen a worker's reach. Checked
+    # against the generated JSON schema rather than the class, so an alias or a
+    # computed field cannot slip past.
+    props = set(plan.Decision.model_json_schema()["properties"])
+    forbidden = set(s["forbidden_decision_fields"])
+    bad = props & forbidden
+    out.append(Result("planning", "a decision cannot name a tool or a tolerance",
+                      not bad, f"exposes {sorted(bad)}" if bad else
+                      "it names a role, a client and a date"))
+
+    declared = set(s["decision_fields"])
+    out.append(Result("planning", "the decision surface is exactly as declared",
+                      props == declared,
+                      "" if props == declared else
+                      f"added {sorted(props - declared)}, "
+                      f"removed {sorted(declared - props)}"))
+
+    # Role drift: a role in ROLE_TOOLS and not in the Literal is a role the
+    # supervisor cannot route to, silently.
+    workers = tuple(r for r in tools.ROLE_TOOLS if r != "supervisor")
+    out.append(Result("planning", "the routable roles match the tool grants",
+                      set(plan.ROLES) == set(workers),
+                      f"plan {sorted(plan.ROLES)} vs tools {sorted(workers)}"))
+    out.append(Result("planning", "every routable role has a capability brief",
+                      set(plan.ROLE_BRIEF) == set(plan.ROLES),
+                      "a role with no brief is one the supervisor cannot "
+                      "reason about"))
+
+    # Caps bound the loop. The worker cap alone does not: a supervisor whose
+    # every decision is rejected invokes no worker and spins forever.
+    caps_ok = (plan.MAX_SUPERVISOR_CALLS > plan.MAX_WORKER_CALLS
+               and plan.MAX_WORKER_CALLS <= s["max_worker_calls"]
+               and plan.MAX_SUPERVISOR_CALLS <= s["max_supervisor_calls"])
+    out.append(Result("planning", "the loop is bounded by two caps",
+                      caps_ok,
+                      f"worker {plan.MAX_WORKER_CALLS}, supervisor "
+                      f"{plan.MAX_SUPERVISOR_CALLS}"))
+
+    # The context boundary. Built from a worst-case outcome -- the staging
+    # gate's own refusal text, which quotes trade ids and prices -- rather than
+    # from a benign one, because a benign one would pass whatever the redactor
+    # did.
+    probe = plan.WorkerOutcome(
+        role="staging", tools_called=["stage_for_execution"],
+        refusals=["discrepancy 45 is on trade T570760, not T111111",
+                  "price 1557.15 differs from 1572.72 by more than 0.005"])
+    try:
+        text = probe.render()
+        clean = not plan.LEAK.search(text)
+        detail = "" if clean else f"leaked {plan.LEAK.search(text).group(0)!r}"
+    except AssertionError as e:
+        clean, detail = False, str(e)[:160]
+    out.append(Result("planning", "worker refusals reach the supervisor redacted",
+                      clean, detail or "trade ids and figures removed, the "
+                                       "missing precondition kept"))
+
+    # The leakage gate. A supervisor shown its own answer key scores perfectly
+    # and measures nothing.
+    hidden = set(s["hidden_query_fields"])
+    shown = set(queries.PROMPT_FIELDS)
+    out.append(Result("planning", "no ground truth reaches the supervisor",
+                      not (shown & hidden),
+                      f"prompt_view exposes {sorted(shown & hidden)}"
+                      if shown & hidden else
+                      f"it shows {sorted(shown)}"))
+
+    # Every stub must be asserted about, or it proves nothing.
+    import calibrate_routing
+    missing = set(supervisor.POLICIES) - set(calibrate_routing.EXPECTED)
+    out.append(Result("planning", "every stub supervisor has expectations",
+                      not missing, f"no claims for {sorted(missing)}"
+                      if missing else
+                      f"{len(supervisor.POLICIES)} policies, all asserted"))
+
+    # The corpus has to keep separating the three strategies, or the headline
+    # number stops meaning anything.
+    qs = json.loads((ROOT / "data/queries.json").read_text(encoding="utf-8"))
+    c = queries.ceilings(qs)
+    ordered = c["fixed"] < c["plan_once"] < c["iterate"] == c["total"]
+    out.append(Result("planning", "the corpus still separates the strategies",
+                      ordered,
+                      f"fixed {c['fixed']}, plan_once {c['plan_once']}, "
+                      f"iterate {c['iterate']} of {c['total']}"))
+    enough = c["early_stop"] >= s["early_stop_min"]
+    out.append(Result("planning", "the early-stop class is populated",
+                      enough,
+                      f"{c['early_stop']} requests "
+                      f"(floor {s['early_stop_min']})"))
+
+    return out
+
+
+CONFIG = ROOT / "config/thresholds.yaml"
+
+
+def load_config(path: Path = CONFIG) -> dict:
+    """The thresholds, as data.
+
+    Extracted from main() because the tests that matter for a gate are the ones
+    that break a claim and check it is caught, and those need to hand the checks
+    a modified config. A gate that passes on a correct repo proves nothing.
+    """
+    return yaml.safe_load(path.read_text(encoding="utf-8"))
+
+
 GROUPS = {"integrity": check_integrity, "structural": check_structural,
+          "planning": check_planning,
           "calibration": check_calibration, "baselines": check_baselines,
           "trace": check_trace}
 
@@ -317,7 +458,7 @@ def main() -> None:
     ap.add_argument("--only", action="append", default=[], choices=sorted(GROUPS))
     a = ap.parse_args()
 
-    cfg = yaml.safe_load(Path(a.config).read_text())
+    cfg = load_config(Path(a.config))
     sev = cfg["severity"]
 
     groups = a.only or list(GROUPS)

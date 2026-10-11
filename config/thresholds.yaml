@@ -16,7 +16,9 @@
 
 severity:
   integrity: block            # the corpus and its ground truth
-  structural: block           # the gates, asserted statically
+  structural: block           # the worker gates, asserted statically
+  planning: block             # the supervisor gates, same argument
+
   calibration: block          # can the scorer still tell good from bad
   baselines: block            # committed results, recomputed
   trace: warn                 # an artefact, not a guarantee
@@ -50,6 +52,78 @@ structural:
   # The agent that reads untrusted statement text must hold no write tool.
   read_only_roles: [reconciliation]
   write_tools: [flag_discrepancy, draft_client_inquiry, stage_for_execution]
+
+planning:
+  # What the SUPERVISOR cannot do. Separate from `structural`, which is about
+  # the workers: when the supervisor stopped being a hardcoded dispatcher it
+  # acquired claims of its own, and mixing the two made it unclear which layer
+  # a failure belonged to.
+
+  # The whole decision surface. Adding a field to the supervisor's output is a
+  # deliberate act that fails CI until this list is updated -- same discipline
+  # as expected_tools above.
+  decision_fields:
+    - action
+    - role
+    - client_id
+    - session_date
+    - reason
+    - message
+    - declined
+  # Fields that would let a decision widen a worker's reach, set a tolerance or
+  # write a status. The central claim is that the supervisor chooses the route,
+  # not the privileges, and this is where that is enforced rather than asserted.
+  forbidden_decision_fields:
+    [tool, tools, tool_name, allow, allowed_tools, grant, grants, permissions,
+     tolerance, status, account_id]
+  # Ceilings, not settings. Two caps are needed because the worker cap alone
+  # does not bound the loop: a supervisor whose every decision is rejected
+  # invokes no worker, so the worker count never rises.
+  max_worker_calls: 5
+  max_supervisor_calls: 10
+  # Ground truth that must never reach the model. A supervisor shown its own
+  # answer key scores perfectly and measures nothing.
+  hidden_query_fields: [intent, expect, session_id]
+  # The class that separates deciding-each-step from deciding-once. An earlier
+  # corpus generator left it with one member by accident, which would have
+  # reduced the headline comparison to intent recognition.
+  early_stop_min: 8
+
+planning:
+  # What the SUPERVISOR cannot do. Separate from `structural`, which is about
+  # the workers: when the supervisor stopped being a hardcoded dispatcher it
+  # acquired claims of its own, and mixing the two made it unclear which layer
+  # a failure belonged to.
+
+  # The whole decision surface. Adding a field to the supervisor's output is a
+  # deliberate act that fails CI until this list is updated -- same discipline
+  # as expected_tools above.
+  decision_fields:
+    - action
+    - role
+    - client_id
+    - session_date
+    - reason
+    - message
+    - declined
+  # Fields that would let a decision widen a worker's reach, set a tolerance or
+  # write a status. The central claim is that the supervisor chooses the route,
+  # not the privileges, and this is where that is enforced rather than asserted.
+  forbidden_decision_fields:
+    [tool, tools, tool_name, allow, allowed_tools, grant, grants, permissions,
+     tolerance, status, account_id]
+  # Ceilings, not settings. Two caps are needed because the worker cap alone
+  # does not bound the loop: a supervisor whose every decision is rejected
+  # invokes no worker, so the worker count never rises.
+  max_worker_calls: 5
+  max_supervisor_calls: 10
+  # Ground truth that must never reach the model. A supervisor shown its own
+  # answer key scores perfectly and measures nothing.
+  hidden_query_fields: [intent, expect, session_id]
+  # The class that separates deciding-each-step from deciding-once. An earlier
+  # corpus generator left it with one member by accident, which would have
+  # reduced the headline comparison to intent recognition.
+  early_stop_min: 8
 
 calibration:
   # Sessions per policy. Twelve covers all five discrepancy kinds plus
