@@ -145,8 +145,20 @@ ROLE_BRIEF: dict[str, str] = {
 # rather than something to attempt and fail at. The first line is asserted
 # against the tool registry below, so it cannot become false quietly.
 SYSTEM_CANNOT: tuple[str, ...] = (
+    # The line that caused a wrong refusal, and the contrast it was missing.
+    #
+    # A real model read "queue the correction" in a client request, matched it
+    # against this line's verbs, and refused -- "this system has no capability
+    # to approve, execute, apply, or release corrections". Queuing is the one
+    # thing staging exists to do. The list said what is forbidden without
+    # saying that the adjacent, legitimate step is not, so the model extended
+    # the prohibition by one step.
     "approve, execute, apply or release a correction -- no tool exists for it, "
-    "in any role; a queued correction waits for a human",
+    "in any role; a queued correction waits for a human. Queuing one for a "
+    "human to approve is NOT in this list: that "
+    "is the staging worker's job and the last step this system performs. A "
+    "request to queue, stage or put a correction in the approval queue is in "
+    "scope; only approving or carrying it out afterwards is not",
     "value positions, or compute P&L, mark-to-market, margin or tax",
     "read or write any client other than the one this request came from",
     "change a price tolerance, or decide a difference is acceptable",

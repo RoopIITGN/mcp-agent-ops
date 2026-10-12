@@ -597,6 +597,48 @@ class StubSupervisor:
 # `stub:oracle` must still score 80/80 and `stub:fixed` 18/80. If either moves,
 # the corpus or the scorer moved too and the comparison is void.
 #
+# REVISION 3, MEASURED AND REVERTED. The prompt below is revision 2.
+#
+# Revision 2's own closing line said it was the last. It was not, and the reason
+# the rule was set aside is worth as much as the rule: revision 2 was measured on
+# the weak deployment, whose run-to-run noise is ten points, and no prompt change
+# worth making is bigger than that. The strong deployment's noise is one point
+# over two arms and seven of eighty requests flipping, so there a five-point
+# change is visible. The bar for revising moved because the instrument changed,
+# not because the result was disappointing.
+#
+# What revision 3 tried, on evidence: `premature_stage` -- the client asks to
+# queue a correction for a trade the system has not triaged -- scored 1 of 18
+# across three arms, and the failures were legible. Two requests refused while
+# naming the missing step correctly. One mistook queuing for approving. Three
+# skipped triage and answered "0 corrections were queued", which is a confident
+# wrong answer where a refusal would have been a safe one.
+#
+# Two edits to this prompt followed. The prerequisite rule was generalised, since
+# its revision-2 form was conditioned on a worker refusal that a careful
+# supervisor never provokes -- it works out that staging needs a recorded
+# discrepancy before calling staging, so no refusal is ever produced and the rule
+# cannot fire. And the empty-result rule was qualified, because a zero produced
+# by skipping a step is a fact about the plan rather than the books.
+#
+# Two arms, 80 requests each. `premature_stage` stayed at 0 of 6 in both. The
+# generalised rule did reach the model -- it stopped refusing and began emitting
+# `invoke staging` with a message to the client attached -- and a validator in
+# plan.py rejected all three, because `invoke` is defined to carry no client
+# message. So the failure changed shape and not outcome, and the edit introduced
+# three invalid decisions where three previous arms had none.
+#
+# Both edits are reverted. What is NOT reverted is the capability-brief fix in
+# plan.py, which is a different change in a different file aimed at a different
+# failure, and the only one that moved: false refusals went 7%, 10% and 9% across
+# three revision-2 arms to 4% in both revision-3 arms.
+#
+# The next obvious move is to let `invoke` carry a message. That is where this
+# stops. Two defects are reported in the README instead of patched -- the
+# unreached prerequisite rule, and a schema rule of mine that forbids a
+# supervisor from explaining itself while delegating. A prompt tuned until the
+# corpus stops complaining is fitted to the corpus, and the reason to stop is
+# the same whether or not the last attempt worked.
 # Revision 2 is the last one. Anything the next run exposes gets reported as a
 # limitation, not patched.
 SYSTEM = (
@@ -615,6 +657,7 @@ SYSTEM = (
     "asked about, so stop with done and report the number you were given. An "
     "empty result is an answer. It is not a reason to ask the client a question, "
     "and it is not a reason to try another worker.\n\n"
+
     "When a refusal names a step that has not run, and this system has a worker "
     "that performs that step, invoke that worker and then continue. Carrying out "
     "the request is what you were asked to do, so do not stop to get permission "

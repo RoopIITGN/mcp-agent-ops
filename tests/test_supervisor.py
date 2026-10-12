@@ -550,14 +550,34 @@ def test_system_prompt_says_an_empty_result_is_an_answer():
 
 
 def test_system_prompt_says_to_satisfy_its_own_preconditions():
-    """The best reasoning in the measured run was wasted here: the model named
-    the missing prerequisite step and the worker that performs it, then asked
-    the client for permission to run it. A human checkpoint belongs in front of
-    an irreversible action, not in front of a read-only prerequisite the request
-    already implies."""
+    """Revision 2's rule, kept after revision 3's generalisation was measured
+    and reverted. See the REVISION 3 comment in supervisor.py.
+
+    The rule is conditioned on a worker refusal, and that is a known limitation
+    rather than an oversight: a supervisor that reasons ahead never provokes the
+    refusal, so the rule never fires on the one request class that needs it.
+    Generalising it moved the failure's shape and not its outcome, and cost
+    three invalid decisions, so the narrower wording stands and the gap is
+    reported."""
     s = sup_mod.SYSTEM
     assert "invoke that worker and then continue" in s
     assert "do not stop to get permission" in s
+
+
+def test_the_capability_list_says_queuing_is_in_scope():
+    """A real model refused a legitimate request because of this list.
+
+    The first entry forbids approving, executing, applying and releasing a
+    correction. A client asked to "just queue the correction" and the model
+    answered that the system "has no capability to approve, execute, apply, or
+    release corrections" -- extending the prohibition one step onto the thing
+    staging exists to do. Stating what is forbidden is not enough when the
+    permitted neighbour shares the client's vocabulary."""
+    brief = plan.capabilities_brief()
+    assert "Queuing one for a human to approve is NOT in this list" in brief
+    assert "is in scope" in brief
+    # The prohibition itself must survive the clarification.
+    assert "approve, execute, apply or release a correction" in brief
 
 
 def test_system_prompt_states_the_partial_decline_rule():

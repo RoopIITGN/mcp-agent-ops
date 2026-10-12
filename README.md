@@ -228,6 +228,43 @@ result:
 The bolded figures are the ones quoted elsewhere: the less flattering of two
 valid pairings.
 
+### Both layers live at once
+
+Every arm above used `stub:ideal` workers, which isolates the orchestrator: a
+scripted worker is correct by construction, so every error in those numbers
+belongs to the supervisor. One further arm replaced it with a real model --
+`gpt-5.4-mini` deciding roles, `gpt-5.4-nano` as the workers choosing their own
+tools -- over the same 80 requests.
+
+| | stubbed #1 | stubbed #2 | **real workers** |
+|---|---|---|---|
+| fully correct | 69% | 68% | **68%** |
+| exact route | 69% | 69% | **70%** |
+| early stop | 15/15 | 15/15 | **15/15** |
+| model calls | 158 | 164 | 167 |
+
+Routing quality moved by less than the orchestrator's own run-to-run noise, so
+the two layers compose.
+
+What the live workers did with their tools is the better result:
+
+```
+reconciliation | fetch_broker_statement, fetch_internal_ledger, calculate_position_deltas
+triage         | flag_discrepancy, draft_client_inquiry
+staging        | stage_for_execution
+```
+
+**No role ever appears beside a tool outside its grant**, across 214 tool calls,
+with a real model choosing. Least privilege was previously a claim about `argv`
+and a scripted agent. Every one of the 10 `pending_actions` rows is
+`PENDING_HUMAN`. And all 22 refusals are `unknown session` -- a date with no
+statement loaded -- so the workers emitted no malformed call at all, and every
+refusal traces to a date the *supervisor* chose.
+
+Cost, measured: 297k prompt tokens on the supervisor and 242k on the workers.
+The half that was expected to dominate came in smaller, because workers run
+short loops on a cheap model under tight schemas.
+
 ### The reproducibility floor, which is the actual finding
 
 Same model, same prompt, same corpus, `temperature=0`, two independent runs:
@@ -300,6 +337,56 @@ present, the test passed for weeks, the comparison was against the wrong field,
 and the test *failed on the correct fix*. A test that asserts an implementation
 cannot tell you the implementation is wrong — it pins the defect in place and
 makes repairing it look like a regression. It is now a behavioural test.
+
+### One prompt revision, measured and reverted
+
+The orchestration prompt was revised twice before the arms above and a third
+time after them. The third attempt is recorded here because it failed, and
+because the reason for attempting it at all was a change in the instrument
+rather than a change of mind.
+
+Revision 2's closing comment said it was the last, on the grounds that a prompt
+tuned against the corpus that motivated it is fitted to that corpus. That held
+while the measurements were on the weak deployment, whose noise floor is ten
+points -- larger than any change worth making. On the strong deployment the
+floor is one point, so a five-point change is visible, and the bar moved for
+that reason.
+
+**What it targeted.** `premature_stage` -- the client asks to queue a correction
+for a trade the system has not triaged -- scored 1 of 18 across three arms, and
+the six failures were legible rather than mysterious: two refusals that named
+the missing step correctly and stopped there, one that mistook queuing for
+approving, and three that skipped triage and answered *"0 corrections were
+queued"*. That last group is the serious one. A refusal is visibly incomplete; a
+confident zero closes the ticket.
+
+**What changed.** Revision 2's prerequisite rule was conditioned on a worker
+refusal -- *"when a refusal names a step that has not run, invoke that worker"*
+-- and a careful supervisor never provokes one, because it works out that
+staging needs a recorded discrepancy *before* calling staging. The rule's
+condition was unreachable, so it was generalised. The empty-result rule was
+qualified at the same time: a zero produced by skipping a step is a fact about
+the plan, not the books.
+
+**Result, over two arms of 80 requests.** `premature_stage` stayed at 0 of 6 in
+both. The generalised rule did reach the model -- it stopped refusing and began
+emitting `invoke staging` with a message to the client attached -- and a
+validator rejected all three of those, because `invoke` is defined to carry no
+client message. The failure changed shape and not outcome, and the edit cost
+three invalid decisions where three previous arms had none.
+
+Both prompt edits are reverted. The one change kept is in the capability
+catalogue, a different file aimed at a different failure, and the only one that
+moved anything: false refusals went 7%, 10% and 9% across three revision-2 arms
+to 4% in both revision-3 arms. Four requests per arm is the same order as the
+run-to-run flip rate, so it is reported as consistent and mechanistically
+explained rather than proven.
+
+The obvious next move -- letting `invoke` carry a message -- is where this
+stops. Two located defects go into the limitations below instead of a fourth
+attempt. **The reason to stop revising is the same whether or not the last
+attempt worked**, and a revision that fails is cheaper to publish than one that
+succeeds for reasons nobody checked.
 
 ### A corpus that never tested the gate it existed for
 
@@ -705,12 +792,10 @@ would itself be worth reading.
 
 ### Limitations of the orchestration layer
 
-**The two layers are each measured against a real model; composing them is
-not.** Workers choosing their own tools is measured — 60 sessions, 336 real
-tool calls, 100% clean trajectories. The supervisor choosing roles is measured
-— 4 arms, 80 requests, with a noise floor. Every supervisor arm used
-`stub:ideal` workers, so *both ends live in the same run* is untested. The
-boundary between them is tested structurally and by unit test, not end to end.
+**Composition is measured once, at n=80, and not repeated.** The arm with live
+workers at both layers ran once. Its agreement with the stubbed arms is within
+the orchestrator's noise floor, but one arm is not two, and the worker layer's
+own variance under orchestration is unmeasured.
 
 **Prompt injection against the supervisor is not tested.** The injection suite
 targets the worker agents, which call tools. The supervisor is a different and
@@ -737,6 +822,22 @@ work, and reports success — twelve times out of twelve, never once asking. The
 failure is not a low score on a hard class; it is a confident wrong answer
 produced by a rule I added. nano does better here only because it follows the
 instruction less reliably.
+
+**Two defects located in the orchestration layer, left unpatched.** Both were
+found by the revision-3 measurement above, and both have a known fix that was
+deliberately not applied.
+
+- *The prerequisite rule cannot fire where it is needed.* It is conditioned on
+  a worker refusal, and a supervisor that reasons ahead never provokes one. The
+  generalised version was measured and reverted, so the narrow wording stands
+  and `premature_stage` remains at 0 of 6.
+- *A supervisor cannot explain itself while delegating.* `Decision` forbids a
+  client message on an `invoke`, reasoning that invoking a worker is not a reply
+  to the client. A real model tried it three times in one arm — announcing the
+  step it was about to take while taking it — and all three were rejected as
+  invalid. The rule is defensible and the behaviour it blocks is reasonable,
+  which makes this a design question rather than a bug. It is also the second
+  validator of mine to reject a coherent decision.
 
 **The `cross_account` class also fails, but the cause is not established.** The
 second added rule says to refuse a request reaching for another account, which
