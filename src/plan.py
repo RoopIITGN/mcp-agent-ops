@@ -259,10 +259,23 @@ class Decision(Strict):
                 "client's books for one as-of date, and there is no default")
         if self.action in ("refuse", "clarify") and not (self.message or "").strip():
             raise ValueError(f"action '{self.action}' requires a message to the client")
-        if self.action == "clarify" and self.session_date is not None:
-            raise ValueError(
-                "clarify with a session_date is incoherent: if the date is known "
-                "there is nothing to clarify about it")
+        # There was a rule here rejecting `clarify` with a session_date, on the
+        # reasoning that a known date leaves nothing to clarify. It was wrong,
+        # and it was the single largest source of failure in the first properly
+        # measured run: 69 of 287 decisions rejected, 24%, every one of them
+        # this rule and nothing else.
+        #
+        # It is wrong twice over. A clarification need not be about the date at
+        # all -- "I can reconcile ACC-015 for 22 Sep, do you also want ACC-005?"
+        # is a clarify with a perfectly good date. And where the clarification
+        # IS about the date, naming the one it tried is what makes the question
+        # answerable: "there is no statement for 2026-09-25, which date did you
+        # mean?" beats "which date did you mean?" by a wide margin.
+        #
+        # The rule forced the model to throw away the fact the client needed,
+        # then rejected it for complying. Lesson recorded rather than quietly
+        # deleted: a coherence rule invented at the desk, with no example
+        # behind it, cost a quarter of a paid run.
         return self
 
     @property
@@ -503,14 +516,51 @@ class GateRejection(Strict):
         return False
 
 
-HistoryEntry = WorkerOutcome | GateRejection
+class DecisionLog(Strict):
+    """A decision the supervisor made, replayed back to it.
+
+    The seventh gap, and the first one a paid run found rather than a reading of
+    the code. The supervisor was shown worker outcomes and gate rejections and
+    nothing else, so "have I already run reconciliation?" had to be inferred
+    from a side effect: an outcome line saying reconciliation reported three
+    observations. The inference is available and it is too weak. On the first
+    measured arm nearly every request came back as
+    [reconciliation, reconciliation] -- invoke, see the result, invoke the same
+    worker again, get stopped by the per-role cap, and then frequently refuse a
+    request that should have been served.
+
+    I had claimed the outcome list carried this implicitly. It does not, and the
+    fix is to stop making the model reconstruct its own state from evidence: the
+    history is now a transcript of what it decided AND what came back, in order.
+
+    The reason is redacted like any other text in this section. It is the
+    model's own sentence, so it may quote a trade id the client's request
+    mentioned, and letting that through would break the context gate for no gain
+    -- the client's original words are in the prompt verbatim anyway.
+    """
+
+    action: str
+    role: Role | None = None
+    reason: str
+
+    def render(self) -> str:
+        what = self.action + (f" {self.role}" if self.role else "")
+        return f"YOU DECIDED: {what}\n  because: {redact(self.reason)}"
+
+    @property
+    def produced_work(self) -> bool:
+        return False
+
+
+HistoryEntry = WorkerOutcome | GateRejection | DecisionLog
 
 
 def render_history(entries: list[HistoryEntry]) -> str:
     """The outcome section of the supervisor's prompt. Empty before any worker
     has run, which is itself meaningful: nothing has been looked at yet."""
     if not entries:
-        return "(nothing has run yet -- no client's books have been looked at)"
+        return ("(this is your first decision on this request -- nothing has "
+                "run and no client's books have been looked at)")
     return "\n".join(e.render() for e in entries)
 
 
@@ -559,7 +609,11 @@ def render_context(query_view: dict, entries: list[HistoryEntry],
         f"books. Send it to reconciliation and report what comes back.",
         f"Request {query_view['query_id']} from {query_view['client_id']}:\n"
         f"{query_view['text']}",
-        f"What has happened so far:\n{history}",
+        f"What has happened so far, in order -- your own decisions and what "
+        f"came back from each one:\n{history}\n\n"
+        f"A worker you have already run has already done its work. Do not "
+        f"invoke it again unless its outcome tells you something changed that "
+        f"it needs to see.",
     ])
 
 

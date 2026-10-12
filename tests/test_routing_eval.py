@@ -52,7 +52,7 @@ def pick(corpus: dict, **where) -> dict:
     raise AssertionError(f"no query matching {where}")
 
 
-def rec(q: dict, invoked, end="done", **kw) -> dict:
+def rec(q: dict, invoked, end="done", **kw) -> dict:   # noqa: D103
     base = {
         "query_id": q["query_id"], "supervisor": "test", "invoked": list(invoked),
         "invocations": [{"role": r, "refusals": 0, "stopped": "done"}
@@ -292,3 +292,97 @@ def test_the_report_shows_both_sides_of_each_pair(corpus):
     for header in ("false refuse", "false clarify", "over", "under",
                    "retried ok", "corrected", "plan-caused", "relayed"):
         assert header in text, header
+
+
+# --- an arm is a supervisor AND a run ----------------------------------------
+#
+# Leaving the run out of the key cost a measurement. A harness fix was run,
+# scored, and came back with the pre-fix numbers, because both runs wrote the
+# same supervisor label into the same file and the scorer kept the first record
+# of each query. Nothing in the report said so.
+
+def _two_runs(tmp_path, corpus):
+    import json
+    runs = tmp_path / "requests.jsonl"
+    picked = list(corpus.values())[:12]
+    lines = []
+    for q in picked:                       # the older, broken run
+        lines.append(dict(rec(q, ["reconciliation", "reconciliation"],
+                              supervisor_calls=9), run_id="old"))
+    for q in picked:                       # the newer, correct one
+        lines.append(dict(rec(q, q["expect"]["roles"],
+                              end=("done" if q["expect"]["decision"] == "run"
+                                   else q["expect"]["decision"]),
+                              supervisor_calls=3), run_id="new"))
+    runs.write_text("".join(json.dumps(x) + "\n" for x in lines),
+                    encoding="utf-8")
+    return runs, picked
+
+
+def test_two_runs_of_one_supervisor_are_reported_separately(tmp_path, corpus):
+    runs, _ = _two_runs(tmp_path, corpus)
+    scored = re_mod.load(runs, ROOT / "data/queries.json")
+    assert set(scored) == {"test @ old", "test @ new"}, sorted(scored)
+    old = re_mod.aggregate(scored["test @ old"])
+    new = re_mod.aggregate(scored["test @ new"])
+    assert new["exact_route"] > old["exact_route"], (
+        "the newer run must not be hidden behind the older one")
+
+
+def test_neither_run_is_silently_preferred(tmp_path, corpus, capsys):
+    """The failure was silent, which is what made it expensive. A file with two
+    runs of one supervisor has to say so."""
+    runs, _ = _two_runs(tmp_path, corpus)
+    re_mod.load(runs, ROOT / "data/queries.json")
+    err = capsys.readouterr().err
+    assert "2 runs" in err and "reported separately" in err
+    assert "not merged" in err
+
+
+def test_a_resume_within_one_run_still_dedupes(tmp_path, corpus):
+    """The original reasoning was right for a resume: appending the same query
+    twice inside one run should leave one record, and the first is the
+    reproducible one."""
+    import json
+    runs = tmp_path / "requests.jsonl"
+    q = list(corpus.values())[0]
+    first = dict(rec(q, q["expect"]["roles"]), run_id="r1")
+    second = dict(rec(q, ["reconciliation"] * 2), run_id="r1")
+    runs.write_text(json.dumps(first) + "\n" + json.dumps(second) + "\n",
+                    encoding="utf-8")
+    scored = re_mod.load(runs, ROOT / "data/queries.json")
+    assert sum(len(v) for v in scored.values()) == 1
+
+
+def test_records_without_a_run_id_still_score(tmp_path, corpus):
+    """Older report files predate run ids and must not become unreadable."""
+    import json
+    runs = tmp_path / "requests.jsonl"
+    q = list(corpus.values())[0]
+    runs.write_text(json.dumps(rec(q, q["expect"]["roles"])) + "\n",
+                    encoding="utf-8")
+    scored = re_mod.load(runs, ROOT / "data/queries.json")
+    assert set(scored) == {"test"}
+
+
+def test_fresh_drops_only_its_own_arm():
+    """A file holding several arms is the normal case, so --fresh truncating
+    everything would destroy the comparison it exists to enable.
+
+    This test used to assert the literal string `!= a.supervisor` in the source
+    of `amain`, and that is why it is written differently now. The string was
+    present, the test passed, and the comparison was against the wrong field --
+    so the test did not merely fail to catch the bug, it pinned it in place and
+    would have failed on the fix. A test that asserts an implementation cannot
+    tell you the implementation is wrong.
+    """
+    import run_requests
+
+    lines = [json.dumps({"supervisor": "arm-a", "query_id": "Q-001"}),
+             json.dumps({"supervisor": "arm-b", "query_id": "Q-001"}),
+             json.dumps({"supervisor": "arm-b", "query_id": "Q-002"})]
+    mine, others = run_requests.partition(lines, "arm-b")
+    assert len(mine) == 2
+    assert [json.loads(l)["supervisor"] for l in others] == ["arm-a"]
+    # Every record lands on exactly one side: nothing silently vanishes.
+    assert len(mine) + len(others) == len(lines)

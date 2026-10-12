@@ -205,14 +205,81 @@ async def run_one(query: dict, sup_spec: str, backend_spec: str, db: Path,
         res = await orchestrate(query, sup, worker)
         if hasattr(backend, "prompt_tokens"):
             res.worker_tokens = (backend.prompt_tokens, backend.completion_tokens)
+        # The supervisor's own spend, which nothing was recording. The first
+        # measured arm finished with no idea what it had cost, which makes the
+        # next arm's budget a guess.
+        inner = getattr(sup, "_backend", None)
+        if inner is not None and hasattr(inner, "prompt_tokens"):
+            res.supervisor_tokens = (inner.prompt_tokens, inner.completion_tokens)
         return res
+
+
+def read_records(out: Path) -> list[str]:
+    """The non-blank lines of a results file, unparsed."""
+    return [line for line in out.read_text(encoding="utf-8").splitlines()
+            if line.strip()]
+
+
+def partition(lines: list[str], label: str,
+              run_id: str | None = None) -> tuple[list[str], list[str]]:
+    """Split records into this arm's and every other arm's.
+
+    One function because --fresh and --resume are the same question asked for
+    opposite purposes, and when they were two inlined comparisons they were
+    wrong in the same way at the same time.
+
+    `run_id` narrows "this arm" to one run of it. Without it, --resume treated
+    every past run of a model as continuable, so a resume after a crash would
+    splice request 1-69 of one run onto 70-80 of another and the scorer would
+    report the join as a single arm. It also left no way to run the same model
+    twice on purpose, which is the only way to know whether a difference between
+    two models is bigger than the difference between two runs of one.
+    """
+    def mine_(line: str) -> bool:
+        r = json.loads(line)
+        return (r.get("supervisor") == label
+                and (run_id is None or r.get("run_id") == run_id))
+
+    return ([line for line in lines if mine_(line)],
+            [line for line in lines if not mine_(line)])
 
 
 async def amain(a) -> None:
     db = Path(a.db)
-    if not db.exists():
-        raise SystemExit(
-            f"{db} does not exist -- run: python src/store.py --init --db {db}")
+
+    # EVERY ARM GETS A FRESH DATABASE, and this default is the whole reason.
+    #
+    # `discrepancies` and `pending_actions` are keyed by session with no run
+    # scope -- deliberately, because the idempotency gate is a UNIQUE constraint
+    # on (session_id, trade_id, type) and the concurrency claim depends on rows
+    # persisting across requests within a run. The cost is that they also persist
+    # BETWEEN runs.
+    #
+    # So an arm run second against the same file inherits the first arm's rows,
+    # and every precondition the first arm earned is already satisfied for the
+    # second. Two measured prompt revisions were compared that way: the first ran
+    # against a rebuilt database and the second against the first's leftovers,
+    # and the ten-point difference between them cannot be attributed. Nothing in
+    # the report could have shown it, because the report never sees the database.
+    #
+    # Rebuilding is cheap -- the books are regenerated from a seed -- so it is
+    # the default rather than a flag to remember. --keep-db is for resuming a
+    # crashed run, where the rows belong to the run being continued, and the
+    # combination that is almost always a mistake is called out below.
+    if a.keep_db:
+        if not db.exists():
+            raise SystemExit(
+                f"--keep-db but {db} does not exist -- drop the flag to build it")
+        if a.run_id is None:
+            print("warning: --keep-db without --run-id. This run will see rows "
+                  "left by earlier runs, and any precondition they satisfied "
+                  "will not be re-earned. Only correct when resuming.")
+    else:
+        # The books come back from the committed JSON; only the tables an agent
+        # writes are cleared. So this resets the state under test without
+        # changing what is being tested.
+        store.init_db(force=True, path=db).close()
+        print(f"rebuilt {db} for this arm")
 
     qs = json.loads((ROOT / "data/queries.json").read_text(encoding="utf-8"))
     if a.limit:
@@ -222,16 +289,68 @@ async def amain(a) -> None:
     out = Path(a.out)
     out.parent.mkdir(parents=True, exist_ok=True)
 
+    # The spec is not the label, and both --fresh and --resume compared against
+    # the wrong one.
+    #
+    # A record stores `supervisor` as the label the supervisor reports --
+    # "azure:gpt-5.4-nano" -- because a report that cannot tell two deployments
+    # apart is worse than no report. `a.supervisor` is what was typed on the
+    # command line, which for every azure arm is the shorter "azure". So the
+    # equality test never fired: --fresh dropped nothing and said nothing, and
+    # --resume re-ran all eighty requests it was meant to skip. Both looked like
+    # they worked, because doing the whole run is also what they do when there
+    # is genuinely nothing to skip.
+    #
+    # This is the same confusion as the run-id collision, one layer down, so it
+    # is resolved once here and the label is what the rest of the function uses.
+    # Building the supervisor costs an object, not an API call.
+    label = make_supervisor(a.supervisor).label
+
+    if a.fresh and out.exists():
+        # Truncate this supervisor's records rather than appending beside them.
+        #
+        # --fresh used to mean only "do not skip what is already done", so a
+        # re-run appended to the same file under the same label and the scorer
+        # -- which deduplicated on (supervisor, query_id) -- reported the older
+        # run. A measured harness fix came back with the pre-fix numbers and
+        # nothing said so. Records from other supervisors are kept, because a
+        # file holding several arms is the normal case.
+        mine, others = partition(read_records(out), label)
+        # Printed even when it drops nothing, because a no-op that says nothing
+        # is how the label bug stayed invisible through two paid runs.
+        print(f"--fresh: dropping {len(mine)} earlier record(s) for {label}, "
+              f"keeping {len(others)} from other arms")
+        out.write_text("".join(line + "\n" for line in others), encoding="utf-8")
+
     already: set[str] = set()
     if out.exists() and not a.fresh:
-        for line in out.read_text(encoding="utf-8").splitlines():
-            if line.strip():
-                r = json.loads(line)
-                if r.get("supervisor") == a.supervisor:
-                    already.add(r["query_id"])
-        if already:
-            print(f"resuming: {len(already)} request(s) already done for "
-                  f"{a.supervisor}")
+        # ONLY A NAMED RUN IS CONTINUABLE, and `None` is not a name.
+        #
+        # This branch used to call partition with run_id=a.run_id unconditionally.
+        # In partition, run_id=None means "any run of this arm" -- which is right
+        # for --fresh, whose job is to drop every record the arm has ever written,
+        # and exactly wrong here. On a new run it matched all eighty records of
+        # the previous run, so `already` was full and the run exited with
+        # "nothing to do". The repeat arm this was built to enable did not
+        # happen, and the variance floor went unmeasured while the report looked
+        # complete.
+        #
+        # The same word meaning "this one run" to one caller and "all runs" to
+        # the other is the whole bug. It is spelled out rather than shared now.
+        if a.run_id is not None:
+            mine, _ = partition(read_records(out), label, run_id=a.run_id)
+            already = {json.loads(line)["query_id"] for line in mine}
+            if already:
+                print(f"resuming run {a.run_id}: {len(already)} request(s) "
+                      f"already done for {label}")
+        else:
+            prior, _ = partition(read_records(out), label)
+            if prior:
+                print(f"note: {len(prior)} record(s) for {label} already in this "
+                      f"file from earlier run(s). This is run {run_id}, a new "
+                      f"arm: nothing is skipped and nothing is merged. Pass "
+                      f"--run-id to continue an earlier run, --fresh to replace "
+                      f"this arm's records.")
     qs = [q for q in qs if q["query_id"] not in already]
     if not qs:
         print("nothing to do")
@@ -243,6 +362,7 @@ async def amain(a) -> None:
 
     t0 = time.perf_counter()
     done = 0
+    sup_pt = sup_ct = sup_calls = 0
     with out.open("a", encoding="utf-8") as sink:
         tasks = [asyncio.create_task(
             run_one(q, a.supervisor, a.backend, db, run_id, sem)) for q in qs]
@@ -255,6 +375,10 @@ async def amain(a) -> None:
             sink.flush()          # per request: a crash at request 70 must not
                                   # cost the first 69
             done += 1
+            if res.supervisor_tokens:
+                sup_pt += res.supervisor_tokens[0]
+                sup_ct += res.supervisor_tokens[1]
+            sup_calls += res.supervisor_calls
             route = ",".join(res.invoked) or "-"
             print(f"  {res.query_id}  [{route}]  "
                   f"end={res.terminal_action or res.stopped}  "
@@ -264,6 +388,11 @@ async def amain(a) -> None:
     elapsed = time.perf_counter() - t0
     print(f"\n{done} request(s) in {elapsed:.1f}s "
           f"({done / elapsed:.1f}/s at concurrency {a.concurrency}) -> {out}")
+    if sup_pt:
+        print(f"supervisor: {sup_calls} model call(s), {sup_pt:,} prompt + "
+              f"{sup_ct:,} completion tokens")
+        print(f"  {(sup_pt + sup_ct) / max(1, done):,.0f} tokens per request, "
+              f"{sup_calls / max(1, done):.1f} decisions per request")
 
 
 def main() -> None:
@@ -280,7 +409,16 @@ def main() -> None:
                          "subprocess per worker invocation")
     ap.add_argument("--run-id", default="")
     ap.add_argument("--fresh", action="store_true")
-    asyncio.run(amain(ap.parse_args()))
+    ap.add_argument("--keep-db", action="store_true",
+                    help="continue against the existing database instead of "
+                         "rebuilding it. Only correct when resuming a crashed "
+                         "run with the same --run-id; see amain.")
+    a = ap.parse_args()
+    # "" is not a run id. Left as the empty string it compares unequal to every
+    # stored id, which silently turned --resume into a full re-run and made the
+    # 'is this a repeat?' branch unreachable.
+    a.run_id = a.run_id or None
+    asyncio.run(amain(a))
 
 
 if __name__ == "__main__":

@@ -31,6 +31,7 @@ from __future__ import annotations
 import json
 import os
 import sys
+import time
 from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any, Literal, Protocol
@@ -388,6 +389,10 @@ class AzureBackend:
     harness needs to debug.
     """
 
+    #: deployment -> the parameter set it was found to accept. Class-level, so
+    #: one probe serves every instance in the process.
+    _ADAPTED: dict[str, dict] = {}
+
     def __init__(self, deployment: str | None = None, temperature: float | None = 0.0,
                  max_tokens: int = 900, reasoning_effort: str | None = None,
                  expose_notes: bool = False):
@@ -413,7 +418,34 @@ class AzureBackend:
         self.reasoning_effort = reasoning_effort or os.environ.get(
             "AZURE_OPENAI_REASONING_EFFORT") or None
         self.expose_notes = expose_notes
-        self.token_param = "max_tokens"
+        # `max_completion_tokens`, not `max_tokens`. A capability probe found
+        # both deployments requiring it, so starting from the other name meant
+        # every fresh process paid a guaranteed 400 to rediscover a measured
+        # fact -- and at concurrency 4 that was four of them, because four
+        # backends cold-start before any has recorded the answer.
+        #
+        # The adaptation below still runs in reverse for a deployment that wants
+        # the older name. Being adaptive is worth keeping; starting from the
+        # wrong end of it is not.
+        self.token_param = os.environ.get(
+            "AZURE_OPENAI_TOKEN_PARAM") or "max_completion_tokens"
+        # Reuse what a previous instance already learned about this deployment.
+        #
+        # Without this, every AzureBackend re-probes from scratch: one 400 for
+        # max_tokens, another for temperature. The request runner builds a
+        # backend per request for isolation, so an eighty-request arm would have
+        # spent 160 rejected calls discovering the same two facts eighty times.
+        # They cost no tokens but they cost latency and rate-limit headroom, and
+        # on a shared key that is the difference between a run finishing and a
+        # run being throttled.
+        #
+        # reasoning_effort is deliberately NOT cached: it is per-arm, and
+        # carrying it over would merge the two arms being compared.
+        learned = AzureBackend._ADAPTED.get(self.deployment)
+        if learned:
+            self.token_param = learned["token_param"]
+            self.temperature = learned["temperature"]
+            self.max_tokens = max(self.max_tokens, learned["max_tokens"])
         self.client = AzureOpenAI(
             azure_endpoint=os.environ["AZURE_OPENAI_ENDPOINT"],
             api_key=os.environ["AZURE_OPENAI_KEY"],
@@ -422,6 +454,7 @@ class AzureBackend:
         self.calls = 0
         self.prompt_tokens = 0
         self.completion_tokens = 0
+        self.reasoning_tokens = 0
         self.reasoning_tokens = 0
 
     @property
@@ -443,18 +476,56 @@ class AzureBackend:
             kw["reasoning_effort"] = self.reasoning_effort
         return kw
 
-    def _create(self, **call):
-        """One call, with the parameter set adapted on rejection.
+    #: Errors worth trying again. A parameter rejection is the deployment
+    #: telling you something; these are the network telling you nothing.
+    TRANSIENT = ("connection error", "timeout", "timed out", "429",
+                 "rate limit", "502", "503", "504", "bad gateway",
+                 "service unavailable", "internal server error",
+                 "overloaded", "temporarily unavailable")
+    MAX_ATTEMPTS = 4
 
-        Each branch disables the offending parameter permanently rather than
-        retrying blind, so a sixty-session run pays the probe once."""
-        for _ in range(4):
+    @classmethod
+    def _is_transient(cls, msg: str) -> bool:
+        low = msg.lower()
+        return any(marker in low for marker in cls.TRANSIENT)
+
+    def _create(self, **call):
+        """One call, with the parameter set adapted on rejection and transient
+        failures retried.
+
+        The retry is here because a run lost two of eighty requests to a bare
+        "Connection error." Each was recorded as `supervisor_error` and scored
+        as the supervisor failing, which it was not -- the network dropped and
+        nothing asked again. A measurement that counts infrastructure noise as a
+        model result is wrong in the direction that is hardest to notice,
+        because the number still looks plausible.
+
+        Parameter rejections and transient failures are handled differently on
+        purpose. A rejection is the deployment telling you something, so the
+        offending parameter is disabled permanently and the call is remade at
+        once. A transient failure is the network telling you nothing, so the
+        same call is remade after a pause.
+        """
+        for attempt in range(self.MAX_ATTEMPTS):
             try:
-                return self.client.chat.completions.create(
+                out = self.client.chat.completions.create(
                     model=self.deployment, **call, **self._kwargs())
+                self._remember()
+                return out
             except Exception as e:                             # noqa: BLE001
                 msg = str(e)
-                if "max_completion_tokens" in msg and self.token_param == "max_tokens":
+                # The actual error, before any guess about which parameter
+                # caused it. This was missing, and its absence cost a round of
+                # speculation: a deployment that had accepted temperature the
+                # previous day rejected it here, and the handler reported its
+                # own guess rather than what the API said. Substring matching on
+                # an unseen message can also misattribute -- an error listing
+                # several unsupported parameters contains the word
+                # "temperature" whether or not temperature is the problem.
+                print(f"  [backend] API rejected the call: {msg[:300]}",
+                      file=sys.stderr)
+                if ("max_completion_tokens" in msg
+                        and self.token_param == "max_tokens"):
                     self.token_param = "max_completion_tokens"
                     # A reasoning deployment needs room to think before it can
                     # emit a tool call; the default budget is for a model that
@@ -462,19 +533,46 @@ class AzureBackend:
                     self.max_tokens = max(self.max_tokens, 4000)
                     print(f"  [backend] switched to max_completion_tokens, "
                           f"budget {self.max_tokens}", file=sys.stderr)
+                    self._remember()
+                    continue
+                if ("max_tokens" in msg and "max_completion_tokens" not in msg
+                        and self.token_param == "max_completion_tokens"):
+                    # The reverse direction, for a deployment that predates the
+                    # rename. Untested against one, so it is written to fail
+                    # loudly rather than silently if it is ever wrong.
+                    self.token_param = "max_tokens"
+                    print("  [backend] this deployment wants the older "
+                          "max_tokens", file=sys.stderr)
+                    self._remember()
                     continue
                 if "temperature" in msg and self.temperature is not None:
                     self.temperature = None
                     print("  [backend] deployment rejects temperature; the "
                           "variance floor will be higher", file=sys.stderr)
+                    self._remember()
                     continue
                 if "reasoning_effort" in msg and self.reasoning_effort:
                     self.reasoning_effort = None
                     print("  [backend] deployment rejects reasoning_effort",
                           file=sys.stderr)
                     continue
+                if self._is_transient(msg) and attempt < self.MAX_ATTEMPTS - 1:
+                    pause = 2 ** attempt
+                    print(f"  [backend] transient, retrying in {pause}s "
+                          f"(attempt {attempt + 2} of {self.MAX_ATTEMPTS})",
+                          file=sys.stderr)
+                    time.sleep(pause)
+                    continue
                 raise
         raise RuntimeError("could not find a parameter set this deployment accepts")
+
+    def _remember(self) -> None:
+        """Record the working parameter set for this deployment, process-wide."""
+        AzureBackend._ADAPTED[self.deployment] = {
+            "token_param": self.token_param,
+            "temperature": self.temperature,
+            "max_tokens": self.max_tokens,
+        }
 
     @staticmethod
     def _openai_tools(tool_schemas: list[dict]) -> list[dict]:
@@ -492,7 +590,7 @@ class AzureBackend:
                 for t in tool_schemas]
 
     def one_call(self, system: str, user: str, tool: dict,
-                 reasoning: bool = False) -> dict:
+                 reasoning: bool = False, level: str = "medium") -> dict:
         """One stateless call that must answer by calling one function.
 
         Used by the supervisor, whose shape is different from a worker's: a
@@ -512,8 +610,13 @@ class AzureBackend:
         """
         want = tool["name"]
         if reasoning and not self.reasoning_effort:
+            # `level`, not "low". A probe found reasoning_effort accepted at
+            # every level on both deployments and spending ZERO reasoning
+            # tokens at `low` on both -- an arm set to it would have been the
+            # same model under a different label, and nothing in the output
+            # would have revealed that.
             self.reasoning_effort = os.environ.get(
-                "AZURE_OPENAI_REASONING_EFFORT") or "low"
+                "AZURE_OPENAI_REASONING_EFFORT") or level
 
         res = self._create(
             messages=[{"role": "system", "content": system},
@@ -525,6 +628,14 @@ class AzureBackend:
         if res.usage:
             self.prompt_tokens += res.usage.prompt_tokens
             self.completion_tokens += res.usage.completion_tokens
+            # Counted, because "reasoning_effort was set" and "the model
+            # reasoned" are different claims and only one of them is worth
+            # reporting. A deployment that starts returning zero here has
+            # quietly turned the reasoning arm into a duplicate of the other.
+            details = getattr(res.usage, "completion_tokens_details", None)
+            rt = getattr(details, "reasoning_tokens", None) if details else None
+            if rt:
+                self.reasoning_tokens += rt
 
         calls = res.choices[0].message.tool_calls or []
         if not calls:

@@ -408,19 +408,50 @@ def build(seed: int = SEED) -> list[dict]:
     clean = sorted(sid for sid, d in depth.items() if d == 1)
     dirty = sorted(sid for sid, d in depth.items() if d == 3)
 
+    # RESERVED SESSIONS, and the comment that used to stand here was false.
+    #
+    # It said "seeded per intent, so two intents never draw the same sessions".
+    # A per-intent seed makes the draws INDEPENDENT, not disjoint: independent
+    # samples from one pool collide, and 18 of 40 sessions ended up carrying two
+    # or three intents. There was no test, because the test would have failed the
+    # day it was written. An invariant asserted in a comment is not an invariant.
+    #
+    # Sharing is harmless for most intents, which is why this is a reservation
+    # and not a partition -- 80 queries over 40 sessions cannot be disjoint, and
+    # two requests reading the same books is a realistic thing for an operations
+    # system to be asked to do.
+    #
+    # It is not harmless for one intent. `premature_stage` tests the precondition
+    # gate: the client asks to queue a correction, triage has not recorded the
+    # discrepancy, and the staging worker must refuse so the supervisor can
+    # re-plan around the refusal. Four of its six sessions were shared with
+    # intents that run triage, and `discrepancies` is keyed by session with no
+    # run or request scope, so whichever request arrived first left a row that
+    # satisfied the other's precondition. At concurrency 4 that is a race: the
+    # gate fired or did not depending on scheduling, and the measured 0% on this
+    # class was partly the gate being unable to fire at all.
+    #
+    # So its sessions are drawn first and withheld from every other intent. The
+    # reservation is small (6 of 40) and `test_premature_stage_sessions_are_not
+    # _shared` is the test that was missing.
+    reserved = set(random.Random(f"{seed}:reserve").sample(
+        dirty, INTENTS["premature_stage"]["n"]))
 
     out: list[dict] = []
     n = 0
     for intent, spec in INTENTS.items():
         want = spec["n"]
-        # Seeded per intent, so two intents never draw the same sessions.
         rng = random.Random(f"{seed}:{intent}")
 
         n_clean = CLEAN_QUOTA.get(intent, 0)
         if intent == "premature_stage":
             n_clean = 0            # must name a trade that is actually broken
 
-        pool_clean, pool_dirty = clean, dirty
+        if intent == "premature_stage":
+            pool_clean, pool_dirty = [], sorted(reserved)
+        else:
+            pool_clean = [s for s in clean if s not in reserved]
+            pool_dirty = [s for s in dirty if s not in reserved]
         if spec["decision"] == "clarify":
             # These templates embed no date -- the whole point is that the
             # request does not pin one down -- so the only thing distinguishing
@@ -429,8 +460,12 @@ def build(seed: int = SEED) -> list[dict]:
             # an account the texts would be byte-identical. Found by the
             # different-seed test, which built a corpus with a duplicate: at the
             # default seed the collision simply had not happened yet.
-            pool_clean = _one_per_account(clean)
-            pool_dirty = _one_per_account(dirty)
+            # Narrowed from the already-reserved pools, not from the originals.
+            # Reassigning from `clean`/`dirty` here would have put the reserved
+            # sessions back in reach for exactly the intents whose templates name
+            # no date, which is the hardest place to notice it.
+            pool_clean = _one_per_account(pool_clean)
+            pool_dirty = _one_per_account(pool_dirty)
 
         picks = (rng.sample(pool_clean, n_clean) +
                  rng.sample(pool_dirty, want - n_clean))

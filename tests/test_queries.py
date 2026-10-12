@@ -527,3 +527,67 @@ def test_underspecified_class_spans_more_than_one_underlying_request(corpus):
     texts = [q["text"] for q in corpus if q["intent"] == "underspecified_date"]
     assert any("queue the fixes" in x for x in texts)
     assert any("tell me what differs" in x for x in texts)
+
+
+# --- session sharing, and the one place it is not allowed ---------------------
+#
+# The test that was missing while a comment claimed the invariant. `build` used
+# a per-intent seed and a comment that said two intents therefore never draw the
+# same sessions. Independent draws from one pool are not disjoint draws, 18 of
+# 40 sessions carried two or three intents, and nobody found out for weeks
+# because nothing asserted it.
+
+def test_premature_stage_sessions_are_not_shared(corpus):
+    """The precondition gate's only test class, and it could not fire.
+
+    `premature_stage` asks to queue a correction before triage has recorded the
+    discrepancy. The staging worker must refuse, and the supervisor must re-plan
+    around the refusal -- that refusal-then-recover path is the behaviour this
+    class measures and the only place in the corpus that measures it.
+
+    `discrepancies` is keyed by session with no run or request scope. So when
+    another intent on the same session ran triage first, the row existed, the
+    staging call was no longer premature, and the gate stayed silent. Four of
+    six were in that position, and at concurrency 4 which one won was a matter
+    of scheduling: the class was partly measuring the scheduler."""
+    import collections
+    by_sid = collections.defaultdict(set)
+    for q in corpus:
+        if q.get("session_id"):
+            by_sid[q["session_id"]].add(q["intent"])
+
+    shared = {sid: sorted(ins) for q in corpus
+              if q["intent"] == "premature_stage" and q.get("session_id")
+              for sid in [q["session_id"]]
+              if len(by_sid[sid]) > 1}
+    assert not shared, (
+        f"a premature_stage session is also used by another intent, so its "
+        f"discrepancy row may already exist when staging is called: {shared}")
+
+
+def test_premature_stage_sessions_are_distinct_from_each_other(corpus):
+    """Six queries, six sessions. Two of them on one session would collide with
+    each other for the same reason, and concurrently."""
+    sids = [q["session_id"] for q in corpus
+            if q["intent"] == "premature_stage"]
+    assert len(sids) == len(set(sids)) == 6
+
+
+def test_the_reservation_holds_at_other_seeds():
+    """At the default seed the collision simply happened; at another seed it
+    would happen differently. The same reasoning that caught the duplicate-text
+    bug applies here, so the invariant is checked off the default seed too."""
+    import collections
+
+    import queries as q_mod
+    for seed in (1, 2, 3, 7):
+        qs = q_mod.build(seed=seed)
+        by_sid = collections.defaultdict(set)
+        for q in qs:
+            if q.get("session_id"):
+                by_sid[q["session_id"]].add(q["intent"])
+        ps = {q["session_id"] for q in qs
+              if q["intent"] == "premature_stage" and q.get("session_id")}
+        assert len(ps) == 6, seed
+        bad = {s: sorted(by_sid[s]) for s in ps if len(by_sid[s]) > 1}
+        assert not bad, f"seed {seed}: {bad}"

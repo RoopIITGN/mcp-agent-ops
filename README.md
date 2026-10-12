@@ -5,18 +5,35 @@ harness that measures whether it works.
 
 Three heterogeneous agents reconcile a broker statement against an internal
 ledger across 15 client accounts, flag discrepancies, draft client messages,
-and queue corrections for a human. Six typed tools, four structural gates, 60
-sessions with ground truth seeded deliberately so every number here is
-recomputable from committed files.
+and queue corrections for a human. Six typed tools, four structural gates at
+the tool boundary and six more at the orchestration boundary, 60 sessions and
+80 client requests with ground truth seeded deliberately so every number here
+is recomputable from committed files.
 
-The agent is the easy part. What this repo is actually about is the measuring:
-161 tests, a scorer calibrated against eight deliberately broken agents, and a
-CI gate tested against a deliberately broken repo. Three times the thing that
-turned out to be wrong was the instrument rather than the system.
+Above those agents sits an LLM supervisor that decides, one step at a time,
+which of them to invoke and when to stop. It holds no tools and cannot read any
+client's books.
+
+The agents are the easy part. What this repo is actually about is the measuring:
+403 tests, scorers calibrated against eighteen deliberately broken agents, a CI
+gate tested against a deliberately broken repo, and a measured noise floor for
+every number claimed. Eight times now the thing that turned out to be wrong was
+the instrument rather than the system, and the most expensive of those was a
+corpus that had never tested the gate it existed to test.
 
 ---
 
 ## What the measurements showed
+
+**A weak model cannot be measured as an orchestrator, only ranked.** Two
+independent runs of `gpt-5.4-nano` on the same 80 requests at `temperature=0`
+disagree on one query in four and differ by 10 points on the headline metric,
+while two runs of `gpt-5.4-mini` disagree on one in eleven and differ by one
+point. Ten points is larger than any prompt change worth making, so two
+revisions of the supervisor prompt that appeared to move the number by exactly
+that much were unresolvable by construction. Both are reported as void. Without
+a measured floor, a prompt improvement that does not exist would be a result in
+this file.
 
 **Two gates I called structural were not, and a real model found both in one
 run.** The tool surface validated who could act and, in one field, not *what*
@@ -127,6 +144,182 @@ statement is *no compromise observed at n=10*, not a rate.
 A full 60-session pass is **~$0.09** and about 11 minutes. From the committed
 trace: 336 tool calls at **p50 7.0ms**, so the MCP layer and SQLite are
 effectively free and all 11 seconds per session is model latency.
+
+---
+
+## The supervisor
+
+Above the three worker agents sits an LLM supervisor. A client request arrives
+in natural language with a client id; the supervisor decides which worker to
+invoke, is told what that worker found, and decides again — invoke another,
+stop with an answer, refuse, or ask the client a question. It holds no tools,
+cannot read any client's books, and never recomputes anything a worker has
+already done. Its only output channel is one typed `Decision` per turn.
+
+**What it is allowed to see.** Two different projections of the same worker
+transcript: counts and redacted refusals go *up* to the supervisor, while
+observations and discrepancy ids go *sideways* to the next worker. The
+orchestrator is therefore structurally unable to leak one request's findings
+into another's, and a test asserts no book data appears in anything rendered to
+it.
+
+**Isolation is bound before the process exists.** The account and the role are
+passed in `argv` when the MCP subprocess launches, one subprocess per worker
+invocation. There is no code path that redirects a running worker to another
+account, and two concurrent requests from the same client for the same thing
+get separate asyncio tasks with separate orchestration state.
+
+**Six orchestration gates:** decision validity (`extra="forbid"`, `Literal`
+roles), no privilege escalation, account binding, step cap, context boundary,
+exactly-one-action. Two caps, because the worker cap alone cannot bound the
+loop: `MAX_WORKER_CALLS = 5` and `MAX_SUPERVISOR_CALLS = 10`.
+
+### The query corpus and its ceilings
+
+80 natural-language requests across 12 intent classes, generated
+deterministically from the seeded books, with the ground truth held out of the
+prompt. Three ceilings are computed from the corpus alone, with no model calls:
+
+| strategy | ceiling | |
+|---|---|---|
+| `fixed` | 12/80 (15%) | runs all three roles whatever was asked |
+| `plan_once` | 65/80 (81%) | commits to a plan before any worker reads the books |
+| `iterate` | 80/80 (100%) | decides again after each worker |
+
+The 19-point gap between `plan_once` and `iterate` is **15 requests where the
+books let the orchestrator stop short of what the client asked for** — the
+client asks for the whole pipeline, reconciliation finds nothing to act on, and
+continuing is wasted work. `plan_once` cannot win any of them, because the
+information that justifies stopping does not exist until a worker has read the
+books. That is a proof about information ordering, not an experiment.
+
+### Results
+
+`stub:ideal` workers, so these numbers isolate the orchestrator's decisions.
+Two independent runs of each deployment.
+
+| | mini #1 | mini #2 | nano #1 | nano #2 |
+|---|---|---|---|---|
+| fully correct | **69%** | **68%** | 34% | 44% |
+| exact route | 69% | 69% | 40% | 48% |
+| over-reach | 11% | 14% | 57% | 45% |
+| under-reach | 20% | 18% | 2% | 8% |
+| early stop (of 15) | **15/15** | **15/15** | 4/15 | 8/15 |
+| false clarify | **0%** | 1% | 7% | 12% |
+| false refuse | 7% | 10% | 13% | 6% |
+| wasted calls | 11 | 16 | 87 | 60 |
+| model calls | 158 | 164 | 280 | 236 |
+| isolation violations | 0 | 0 | 3 | 2 |
+
+**mini wins all 15 of the discriminating class, in both runs.** That is the
+architecture claim landing: `plan_once` cannot win any of those by
+construction.
+
+Paired exact two-sided McNemar, mini against each nano arm separately, because
+a result that depends on which of two equivalent runs you picked is not a
+result:
+
+| | discordant | p |
+|---|---|---|
+| vs nano #1 | 35 / 7 | 1.5 × 10⁻⁵ |
+| vs nano #2 | 28 / 8 | **1.2 × 10⁻³** |
+| early-stop class, vs nano #2 | 7, all to mini | **0.016** |
+
+The bolded figures are the ones quoted elsewhere: the less flattering of two
+valid pairings.
+
+### The reproducibility floor, which is the actual finding
+
+Same model, same prompt, same corpus, `temperature=0`, two independent runs:
+
+| | queries that flip | split | p | aggregate spread |
+|---|---|---|---|---|
+| mini vs mini | 7 / 80 (8.8%) | 4 / 3 | 1.0 | 1 point |
+| nano vs nano | 20 / 80 (25%) | 6 / 14 | 0.115 | 10 points |
+
+One query in four changes outcome between identical nano runs. The paired test
+says the two nano runs are *not* significantly different from each other, so
+the 10-point aggregate gap is noise rather than one run going better.
+
+The consequence is the thing worth taking away:
+
+> **nano's noise floor exceeds the effect size of any prompt change worth
+> making, so as an orchestrator it can be ranked but not measured.** mini's is
+> one point, so on mini a five-point intervention is detectable.
+
+This was learned the expensive way. Two revisions of the supervisor prompt were
+measured on nano and appeared to move the headline by ten points. Both were
+inside the noise floor by construction — experiments run on an instrument that
+could not resolve them. Had the floor not been measured, a prompt improvement
+that does not exist would be written up here as a result.
+
+What *is* reproducible is mini's accuracy, not its behaviour: `clarify` moved
+33% → 17% and `refuse` 92% → 100% between its two runs while fully-correct
+moved one point. The 7 discordant pairs are where that lives.
+
+### The isolation gate, fired by a live model
+
+Across the two nano runs the account-binding gate caught **5 attempts** to
+reach a client's book other than the requesting client's — 3 in one run, 2 in
+the other. Reproducible, by a real model, not a stub. A gate that has never
+fired is an assumption; this one has evidence, and the `stub:cross_account`
+calibration policy is its positive control.
+
+### Four bugs the measurements found
+
+Each of these was found by a number being wrong, not by reading code.
+
+**The supervisor could not see its own decisions.** The history it received
+carried worker outcomes and gate rejections but not its own prior decisions, so
+it re-emitted the same route repeatedly. Adding a decision log moved
+fully-correct from 4% to 38% and step-cap terminations from 68 to 5. The
+orchestrator's own choices are part of its state, and omitting them was
+measured as the model being incapable.
+
+**A validator of mine rejected 69 of 80 decisions.** It refused any `clarify`
+that carried a resolved date, on the reasoning that a known date leaves nothing
+to clarify. A clarification need not be about the date, and when it is, naming
+the date you tried is what makes the question answerable. 24% of a paid run
+spent proving my own constraint wrong. Removing it *lowered* the headline,
+because the rejections had been accidentally suppressing the model's real
+failure mode.
+
+**Two measured arms were silently compared under different conditions.** The
+results file keyed arms by supervisor label while `--fresh` and `--resume`
+compared against the CLI spec, which never matches for an azure arm — so
+`--fresh` dropped nothing and `--resume` re-ran everything, both without
+complaint, because doing the whole run is also correct behaviour when there is
+nothing to skip. Separately, the discrepancy tables are keyed by session with no
+run scope, so the second arm inherited the first's rows and every precondition
+the first arm had to earn was already satisfied for the second. Each arm now
+rebuilds its database by default.
+
+**A test asserted the bug.** `test_fresh_drops_only_its_own_arm` checked for
+the literal string `!= a.supervisor` in the source of `amain`. The string was
+present, the test passed for weeks, the comparison was against the wrong field,
+and the test *failed on the correct fix*. A test that asserts an implementation
+cannot tell you the implementation is wrong — it pins the defect in place and
+makes repairing it look like a regression. It is now a behavioural test.
+
+### A corpus that never tested the gate it existed for
+
+`premature_stage` is the only class that exercises the precondition gate: the
+client asks to queue a correction, triage has not recorded the discrepancy, the
+staging worker must refuse, and the supervisor must re-plan around the refusal.
+
+The generator drew each intent's sessions with a per-intent seed, and a comment
+asserted that this meant two intents never drew the same sessions. It does not:
+a per-intent seed makes the draws *independent*, not disjoint, and independent
+samples from one pool collide. 18 of 40 sessions carried two or three intents,
+and four of the six `premature_stage` sessions were shared with intents that
+run triage. Whichever request arrived first left a discrepancy row that
+satisfied the other's precondition, and at concurrency 4 which one won was a
+matter of scheduling.
+
+So that class had never tested the gate, in any run. Its sessions are now
+reserved, and `test_premature_stage_sessions_are_not_shared` is the test that
+was missing — a test that would have failed the day the comment was written.
+**An invariant asserted in a comment is not an invariant.**
 
 ---
 
@@ -400,8 +593,15 @@ PYTHONPATH=src python src/eval.py --out reports/eval.md
 PYTHONPATH=src python src/calibrate.py --out reports/calibration.md
 PYTHONPATH=src python src/gate.py
 
-# tests
-for f in tests/test_*.py; do python "$f"; done
+# the orchestration layer, also with no model
+PYTHONPATH=src python src/queries.py                   # corpus + the three ceilings
+PYTHONPATH=src python src/calibrate_routing.py         # 10 broken supervisors
+PYTHONPATH=src python src/run_requests.py --supervisor stub:oracle
+PYTHONPATH=src python src/routing_eval.py --out reports/routing.md
+
+# tests -- pytest is authoritative; the loop below cannot fail a file with no
+# __main__ block, which once let two suites sit green in CI without executing
+python -m pytest tests/ -q
 ```
 
 With a model (see `.env.example`; `src/check_model.py` verifies a deployment
@@ -421,10 +621,30 @@ PYTHONPATH=src python src/injection.py score --backend "azure:...@t0.0" \
     --clean reports/azure.jsonl --injected reports/injected_azure.jsonl \
     --db data/ops_injected.db
 
-# variance floor
+# variance floor, worker layer
 PYTHONPATH=src python src/eval.py --backend "azure:...@t0.0" \
     --variance reports/azure.jsonl reports/azure_repeat.jsonl
+
+# the supervisor arms. Each rebuilds its own database, because the discrepancy
+# tables are keyed by session with no run scope and a second arm would
+# otherwise inherit the first's satisfied preconditions. An unnamed re-run is a
+# new arm and skips nothing, which is how the repeat below happens.
+PYTHONPATH=src python src/check_supervisor.py          # 4 calls, pre-flight
+PYTHONPATH=src python src/run_requests.py --supervisor azure:gpt-5.4-mini \
+                                          --backend stub:ideal --concurrency 4
+PYTHONPATH=src python src/run_requests.py --supervisor azure:gpt-5.4-mini \
+                                          --backend stub:ideal --concurrency 4
+PYTHONPATH=src python src/routing_eval.py --out reports/routing_azure.md \
+    --compare 'azure:gpt-5.4-mini @ <run-a>' 'azure:gpt-5.4-mini @ <run-b>'
 ```
+
+`probe_model.py` is standalone and imports nothing from `src/`. It asks a
+deployment one parameter at a time whether it accepts `temperature`,
+`reasoning_effort` and `max_completion_tokens`, and prints the API's own reply.
+It exists because `reasoning_effort` is *accepted* at every level on both
+deployments and spends zero reasoning tokens at `minimal` and `low` — an arm
+pinned there would have cost money, produced a different label and run the same
+model, and nothing in the results would have shown it.
 
 ### Layout
 
@@ -435,7 +655,14 @@ src/
   tools.py          the six tools, Pydantic schemas, role subsets
   server.py         MCP server, one process per (account, role)
   backends.py       the scripted stub (8 policies) and the Azure backend
-  agent.py          supervisor dispatch and the worker loop
+  agent.py          worker dispatch and the tool-calling loop
+  queries.py        80 client requests, 12 intents, and the three ceilings
+  plan.py           the Decision schema, the caps, the context projections
+  supervisor.py     the iterative orchestrator and 10 stub policies
+  run_requests.py   one asyncio task per request, one subprocess per invocation
+  routing_eval.py   routing scorer, both sides of every pair, exact McNemar
+  calibrate_routing.py  proves the routing scorer separates the 10 policies
+  check_supervisor.py   4-call pre-flight through the real decision path
   eval.py           outcome, trajectory, schema validity, McNemar, variance
   calibrate.py      proves the scorer separates the broken policies
   injection.py      13 payloads, paired scoring
@@ -476,6 +703,79 @@ measurement and removes least privilege at the agent layer. The CI gate would
 have to exclude it by name from `structural.read_only_roles`, and that exclusion
 would itself be worth reading.
 
+### Limitations of the orchestration layer
+
+**The two layers are each measured against a real model; composing them is
+not.** Workers choosing their own tools is measured — 60 sessions, 336 real
+tool calls, 100% clean trajectories. The supervisor choosing roles is measured
+— 4 arms, 80 requests, with a noise floor. Every supervisor arm used
+`stub:ideal` workers, so *both ends live in the same run* is untested. The
+boundary between them is tested structurally and by unit test, not end to end.
+
+**Prompt injection against the supervisor is not tested.** The injection suite
+targets the worker agents, which call tools. The supervisor is a different and
+arguably more interesting target, because it holds the authority to delegate.
+No arm puts a payload in the client request aimed at the planner.
+
+**Two rules in the supervisor prompt are wrong, and are left in deliberately.**
+Both were added in a revision that also added three rules which worked, and
+both restate guidance already present elsewhere in a lossier form:
+
+**The date rule compresses an exception out of existence, and this one is
+established.** A line in the request context says `"8 Sep"` resolves to the
+current year while `"the 8th"` does not. The system-prompt version says to
+resolve wherever one reading exists, and the system prompt wins. The result,
+across all four arms and 24 requests that name a day with no month:
+
+| | clarified | stopped with `done` | refused |
+|---|---|---|---|
+| mini, both arms | **0 / 12** | **12 / 12** | 0 |
+| nano, both arms | 4 / 12 | 1 | 7 |
+
+mini stamps the business date on a request that does not name one, runs the
+work, and reports success — twelve times out of twelve, never once asking. The
+failure is not a low score on a hard class; it is a confident wrong answer
+produced by a rule I added. nano does better here only because it follows the
+instruction less reliably.
+
+**The `cross_account` class also fails, but the cause is not established.** The
+second added rule says to refuse a request reaching for another account, which
+contradicts the partial-decline rule a few lines above it — a request asking
+for legitimate work on your own account *plus* a peek at another should serve
+the first and decline the second. That contradiction is real and visible by
+reading the prompt. What the data does *not* show is that it explains the
+failure: mini terminates `done` on 6 of 12 rather than refusing, and all 6 of
+those scored 0% on exact route too, so the route was wrong even when the
+terminal was not. The split also flips between identical mini runs, 4/2 then
+2/4, which at n=6 is the instability this section warns about appearing exactly
+where a conclusion was about to be drawn. Recorded as an unexplained 0/12 with
+a suspected contributing cause.
+
+Both rules are left in because the harness cannot currently resolve the fix. A
+deletion would be a prompt change measured against the same 80 queries that
+motivated it, and with two mini arms there is no basis for claiming the result
+moved. Changing a prompt you cannot measure is what produced the two void
+comparisons above. The defects are reported instead.
+
+**Per-intent figures are n=6 and should be read as fractions.** One query is 17
+percentage points. Only classes at 0 or 6 across multiple arms carry any
+weight; `premature_stage` at 1/6 on mini and `underspecified_date` at 4/6 are
+not distinguishable from each other.
+
+**mini's noise floor is n=2.** Two runs give a range, not a variance. The
+one-point spread and 7 discordant pairs are an encouraging observation, not an
+estimate of the distribution.
+
+**`fully_correct` is a conjunction and hides which part failed.** It requires
+the right action, roles, date and declines together. The paired per-class
+tables exist because of this, but a single headline percentage still averages
+four different kinds of mistake.
+
+**SQLite is not a production concurrency story.** Throughput saturates at
+concurrency 4, bottlenecked on process spawn rather than the database. The
+isolation and idempotency claims are about correctness under concurrency, not
+about scale.
+
 ---
 
 ## Lineage
@@ -491,3 +791,11 @@ policy rather than an assumption.
 The principle both share: **enforce at the boundary, not in the instruction** —
 and the lesson this one added is that a boundary has to constrain what an action
 *is*, not only who is allowed to propose one.
+
+The orchestration layer added a second: **measure the instrument before
+believing the result.** Every finding in this file that had to be withdrawn was
+withdrawn because a number was compared against another number produced under
+conditions nobody had checked — a different database, a different corpus, a
+different run of the same model. The noise floor, the per-arm database rebuild
+and the four-arm layout all exist to make those conditions visible in the
+report rather than discoverable afterwards.

@@ -46,6 +46,7 @@ from __future__ import annotations
 import argparse
 import json
 import math
+import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -348,22 +349,53 @@ def render(by_sup: dict[str, dict], intents: dict[str, dict[str, dict]],
 # --- io -----------------------------------------------------------------------
 
 def load(runs: Path, queries: Path) -> dict[str, list[dict]]:
+    """Group scored records by arm, where an arm is (supervisor, run_id).
+
+    The run_id is part of the key, and leaving it out cost a measurement.
+
+    The earlier version keyed on (supervisor, query_id) with first-write-wins,
+    on the reasoning that a resumed run appends and the first record is the
+    reproducible one. That is true for a resume and false for a re-run: two runs
+    of the same supervisor land in one file under one label, and the scorer
+    silently reported the OLDER one. A fix to the harness was measured, scored,
+    and came back with the pre-fix numbers -- 399 model calls and 61 invalid
+    decisions, which were the previous run's. Nothing in the report said so.
+
+    So an arm is now a supervisor AND a run, every run is reported, and nothing
+    is discarded quietly. Where a supervisor has several runs the caller is told
+    rather than being handed whichever one the parser happened to meet first.
+    """
     qs = {q["query_id"]: q for q in json.loads(
         queries.read_text(encoding="utf-8"))}
     out: dict[str, list[dict]] = {}
     seen: set[tuple[str, str]] = set()
+    runs_per_sup: dict[str, list[str]] = {}
+
     for line in runs.read_text(encoding="utf-8").splitlines():
         if not line.strip():
             continue
         rec = json.loads(line)
-        key = (rec["supervisor"], rec["query_id"])
+        run_id = rec.get("run_id") or "unlabelled"
+        sup = rec["supervisor"]
+        arm = sup if run_id == "unlabelled" else f"{sup} @ {run_id}"
+
+        key = (arm, rec["query_id"])
         if key in seen:
-            continue            # a resumed run appends; last write wins is
-        seen.add(key)           # wrong, first write wins is reproducible
+            continue            # within one run, a resume appends; the first
+        seen.add(key)           # record of a query is the reproducible one
         q = qs.get(rec["query_id"])
         if q is None:
             continue
-        out.setdefault(rec["supervisor"], []).append(score_one(rec, q))
+        out.setdefault(arm, []).append(score_one(rec, q))
+        if run_id not in runs_per_sup.setdefault(sup, []):
+            runs_per_sup[sup].append(run_id)
+
+    for sup, ids in runs_per_sup.items():
+        if len(ids) > 1:
+            print(f"note: `{sup}` has {len(ids)} runs in this file "
+                  f"({', '.join(ids)}). Each is reported separately below. "
+                  f"They are not merged, and the newest is not assumed to be "
+                  f"the one you want.", file=sys.stderr)
     return out
 
 

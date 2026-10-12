@@ -325,3 +325,131 @@ def test_the_runner_writes_to_its_own_database():
     at."""
     assert rr.DB.name == "ops_requests.db"
     assert "ops_requests.db" in (ROOT / ".gitignore").read_text(encoding="utf-8")
+
+
+def test_an_arm_is_identified_by_its_label_not_the_cli_spec():
+    """The bug both --fresh and --resume shipped with, and why it was invisible.
+
+    A record's `supervisor` field holds the label the supervisor reports
+    ("azure:gpt-5.4-nano"), because a report that cannot tell two deployments
+    apart is worse than no report. The flags compared that against the CLI spec,
+    which for every azure arm is the shorter "azure". The test never matched, so
+    --fresh dropped nothing and --resume re-ran all eighty requests -- which is
+    also precisely what both do when there is legitimately nothing to skip, so
+    neither flag ever looked broken. Two paid runs landed in one file because of
+    it.
+
+    Only the stub arms, where spec and label happen to coincide, worked. So the
+    assertion uses a label that differs from its spec."""
+    spec = "azure:gpt-5.4-nano"
+    label = "azure:gpt-5.4-nano"       # what AzureSupervisor.label reports
+    assert spec != "azure", "the spec under test must differ from the label"
+
+    lines = [json.dumps({"supervisor": label, "query_id": "Q-001"}),
+             json.dumps({"supervisor": label, "query_id": "Q-002"}),
+             json.dumps({"supervisor": "azure:gpt-5.4-mini",
+                         "query_id": "Q-001"})]
+    mine, others = rr.partition(lines, label)
+    assert len(mine) == 2, "this arm's records were not recognised"
+    assert len(others) == 1, "another arm's records were dropped"
+
+    # And the comparison must not accidentally succeed on the bare spec, which
+    # is what a `startswith` would do: "azure" prefixes both deployments, so a
+    # prefix match would silently merge the two arms being compared.
+    mine, others = rr.partition(lines, "azure")
+    assert mine == [], "a bare spec must match no arm rather than all of them"
+    assert len(others) == 3
+
+
+def test_only_one_run_of_a_model_is_continuable():
+    """What --resume means, and the splice it used to allow.
+
+    Matching on the label alone made every past run of a model continuable, so
+    a resume after a crash at request 70 would take 1-69 from one run and 70-80
+    from another and the scorer would report the join as one arm -- two
+    different prompts or two different days, averaged, with nothing saying so.
+
+    It also made a deliberate repeat impossible: the second run of a model would
+    skip all eighty requests as already done. A repeat is the only way to know
+    whether the gap between two models is larger than the gap between two runs
+    of one, so this is load-bearing for every comparison in the report."""
+    lines = [json.dumps({"supervisor": "m", "query_id": "Q-001",
+                         "run_id": "run-a"}),
+             json.dumps({"supervisor": "m", "query_id": "Q-002",
+                         "run_id": "run-a"}),
+             json.dumps({"supervisor": "m", "query_id": "Q-001",
+                         "run_id": "run-b"})]
+
+    mine, _ = rr.partition(lines, "m", run_id="run-a")
+    assert {json.loads(l)["query_id"] for l in mine} == {"Q-001", "Q-002"}
+
+    mine, _ = rr.partition(lines, "m", run_id="run-b")
+    assert {json.loads(l)["query_id"] for l in mine} == {"Q-001"}, \
+        "a resume of one run must not pick up another run's records"
+
+    # A run id nobody has written yet continues nothing, which is what makes an
+    # unnamed re-run a fresh arm rather than a no-op.
+    mine, others = rr.partition(lines, "m", run_id="run-c")
+    assert mine == [] and len(others) == 3
+
+
+def test_each_arm_starts_from_a_rebuilt_database_by_default():
+    """The contamination that confounded two measured prompt revisions.
+
+    `discrepancies` and `pending_actions` are keyed by session with no run
+    scope, which the idempotency gate needs and which also means they outlive a
+    run. Revision 1 ran against a rebuilt database and revision 2 against
+    revision 1's leftovers, so every precondition revision 1 earned was already
+    satisfied for revision 2, and the ten points between them cannot be
+    attributed. The report could never have shown it: the report does not see
+    the database.
+
+    Rebuilding restores the books from the committed JSON and clears only the
+    tables an agent writes, so it resets the state under test without changing
+    what is tested. Hence the default, rather than a flag to remember -- the
+    first version of this was a line in a command block that I left out once."""
+    import inspect
+    src = inspect.getsource(rr.amain)
+    assert "init_db(force=True" in src
+    assert "a.keep_db" in src
+
+    ap_src = inspect.getsource(rr.main)
+    assert "--keep-db" in ap_src, "the opt-out must be explicit, not implicit"
+    # And the dangerous combination has to warn rather than pass quietly.
+    assert "warning:" in src
+
+
+def test_an_unnamed_rerun_skips_nothing():
+    """The repeat arm, and the bug that silently cancelled it.
+
+    `partition(run_id=None)` means "every run of this arm", which is what
+    --fresh needs and the opposite of what resume needs. The resume branch
+    passed `a.run_id` straight through, so on a new run it matched all eighty
+    records of the previous one and the process exited with "nothing to do".
+    The second nano arm never ran, the variance floor was never measured, and
+    the report gave no sign of it -- it simply had one arm fewer than asked for.
+
+    A repeat is the only way to know whether the gap between two models is
+    bigger than the gap between two runs of one, so this is load-bearing for
+    every comparison in the report."""
+    import inspect
+    src = inspect.getsource(rr.amain)
+    assert "if a.run_id is not None:" in src, (
+        "resume must only continue a named run; None is a new run, not a "
+        "wildcard")
+    # And the branch for the unnamed case must announce the separate arm rather
+    # than skipping into it.
+    assert "a new " in src and "nothing is skipped" in src
+
+
+def test_an_empty_run_id_is_not_a_run_id():
+    """`--run-id` defaulted to "", which compares unequal to every stored id.
+    Resume therefore skipped nothing and the repeat branch was unreachable, both
+    silently, because re-running everything is also the correct behaviour when
+    there is nothing to skip."""
+    import inspect
+    assert "a.run_id = a.run_id or None" in inspect.getsource(rr.main)
+    mine, others = rr.partition(
+        [json.dumps({"supervisor": "m", "query_id": "Q-001", "run_id": "r"})],
+        "m", run_id=None)
+    assert len(mine) == 1, "run_id=None must mean 'any run of this arm'"

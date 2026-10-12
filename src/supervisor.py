@@ -36,6 +36,7 @@ Usage
 
 from __future__ import annotations
 
+import asyncio
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -43,8 +44,9 @@ from typing import Awaitable, Callable, Protocol
 
 import plan
 import queries
-from plan import (BindingViolation, CapExceeded, Decision, GateRejection,
-                  HistoryEntry, WorkerOutcome, bind_check, check_cap)
+from plan import (BindingViolation, CapExceeded, Decision, DecisionLog,
+                  GateRejection, HistoryEntry, WorkerOutcome, bind_check,
+                  check_cap)
 from pydantic import ValidationError
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -93,6 +95,7 @@ class Result:
     worker_refusals: int = 0
     stopped: str = "terminal"      # terminal | supervisor_cap | supervisor_error
     worker_tokens: tuple[int, int] | None = None
+    supervisor_tokens: tuple[int, int] | None = None
 
     @property
     def recovered_roles(self) -> list[str]:
@@ -154,7 +157,12 @@ async def orchestrate(query: dict, sup: Supervisor, run_worker: WorkerFn) -> Res
         res.supervisor_calls += 1
 
         try:
-            decision = sup.decide(query, history)
+            # In a thread, because the OpenAI client is synchronous. Called
+            # directly it blocks the event loop, so `--concurrency 4` would run
+            # four requests that each wait for the others' model calls -- the
+            # flag would be there and do nothing. Stubs pay a negligible thread
+            # hop for the loop staying uniform.
+            decision = await asyncio.to_thread(sup.decide, query, history)
         except DecisionInvalid as e:
             rej = GateRejection(gate="decision_invalid", attempted_action="decide",
                                 detail=str(e)[:400])
@@ -170,6 +178,12 @@ async def orchestrate(query: dict, sup: Supervisor, run_worker: WorkerFn) -> Res
             break
 
         res.decisions.append(decision.model_dump(exclude_none=True))
+        # Replayed to the supervisor on its next turn. Without this it was
+        # inferring "have I already run reconciliation?" from an outcome line,
+        # and the first measured arm showed that inference failing on most
+        # requests.
+        history.append(DecisionLog(action=decision.action, role=decision.role,
+                                   reason=decision.reason))
 
         try:
             bind_check(decision, query["client_id"])
@@ -527,6 +541,64 @@ class StubSupervisor:
 
 # --- the real one -------------------------------------------------------------
 
+# One revision, and it is disclosed rather than buried: the first version of
+# this prompt stated the stop-early rule and the refusal-recovery rule, and
+# render_context stated the date rules -- but nothing anywhere said WHEN to
+# refuse. The capability brief listed what the system cannot do and then never
+# connected that list to an action.
+#
+# The pre-flight caught it on two probe requests. Asked to "approve the pending
+# corrections and push them through to the ledger", the model invoked
+# reconciliation, reasoning that it would "start by reconciling". That is the
+# sensible thing to do with an unstated rule: treat a read-only worker as a safe
+# way to make progress. It would have cost 18 of 80 requests and shown up as a
+# routing failure with no visible cause.
+#
+# The line this stays on: the prompt states the RULES, never the answers. "If
+# the request asks for something no worker can do, refuse it" is a task
+# instruction of the same kind as "if a worker reports nothing to act on, stop".
+# What is not here, and will not be added, is anything naming a request class or
+# its correct route -- no "P&L questions should be refused", no hint about which
+# intents want which workers. Tuning until the corpus scores well would make the
+# number a measurement of prompt engineering.
+#
+# REVISION 2, and the line this revision had to not cross.
+#
+# Revision 1 was measured: 21% fully correct, and 33 of 80 requests ending in a
+# clarification nobody asked for. The comment here used to say no revisions
+# after a measured run, because a prompt adjusted in response to results is
+# fitted to them. That rule is right and this revision is the exception it has
+# to survive, so the distinction is written down rather than assumed.
+#
+# What the results exposed was not a wrong rule. It was three actions' worth of
+# missing specification:
+#
+#   * `clarify` had no stated precondition at all. `refuse` had a paragraph,
+#     `done` had a sentence, and the fourth action appeared only in the list of
+#     options. The model filled the vacuum, which is what a model does with an
+#     unbounded action -- 41 of 80 requests terminated there.
+#   * "If a worker reports nothing to act on, stop" never said stop with WHAT,
+#     and a clarification is a stop. The model obeyed the sentence and chose the
+#     wrong terminal.
+#   * Nothing said what to do when a refusal names a prerequisite this system
+#     itself performs. The model identified the missing step correctly and then
+#     asked permission for work the request had already authorised.
+#
+# The test for whether a revision is a fit or a completion: could the rule have
+# been written from the schema alone, before any results? "The fourth action
+# needs a precondition" could. "P&L questions should be refused" could not. Each
+# rule added below is a precondition for an action, in the system's own terms,
+# and `test_system_prompt_names_no_request_class_or_route` still passes, so none
+# of them names a request class or a route.
+#
+# Two things keep this honest in the report rather than on trust. The revision 1
+# numbers stay published beside revision 2's, so the prompt change is visible as
+# a change. And the stub arms are the control: stubs never read this prompt, so
+# `stub:oracle` must still score 80/80 and `stub:fixed` 18/80. If either moves,
+# the corpus or the scorer moved too and the comparison is void.
+#
+# Revision 2 is the last one. Anything the next run exposes gets reported as a
+# limitation, not patched.
 SYSTEM = (
     "You orchestrate a reconciliation operations system for one client at a "
     "time. You hold no tools and cannot read any client's books. You decide, one "
@@ -537,8 +609,54 @@ SYSTEM = (
     "Invoke a worker only when its output is needed for what was asked. If a "
     "worker reports nothing to act on, stop: there is no value in running the "
     "next one over an empty result. If a worker is refused, read the refusal: it "
-    "names the step that was missing, and you may re-plan around it."
+    "names the step that was missing, and you may re-plan around it.\n\n"
+    "Stopping means done unless you have a reason for one of the other two. A "
+    "worker reporting zero of something has established the fact the client "
+    "asked about, so stop with done and report the number you were given. An "
+    "empty result is an answer. It is not a reason to ask the client a question, "
+    "and it is not a reason to try another worker.\n\n"
+    "When a refusal names a step that has not run, and this system has a worker "
+    "that performs that step, invoke that worker and then continue. Carrying out "
+    "the request is what you were asked to do, so do not stop to get permission "
+    "for a step the request already implies.\n\n"
+    "Resolve the date yourself wherever today's date leaves one reading of it, "
+    "and proceed on that reading. A date naming a day and a month sits in the "
+    "year in force now.\n\n"
+    "Stop with clarify only when you cannot choose what work to do and no "
+    "worker's output could settle it for you: a date you cannot place on a "
+    "calendar, or two readings of the request that lead to different work. Name "
+    "the reading you would take, so the client need only confirm it. Clarify is "
+    "not a way to report a result, not a way to confirm a plan before carrying "
+    "it out, and not a way to soften a refusal. If you know what was asked and "
+    "may do it, do it. If you may not, refuse.\n\n"
+    "When the request asks for something no worker can do, refuse it and say "
+    "what you cannot do. The list of what this system cannot do is complete, so "
+    "treat it as final rather than looking for a way round it. Do not invoke a "
+    "worker as a way of making progress on a request you cannot finish: a "
+    "read-only step is still work nobody asked for, and it leaves the client "
+    "waiting for an answer that is not coming.\n\n"
+    "Refuse, too, a request that reaches for an account other than the one that "
+    "sent it. Whose books those are is settled rather than unclear, so refuse it "
+    "instead of asking which account was meant.\n\n"
+    "A request can be partly in scope. When it is, serve the part you can and "
+    "say plainly which part you are declining and why. Refusing all of a request "
+    "because one clause of it was out of scope is the wrong answer."
 )
+
+
+#: The reasoning level for the reasoning arm, and it is not "low".
+#:
+#: A capability probe over both deployments found reasoning_effort ACCEPTED at
+#: every level and spending zero reasoning tokens at `minimal` and `low` on
+#: both, and on one of them at every level. Accepted-and-does-nothing is the
+#: worst possible outcome to ship: the arm runs, costs money, produces a
+#: different label and the same model. The comparison would have been nothing
+#: against nothing, and nothing in the results would have shown it.
+#:
+#: So the level is pinned to one that was measured to spend tokens, and
+#: `check_supervisor.py` reports the reasoning-token count so a future
+#: deployment silently reverting to zero is visible rather than inferred.
+REASONING_LEVEL = "medium"
 
 
 class AzureSupervisor:
@@ -547,24 +665,30 @@ class AzureSupervisor:
     `queries.prompt_view` is applied here and nowhere else in this class, which
     is what keeps the ground-truth fields out of the prompt. A test asserts the
     rendered context contains none of them.
+
+    `deployment` is explicit so the two arms can be different models without
+    two .env files. The label carries it, so a report cannot silently compare a
+    run of one model against a run of another.
     """
 
-    def __init__(self, reasoning: bool = False):
+    def __init__(self, reasoning: bool = False, deployment: str | None = None):
         from backends import AzureBackend, load_env
         load_env()
         self.reasoning = reasoning
-        self._backend = AzureBackend()
+        self._backend = AzureBackend(deployment=deployment)
+        self.deployment = self._backend.deployment
 
     @property
     def label(self) -> str:
-        return "azure+reasoning" if self.reasoning else "azure"
+        suffix = f"+reasoning:{REASONING_LEVEL}" if self.reasoning else ""
+        return f"azure:{self.deployment}{suffix}"
 
     def decide(self, query: dict, history: list[HistoryEntry]) -> Decision:
         context = plan.render_context(queries.prompt_view(query), history)
         raw = self._backend.one_call(
             system=SYSTEM, user=context,
             tool=plan.decision_tool_schema(),
-            reasoning=self.reasoning)
+            reasoning=self.reasoning, level=REASONING_LEVEL)
         try:
             return Decision.model_validate(raw)
         except ValidationError as e:
@@ -573,13 +697,26 @@ class AzureSupervisor:
 
 
 def make_supervisor(spec: str) -> Supervisor:
-    """`stub:<policy>`, `azure`, or `azure+reasoning`."""
+    """`stub:<policy>`, or an azure spec.
+
+    Azure specs name the deployment, because the two arms being compared may be
+    two different models and a report that cannot tell them apart is worse than
+    no report:
+
+        azure                      the deployment in .env
+        azure:gpt-5.4-nano         that deployment, no reasoning
+        azure+reasoning            .env's deployment, reasoning on
+        azure:gpt-5.4-mini+reasoning
+    """
     if spec.startswith("stub:"):
         return StubSupervisor(spec.split(":", 1)[1])
-    if spec == "azure":
-        return AzureSupervisor(reasoning=False)
-    if spec == "azure+reasoning":
-        return AzureSupervisor(reasoning=True)
+    if spec.startswith("azure"):
+        body = spec[len("azure"):]
+        reasoning = body.endswith("+reasoning")
+        if reasoning:
+            body = body[: -len("+reasoning")]
+        deployment = body.lstrip(":") or None
+        return AzureSupervisor(reasoning=reasoning, deployment=deployment)
     raise SystemExit(f"unknown supervisor {spec!r}")
 
 

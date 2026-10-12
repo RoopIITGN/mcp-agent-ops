@@ -101,13 +101,35 @@ def test_blank_message_does_not_count_as_a_message():
         Decision.model_validate(invoke(action="refuse", role=None, message="   "))
 
 
-def test_clarify_with_a_known_date_is_incoherent():
-    """If the date is known there is nothing to clarify about it. Catches a
-    supervisor that asks a question it has already answered."""
-    with pytest.raises(ValidationError, match="incoherent"):
+def test_clarify_may_name_the_date_it_tried():
+    """There was a rule rejecting this, and it cost 69 of 287 decisions in the
+    first measured run -- every invalid decision in that run was this rule and
+    nothing else.
+
+    It was wrong twice. A clarification need not be about the date: "I can
+    reconcile ACC-015 for 22 Sep, do you also want ACC-005?" is a clarify with
+    a perfectly good date. And when it IS about the date, naming the one it
+    tried is what makes the question answerable."""
+    d = Decision.model_validate(invoke(
+        action="clarify", role=None, session_date="2026-09-25",
+        reason="no statement is loaded for the date I resolved",
+        message="There is no statement for 2026-09-25. Which date did you mean?"))
+    assert d.action == "clarify" and d.session_date == "2026-09-25"
+
+
+def test_clarify_about_something_other_than_the_date_is_valid():
+    d = Decision.model_validate(invoke(
+        action="clarify", role=None, session_date="2026-09-22",
+        reason="the request names a second client I cannot reach",
+        message="I can reconcile ACC-015 for 22 Sep. Did you also want ACC-005?"))
+    assert d.session_date == "2026-09-22"
+
+
+def test_clarify_still_needs_a_message():
+    """Loosening one rule must not loosen the rest."""
+    with pytest.raises(ValidationError, match="requires a message"):
         Decision.model_validate(invoke(action="clarify", role=None,
-                                       session_date="2026-09-08",
-                                       message="which date did you mean?"))
+                                       session_date="2026-09-08"))
 
 
 def test_invoking_a_worker_is_not_a_reply_to_the_client():
@@ -342,7 +364,7 @@ def test_produced_work_is_the_early_stop_signal():
 def test_empty_history_is_meaningful_not_blank():
     """Before any worker runs, the supervisor's position is that nobody has
     looked at anything -- which is a fact it needs, not an absence."""
-    assert "nothing has run yet" in render_history([])
+    assert "your first decision on this request" in render_history([])
 
 
 def test_history_renders_in_order():
@@ -591,3 +613,62 @@ def test_context_contains_the_four_sections_the_supervisor_needs():
 
 def test_empty_history_says_no_books_have_been_read():
     assert "no client's books have been looked at" in render_history([])
+
+
+# --- the decision log --------------------------------------------------------
+#
+# Added after the first measured arm, which came back as
+# [reconciliation, reconciliation] on most requests: the supervisor was shown
+# worker outcomes and gate rejections but never its own decisions, so "have I
+# already run this worker?" had to be inferred from a side effect.
+
+def test_a_decision_is_replayed_to_the_supervisor():
+    d = plan.DecisionLog(action="invoke", role="reconciliation",
+                         reason="nothing read yet, so compare the books first")
+    text = d.render()
+    assert "YOU DECIDED" in text and "reconciliation" in text
+    assert "compare the books" in text
+    assert not d.produced_work
+
+
+def test_a_terminal_decision_logs_without_a_role():
+    d = plan.DecisionLog(action="refuse", reason="no role can execute anything")
+    assert "refuse" in d.render()
+    assert "None" not in d.render()
+
+
+def test_a_decision_reason_is_redacted_like_everything_else():
+    """The reason is the model's own sentence, so it may quote a trade id the
+    client's request mentioned. Letting that through would break the context
+    gate for no gain: the client's original words are in the prompt verbatim
+    anyway."""
+    d = plan.DecisionLog(action="invoke", role="staging",
+                         reason="queue the fix for trade T570760 at 1557.15")
+    text = d.render()
+    assert "T570760" not in text and "1557.15" not in text
+    plan.assert_no_book_data(text)
+
+
+def test_the_transcript_interleaves_decisions_and_outcomes():
+    h = render_history([
+        plan.DecisionLog(action="invoke", role="reconciliation",
+                         reason="compare the books before anything else"),
+        WorkerOutcome(role="reconciliation", observations=2),
+        plan.DecisionLog(action="invoke", role="triage",
+                         reason="two differences came back, classify them"),
+        WorkerOutcome(role="triage", flagged=2)])
+    order = [h.index(x) for x in ("YOU DECIDED: invoke reconciliation",
+                                  "reconciliation: 2 observations",
+                                  "YOU DECIDED: invoke triage",
+                                  "triage: 2 discrepancies recorded")]
+    assert order == sorted(order)
+    plan.assert_no_book_data(h)
+
+
+def test_the_context_says_not_to_re_invoke_a_finished_worker():
+    """The rule, stated once rather than left to inference. Still a rule and not
+    an answer: it names no role and no request class."""
+    ctx = plan.render_context(
+        {"query_id": "Q-1", "client_id": "ACC-001", "text": "reconcile"}, [])
+    assert "already done its work" in ctx
+    assert "Do not invoke it again" in ctx
