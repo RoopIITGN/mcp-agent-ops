@@ -431,7 +431,11 @@ ledger-only trades that are not one of the five reportable kinds. See
 ## Architecture
 
 ```
-supervisor (deterministic dispatch, no model call, no tools)
+client request (natural language + client id)
+  │
+  ▼
+supervisor  — an LLM. One typed Decision per turn. Holds no tools.
+  │           invoke a role / done / refuse / clarify, then decide again
   ├── reconciliation worker  fetch_broker_statement, fetch_internal_ledger,
   │                          calculate_position_deltas          — cannot write
   ├── triage worker          flag_discrepancy, draft_client_inquiry
@@ -439,10 +443,25 @@ supervisor (deterministic dispatch, no model call, no tools)
   └── staging worker         stage_for_execution                — cannot read
 ```
 
-**The supervisor is not an agent and the README does not pretend otherwise.**
-It groups sessions by account, starts the worker processes, hands each worker
-its slice of the previous worker's output, and collects results. No model call,
-no tools. The agency is in the three workers, and that is a complete answer.
+**There are two orchestration modes in this repo, and they measure different
+things.**
+
+`src/agent.py` is **deterministic dispatch**: it groups sessions by account,
+starts the worker processes in a fixed order, hands each worker its slice of the
+previous one's output, and collects results. No model call, no tools. Every
+number in the outcome, trajectory and injection sections above was produced this
+way, because a fixed order is what lets those numbers be about the *workers*.
+
+`src/supervisor.py` is **an LLM orchestrator**, and it is what [The
+supervisor](#the-supervisor) measures. The client's request arrives in natural
+language, the model decides which worker to invoke, it is told what that worker
+found, and it decides again. Python never substitutes a role: `decision.role` is
+what launches the subprocess.
+
+Both are kept. The deterministic path is the control — it is free, exactly
+reproducible, and it is what the stub policies are scored against. Deleting it
+would mean every worker-layer claim had an orchestrator's variance folded into
+it.
 
 **The ordering of the workers is the security argument.** The agent that reads
 untrusted text — the broker statement's free-text `notes` field, where the
