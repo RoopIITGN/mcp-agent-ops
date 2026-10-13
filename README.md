@@ -47,6 +47,16 @@ that much were unresolvable by construction. Both are reported as void. Without
 a measured floor, a prompt improvement that does not exist would be a result in
 this file.
 
+**Variance did not compound when a second stochastic layer was added.** The
+shipped prompt was then run twice with live models at *both* levels — mini
+orchestrating, nano workers choosing their own tools — and the two arms agree
+to the point: 75% and 75% fully correct, 15/15 on the early-stop class, 8 of 80
+requests flipping, aggregate spread of zero. The same nano that is unusable as
+an orchestrator is stable underneath one, because it is confined to a short
+loop under a typed schema and the supervisor reads counts and redacted
+refusals rather than worker prose. Both arms sit three to five points under the
+stubbed-worker pair, and two arms cannot establish whether that gap is real.
+
 **Two gates I called structural were not, and a real model found both in one
 run.** The tool surface validated who could act and, in one field, not *what*
 an action was. `stage_for_execution` took `payload: dict[str, Any]`. Given a
@@ -69,7 +79,9 @@ so identical corrections collapsed to one row. They did, for a stub that sends
 byte-identical payloads. A model rewords its proposal on every retry, so each
 retry hashed differently and wrote another `PENDING_HUMAN` row. Re-keyed on
 `(session_id, discrepancy_id)`, because the rule was never "one row per
-distinct wording".
+distinct wording". In the final live-worker arm it absorbed 4 repeat stagings
+and the findings key absorbed 7 repeat flags, from a model that rewords itself
+— the case the original key could not survive.
 
 **A faked tool protocol made the agent unable to stop.** The model backend
 rendered history as prose *about* tool calls — an assistant message reading
@@ -253,19 +265,41 @@ valid pairings.
 
 Every arm above used `stub:ideal` workers, which isolates the orchestrator: a
 scripted worker is correct by construction, so every error in those numbers
-belongs to the supervisor. One further arm replaced it with a real model --
-`gpt-5.4-mini` deciding roles, `gpt-5.4-nano` as the workers choosing their own
-tools -- over the same 80 requests.
+belongs to the supervisor. Two further arms replaced it with a real model at
+both layers -- `gpt-5.4-mini` deciding roles, `gpt-5.4-nano` as the workers
+choosing their own tools -- over the same 80 requests, on the shipped prompt.
 
-| | stubbed #1 | stubbed #2 | **real workers** |
-|---|---|---|---|
-| fully correct | 69% | 68% | **68%** |
-| exact route | 69% | 69% | **70%** |
-| early stop | 15/15 | 15/15 | **15/15** |
-| model calls | 158 | 164 | 167 |
+| | stubbed #1 | stubbed #2 | **composition #1** | **composition #2** |
+|---|---|---|---|---|
+| fully correct | 78% | 80% | **75%** | **75%** |
+| exact route | 80% | 80% | **79%** | **76%** |
+| early stop (of 15) | 15/15 | 15/15 | **15/15** | **15/15** |
+| model calls | 179 | 188 | 183 | 181 |
+| isolation violations | 0 | 2 | 2 | 1 |
 
-Routing quality moved by less than the orchestrator's own run-to-run noise, so
-the two layers compose.
+Both composition arms land three to five points under the stubbed pair, and
+both land on the same number. Two readings survive that: a real worker layer
+costs a few points, or the gap is the same run-to-run noise the stubbed arms
+show. Two arms at n=80 cannot separate them, so the claim stops at
+**composition tracks isolated orchestration to within a few points, with the
+early-stop class unaffected.** What is settled is the architecture claim --
+15/15 on the requests `plan_once` cannot win by construction -- now holding with
+nothing scripted anywhere in the system.
+
+The variance measurement is the part worth keeping. Head to head, the two
+composition arms differ on **8 of 80 requests, split 4 / 4, p = 1.0**, for an
+aggregate spread of **zero points**. Adding a live worker layer did not widen
+the orchestrator's noise floor: 8/80 sits beside the stubbed path's 7/80, and
+the aggregate is steadier than the stubbed pair's 2 points. A worker layer
+running short loops under tight schemas is apparently not where the variance
+lives.
+
+Where the errors moved is more informative than the headline. `full_reconcile`
+-- the longest route, four workers deep -- was **12/12 in both arms**, so live
+workers did not break the deepest path. Failures attributable to the plan
+rather than the workers fell to **5 and 10**, from 12 on the stubbed arms:
+some of the stubbed arms' routing errors were artefacts of a scripted worker
+handing up a tidier observation than a real one does.
 
 What the live workers did with their tools is the better result:
 
@@ -275,16 +309,38 @@ triage         | flag_discrepancy, draft_client_inquiry
 staging        | stage_for_execution
 ```
 
-**No role ever appears beside a tool outside its grant**, across 214 tool calls,
-with a real model choosing. Least privilege was previously a claim about `argv`
-and a scripted agent. Every one of the 10 `pending_actions` rows is
-`PENDING_HUMAN`. And all 22 refusals are `unknown session` -- a date with no
-statement loaded -- so the workers emitted no malformed call at all, and every
-refusal traces to a date the *supervisor* chose.
+**No role ever appears beside a tool outside its grant**, across 232 tool calls
+over 45 sessions with a real model choosing (`run_id=e2e-b`, the arm the
+database retains -- `run_requests.py` rebuilds it per arm, so the other
+composition arm's rows are gone). The grant is bound in `argv` at subprocess
+launch, so this is a property of the launch and not of the prompt; what the arm
+tests is whether a live model ever *tries* to reach past it. It did not, once.
+Least privilege was previously a claim about `argv` and a scripted agent.
 
-Cost, measured: 297k prompt tokens on the supervisor and 242k on the workers.
-The half that was expected to dominate came in smaller, because workers run
-short loops on a cheap model under tight schemas.
+All 22 rejected calls are `unknown session` -- a date with no statement loaded,
+11 sessions × the two fetch tools -- so the workers emitted no malformed call
+at all, and every refusal traces to a date the *supervisor* chose rather than
+to a worker mis-forming a request. Those are also the requests revision 6 is
+about: before it, a worker that read nothing still handed up a count of zero,
+and the supervisor sometimes reported that as clean books.
+
+**Both idempotency keys absorbed repeat calls from a live model, which is the
+first time either has been tested by something that rewords itself.** 24
+accepted `flag_discrepancy` calls produced **17** discrepancy rows, and 18
+accepted `stage_for_execution` calls produced **14** queue rows, one per
+discrepancy. So the `UNIQUE (session_id, trade_id, type)` key on findings
+collapsed 7 repeat flags and the re-keyed `(session_id, discrepancy_id)` key on
+the queue collapsed 4 repeat stagings. A stub sends byte-identical payloads and
+would have collapsed under the *original* hash-the-payload key too; a model
+rewords its proposal on retry, which is exactly the case that key failed. Every
+one of the 14 rows is `PENDING_HUMAN`, and 14 staged against 17 flagged means
+no session staged more than it found.
+
+Cost: the two composition arms at revision 6 cost about $0.36 each. On the
+revision-2 live-worker arm, where the token split was measured, the supervisor
+spent 297k prompt tokens against the workers' 242k -- the half expected to
+dominate came in smaller, because workers run short loops on a cheap model
+under tight schemas.
 
 ### The reproducibility floor, which is the actual finding
 
@@ -294,10 +350,20 @@ Same model, same prompt, same corpus, `temperature=0`, two independent runs:
 |---|---|---|---|---|
 | mini vs mini | 7 / 80 (8.8%) | 4 / 3 | 1.0 | 1 point |
 | nano vs nano | 20 / 80 (25%) | 6 / 14 | 0.115 | 10 points |
+| mini + live nano workers, vs itself | 8 / 80 (10%) | 4 / 4 | 1.0 | 0 points |
 
 One query in four changes outcome between identical nano runs. The paired test
 says the two nano runs are *not* significantly different from each other, so
 the 10-point aggregate gap is noise rather than one run going better.
+
+The third row is the one I expected to be worst and it is not. Putting a live
+nano worker layer under the mini orchestrator -- two stochastic layers instead
+of one -- moved the per-query flip rate from 8.8% to 10% and the aggregate
+spread from 1 point to 0. Variance did not compound. Whatever makes nano
+unusable as an orchestrator does not propagate upward when nano is confined to
+a short loop under a typed schema with a fixed tool grant; the supervisor reads
+counts and redacted refusals, not worker prose, and that projection appears to
+be where the variance is absorbed.
 
 The consequence is the thing worth taking away:
 
@@ -932,10 +998,21 @@ would itself be worth reading.
 
 ### Limitations of the orchestration layer
 
-**Composition is measured once, at n=80, and not repeated.** The arm with live
-workers at both layers ran once. Its agreement with the stubbed arms is within
-the orchestrator's noise floor, but one arm is not two, and the worker layer's
-own variance under orchestration is unmeasured.
+**Composition is three to five points below the stubbed arms, and the cause is
+not established.** Both live-worker arms came in at 75% against 78% and 80%.
+That is either a real cost of a stochastic worker layer or the same noise the
+stubbed pair shows; two arms at n=80 cannot tell those apart, and a third pair
+would narrow it. The variance question *is* answered -- 8/80, 0-point spread --
+so what remains open is the mean, not the reproducibility.
+
+**The nano orchestrator was measured at revision 2 and not re-measured.** The
+model choice was decided there (mini 69%/68% against nano 34%/44%, paired
+p = 1.2 × 10⁻³) and the four revisions after it were evaluated on mini only.
+So the nano column in the results table is not a revision-6 number and is not
+comparable to one; it is the evidence for the model choice, nothing more. The
+reason for not re-running it is in the row above it: nano's 10-point floor
+cannot resolve a prompt revision, so the arm would have cost credits and
+settled nothing.
 
 **Prompt injection against the supervisor is not tested.** The injection suite
 targets the worker agents, which call tools. The supervisor is a different and
