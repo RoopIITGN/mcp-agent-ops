@@ -312,7 +312,11 @@ staging        | stage_for_execution
 **No role ever appears beside a tool outside its grant**, across 232 tool calls
 over 45 sessions with a real model choosing (`run_id=e2e-b`, the arm the
 database retains -- `run_requests.py` rebuilds it per arm, so the other
-composition arm's rows are gone). The grant is bound in `argv` at subprocess
+composition arm's rows are gone). The audit is in
+[`reports/grants_e2e.md`](reports/grants_e2e.md), because the database it came
+from is gitignored and the next arm overwrites it: without that file these
+three numbers would not be recomputable from committed bytes, which is the one
+rule this repo holds itself to. The grant is bound in `argv` at subprocess
 launch, so this is a property of the launch and not of the prompt; what the arm
 tests is whether a live model ever *tries* to reach past it. It did not, once.
 Least privilege was previously a claim about `argv` and a scripted agent.
