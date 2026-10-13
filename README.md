@@ -15,15 +15,27 @@ which of them to invoke and when to stop. It holds no tools and cannot read any
 client's books.
 
 The agents are the easy part. What this repo is actually about is the measuring:
-403 tests, scorers calibrated against eighteen deliberately broken agents, a CI
-gate tested against a deliberately broken repo, and a measured noise floor for
-every number claimed. Eight times now the thing that turned out to be wrong was
-the instrument rather than the system, and the most expensive of those was a
-corpus that had never tested the gate it existed to test.
+411 tests, scorers calibrated against eighteen deliberately broken agents, a CI
+gate tested against a deliberately broken repo, a measured noise floor for every
+number claimed, and six versions of the orchestration prompt with the arms for
+each. Ten times now the thing that turned out to be wrong was the instrument
+rather than the system — a corpus that never tested the gate it existed for, a
+test that asserted the bug it guarded, two scorers that counted the shape of an
+answer instead of its content.
 
 ---
 
 ## What the measurements showed
+
+**The worst output a reconciliation system can produce, and the fix that was
+not an instruction.** On 12 of 80 requests per arm the supervisor resolved a
+date nobody had given it, ran against a session that does not exist, received a
+correct count of zero next to three `unknown session` refusals, and told the
+client *"no differences were found"* — a clean bill of health on books that were
+never opened. The count and the refusals were both always present; nothing
+marked the count void, so the model had to join two facts and sometimes joined
+them wrongly. The renderer now prints no count at all when nothing was read.
+**Clean-book claims on unread sessions: 23 to zero.**
 
 **A weak model cannot be measured as an orchestrator, only ranked.** Two
 independent runs of `gpt-5.4-nano` on the same 80 requests at `temperature=0`
@@ -196,20 +208,29 @@ books. That is a proof about information ordering, not an experiment.
 ### Results
 
 `stub:ideal` workers, so these numbers isolate the orchestrator's decisions.
-Two independent runs of each deployment.
+Two independent runs of each deployment, on the shipped prompt (revision 6 --
+see [the revision trail](#six-revisions-and-what-each-one-cost)).
 
 | | mini #1 | mini #2 | nano #1 | nano #2 |
 |---|---|---|---|---|
-| fully correct | **69%** | **68%** | 34% | 44% |
-| exact route | 69% | 69% | 40% | 48% |
-| over-reach | 11% | 14% | 57% | 45% |
-| under-reach | 20% | 18% | 2% | 8% |
+| fully correct | **78%** | **80%** | 34% | 44% |
+| *(at revision 2, where the nano arms were run)* | *69%* | *68%* | | |
+| exact route | 80% | 80% | 40% | 48% |
+| over-reach | 12% | 14% | 57% | 45% |
+| under-reach | 8% | 6% | 2% | 8% |
 | early stop (of 15) | **15/15** | **15/15** | 4/15 | 8/15 |
-| false clarify | **0%** | 1% | 7% | 12% |
-| false refuse | 7% | 10% | 13% | 6% |
-| wasted calls | 11 | 16 | 87 | 60 |
-| model calls | 158 | 164 | 280 | 236 |
-| isolation violations | 0 | 0 | 3 | 2 |
+| false clarify | **1%** | **1%** | 7% | 12% |
+| false refuse | 6% | **1%** | 13% | 6% |
+| wasted calls | 16 | 20 | 87 | 60 |
+| model calls | 179 | 188 | 280 | 236 |
+| isolation violations | 0 | 2 | 3 | 2 |
+
+**80% is the plan-once ceiling.** The corpus puts a perfect plan-once
+orchestrator at 81%, and the iterative supervisor now matches it *while also*
+winning all 15 of the requests plan-once cannot win by construction. The nano
+arms were measured at revision 2 and not re-run, because nano's noise floor is
+ten points and a prompt change is unresolvable there -- which is itself one of
+the findings below.
 
 **mini wins all 15 of the discriminating class, in both runs.** That is the
 architecture claim landing: `plan_once` cannot win any of those by
@@ -338,55 +359,155 @@ and the test *failed on the correct fix*. A test that asserts an implementation
 cannot tell you the implementation is wrong — it pins the defect in place and
 makes repairing it look like a regression. It is now a behavioural test.
 
-### One prompt revision, measured and reverted
+### Six revisions, and what each one cost
 
-The orchestration prompt was revised twice before the arms above and a third
-time after them. The third attempt is recorded here because it failed, and
-because the reason for attempting it at all was a change in the instrument
-rather than a change of mind.
+<a name="six-revisions-and-what-each-one-cost"></a>
 
-Revision 2's closing comment said it was the last, on the grounds that a prompt
-tuned against the corpus that motivated it is fitted to that corpus. That held
-while the measurements were on the weak deployment, whose noise floor is ten
-points -- larger than any change worth making. On the strong deployment the
-floor is one point, so a five-point change is visible, and the bar moved for
-that reason.
+Six versions of the orchestration prompt were measured, two arms of 80 requests
+each on the strong deployment. The trail is published in full because the shape
+of it is the finding: **every change traded one failure for another, in a
+different direction each time, and three of the six were net negative.**
 
-**What it targeted.** `premature_stage` -- the client asks to queue a correction
-for a trade the system has not triaged -- scored 1 of 18 across three arms, and
-the six failures were legible rather than mysterious: two refusals that named
-the missing step correctly and stopped there, one that mistook queuing for
-approving, and three that skipped triage and answered *"0 corrections were
-queued"*. That last group is the serious one. A refusal is visibly incomplete; a
-confident zero closes the ticket.
+| rev | fully correct | what changed |
+|---|---|---|
+| 2 | 69%, 68% | four rules added; the first measured prompt |
+| 3 | 68%, 70% | prerequisite rule generalised -- failed, **reverted** |
+| 4 | 76%, 74% | two restated rules deleted; observed/recorded separated |
+| 5 | 66%, 68% | counts withheld when nothing was read -- safe, **overshot** |
+| **6** | **78%, 80%** | that message split by who chose the date |
 
-**What changed.** Revision 2's prerequisite rule was conditioned on a worker
-refusal -- *"when a refusal names a step that has not run, invoke that worker"*
--- and a careful supervisor never provokes one, because it works out that
-staging needs a recorded discrepancy *before* calling staging. The rule's
-condition was unreachable, so it was generalised. The empty-result rule was
-qualified at the same time: a zero produced by skipping a step is a fact about
-the plan, not the books.
+**Revision 2 added four rules, and two of them were the same mistake.** Three
+filled real gaps: `clarify` had its name in the list of actions and no stated
+precondition, and the model used it for 41 of 80 requests. The other two
+restated rules that already existed elsewhere, in shorter form, and lost their
+exceptions. Because the system prompt outranks the per-request context, the
+lossy copy won in both cases. The date rule made the supervisor stamp the
+business date on requests naming only a day -- 12 of 12, never once asking. The
+account rule overrode the partial-decline rule three paragraphs below it.
 
-**Result, over two arms of 80 requests.** `premature_stage` stayed at 0 of 6 in
-both. The generalised rule did reach the model -- it stopped refusing and began
-emitting `invoke staging` with a message to the client attached -- and a
-validator rejected all three of those, because `invoke` is defined to carry no
-client message. The failure changed shape and not outcome, and the edit cost
-three invalid decisions where three previous arms had none.
+**Revision 3 failed, and the reason it was attempted at all is a rule change.**
+Revision 2's own comment said it was the last, because a prompt tuned against
+the corpus that motivated it is fitted to that corpus. That held while the
+measurements were on the weak deployment, whose noise floor is ten points. On
+the strong deployment the floor is one point, so a five-point change is visible,
+and the bar moved because the instrument changed rather than because the result
+was disappointing. It targeted `premature_stage`, at 1 of 18 across three arms.
+Two arms later it was still 0 of 6, and the edit had introduced three invalid
+decisions -- the generalised rule did reach the model, which began emitting
+`invoke staging` with a client message attached, and a validator forbids that.
+Both prompt edits reverted.
 
-Both prompt edits are reverted. The one change kept is in the capability
-catalogue, a different file aimed at a different failure, and the only one that
-moved anything: false refusals went 7%, 10% and 9% across three revision-2 arms
-to 4% in both revision-3 arms. Four requests per arm is the same order as the
-run-to-run flip rate, so it is reported as consistent and mechanistically
-explained rather than proven.
+**Revision 4 was two deletions and one rewording, and it was the first clear
+gain.** The two restated rules came out. And the role catalogue was reworded to
+separate three states that shared one vocabulary: reconciliation produces
+OBSERVATIONS, triage is the only worker that RECORDS, staging needs a RECORDED
+discrepancy. A supervisor had read "reconciliation found 1 observation" as
+meaning a discrepancy was recorded, skipped triage, called staging, and reported
+"0 corrections were queued" on a session holding a 3.4% price break.
+`full_reconcile` went 8/12 to 12/12 and `cross_account` 1/6 to 4/6. The paired
+test on the headline was p = 0.14, so the move is reported as consistent in
+direction across both arms rather than established.
 
-The obvious next move -- letting `invoke` carry a message -- is where this
-stops. Two located defects go into the limitations below instead of a fourth
-attempt. **The reason to stop revising is the same whether or not the last
-attempt worked**, and a revision that fails is cheaper to publish than one that
-succeeds for reasons nobody checked.
+**Revision 5 removed the worst output in the project and cost eight points
+doing it.** See below. **Revision 6 recovered them**, by splitting one sentence
+into the two cases it had been collapsing.
+
+**The reason this stops at six.** Every further fix would be the seventh change
+justified by the same 80 requests, and the per-class cells are n=6 where one
+request is 17 points. The remaining defects are documented in the limitations
+rather than patched, and the next real piece of work is a structural gate
+(below), not another sentence.
+
+### The false all-clear, and why the fix had to be structural
+
+**The worst output this system produced**, measured over two arms:
+
+> *"No differences were found for ACC-010 as of 2026-09-25. The reconciliation
+> run returned 0 observations, so there is nothing to triage or queue."*
+
+There is no statement loaded for that date. All three read tools answered
+`unknown session`. The count was, correctly, zero. The client was told their
+books were clean on books that were never opened.
+
+In reconciliation that is the most dangerous answer available. A refusal is
+visibly incomplete and a wrong date is recoverable; a confident all-clear closes
+the ticket and nobody looks again.
+
+**12 of 80 requests per arm were in that position**, and roughly a third of them
+reported a clean book. The other two thirds disclosed the failure -- same arm,
+same situation, inconsistent. Which is exactly why an instruction would not have
+fixed it.
+
+**The information was never missing.** The worker's outcome carries the count
+*and* the refusals, side by side. Nothing marked the count void when the
+refusals were total, so the model had to join two facts, and sometimes it joined
+them wrongly.
+
+So the fix is a field computed in code, `WorkerOutcome.read_ok`, and a renderer
+that **prints no count at all** when nothing was read:
+
+```
+reconciliation: NOTHING WAS READ. Every tool call was refused, so this worker
+has no finding of any kind. There is no count below because a count of zero
+here would mean the books agree, and the books were never opened.
+  REFUSED: unknown session: ACC-010-2026-09-25
+```
+
+A zero rendered beside its own refusals is a number a reader can quote. The
+absence of one is not. **Requests ending `done` with a clean-book claim: 23 to
+zero.**
+
+**And the first version of it cost eight points.** That text ended "do not
+report this as a result to the client" -- correct when the supervisor chose the
+date itself, wrong when the client named one. A client asking about 29 September
+is entitled to hear that no statement is loaded for it, and saying so is the
+complete answer. One request class went 100% to 0% on that sentence while its
+route stayed at 100%. Having just argued that a structural fix beats an
+instruction, I attached an instruction to a structural fix and it overshot in the
+one direction the structure could not see. The structure stood; the sentence now
+names both cases.
+
+### Two measures that count the shape of an answer, not its content
+
+Both of these were found by reading replies rather than metrics, and both are
+the same error in different places.
+
+**The routing scorer never reads the message.** `fully_correct` is route plus
+terminal action plus declines; `terminal_message` is consulted only to check
+that a declined item was named. So `compare_only` and `notes_check` -- 12
+requests whose whole deliverable *is* information -- can score 100% while the
+reply is a count the client cannot use. Two classes where the system does the
+wrong thing and the harness reports them as perfect.
+
+**And the detector written to find the false all-clear had the same flaw.** It
+matched any reply containing "no breaks" or "no differences", which flagged
+*"...because no statement is loaded for that date, so there are no breaks to
+queue fixes for"* -- an honest disclosure whose closing clause looks like the
+defect. A metric that counts strings rather than claims will mis-grade the
+thing it was built for.
+
+### Two date rules, and the gate that should replace them
+
+The date decision is now guarded twice, and that is a smell worth naming rather
+than hiding.
+
+`render_context` states the rule before any worker runs: resolve a date only
+when today's date leaves exactly one reading of it, and ask otherwise. That rule
+was always correct. `WorkerOutcome.render` states a second rule after a worker
+has found nothing readable: if the client named the date, report that no
+statement is loaded; if you chose it yourself, you have nothing to report and
+must ask.
+
+**The second rule's second branch should be unreachable.** If the first rule held,
+a request with no date would be clarified before any worker ran. It exists
+because the first rule is an instruction a model ignored 12 times in 80, and the
+consequence was the output above.
+
+The honest fix is structural, and it is the next piece of work in this repo: if
+the request text contains no parseable date and the supervisor emits `invoke`,
+reject the decision the way the account-binding gate rejects a wrong client. A
+no-date request then *cannot* reach a worker, the first rule stops being advice,
+and the second rule's second branch becomes genuinely dead code.
 
 ### A corpus that never tested the gate it existed for
 
@@ -821,61 +942,37 @@ targets the worker agents, which call tools. The supervisor is a different and
 arguably more interesting target, because it holds the authority to delegate.
 No arm puts a payload in the client request aimed at the planner.
 
-**Two rules in the supervisor prompt are wrong, and are left in deliberately.**
-Both were added in a revision that also added three rules which worked, and
-both restate guidance already present elsewhere in a lossier form:
+**Both of those rules are gone, and the record of them is above.** Revision 4
+deleted them. They are kept in [the revision trail](#six-revisions-and-what-each-one-cost)
+rather than dropped, because a retracted defect with its numbers is worth more
+than a clean file.
 
-**The date rule compresses an exception out of existence, and this one is
-established.** A line in the request context says `"8 Sep"` resolves to the
-current year while `"the 8th"` does not. The system-prompt version says to
-resolve wherever one reading exists, and the system prompt wins. The result,
-across all four arms and 24 requests that name a day with no month:
+**Defects located and left in, with the revision that found each.** All of
+these have a known fix that was deliberately not applied, because the next
+change would be the seventh justified by the same 80 requests.
 
-| | clarified | stopped with `done` | refused |
-|---|---|---|---|
-| mini, both arms | **0 / 12** | **12 / 12** | 0 |
-| nano, both arms | 4 / 12 | 1 | 7 |
-
-mini stamps the business date on a request that does not name one, runs the
-work, and reports success — twelve times out of twelve, never once asking. The
-failure is not a low score on a hard class; it is a confident wrong answer
-produced by a rule I added. nano does better here only because it follows the
-instruction less reliably.
-
-**Two defects located in the orchestration layer, left unpatched.** Both were
-found by the revision-3 measurement above, and both have a known fix that was
-deliberately not applied.
-
-- *The prerequisite rule cannot fire where it is needed.* It is conditioned on
-  a worker refusal, and a supervisor that reasons ahead never provokes one. The
-  generalised version was measured and reverted, so the narrow wording stands
-  and `premature_stage` remains at 0 of 6.
+- *`ambiguous_date` is 2/6 and 3/6.* Requests naming no date at all. The
+  supervisor now asks on some of them, where it previously asked on none, but
+  this is the class the structural gate above would close properly.
+- *`premature_stage` is 2/6.* The prerequisite rule is conditioned on a worker
+  refusal, and a supervisor that reasons ahead never provokes one — it works out
+  that staging needs a recorded discrepancy before calling staging. Generalising
+  the rule was measured at revision 3 and reverted.
 - *A supervisor cannot explain itself while delegating.* `Decision` forbids a
   client message on an `invoke`, reasoning that invoking a worker is not a reply
   to the client. A real model tried it three times in one arm — announcing the
   step it was about to take while taking it — and all three were rejected as
   invalid. The rule is defensible and the behaviour it blocks is reasonable,
-  which makes this a design question rather than a bug. It is also the second
-  validator of mine to reject a coherent decision.
-
-**The `cross_account` class also fails, but the cause is not established.** The
-second added rule says to refuse a request reaching for another account, which
-contradicts the partial-decline rule a few lines above it — a request asking
-for legitimate work on your own account *plus* a peek at another should serve
-the first and decline the second. That contradiction is real and visible by
-reading the prompt. What the data does *not* show is that it explains the
-failure: mini terminates `done` on 6 of 12 rather than refusing, and all 6 of
-those scored 0% on exact route too, so the route was wrong even when the
-terminal was not. The split also flips between identical mini runs, 4/2 then
-2/4, which at n=6 is the instability this section warns about appearing exactly
-where a conclusion was about to be drawn. Recorded as an unexplained 0/12 with
-a suspected contributing cause.
-
-Both rules are left in because the harness cannot currently resolve the fix. A
-deletion would be a prompt change measured against the same 80 queries that
-motivated it, and with two mini arms there is no basis for claiming the result
-moved. Changing a prompt you cannot measure is what produced the two void
-comparisons above. The defects are reported instead.
+  which makes it a design question rather than a bug. It is also the second
+  validator here to reject a coherent decision; the first rejected 69 of 80 in a
+  paid run.
+- *The client cannot be shown anything.* The reply is written by the supervisor,
+  which receives counts and refusals and never the rows. For the 12 requests
+  whose deliverable *is* information, the client gets a count. There is also no
+  date-range tool: every tool takes one account on one as-of date, so "show me
+  the breaks for 1–8 September" has nothing to call. Both are consequences of a
+  boundary built to protect the orchestrator, which was never designed to decide
+  what the reader sees.
 
 **Per-intent figures are n=6 and should be read as fractions.** One query is 17
 percentage points. Only classes at 0 or 6 across multiple arms carry any

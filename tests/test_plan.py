@@ -442,9 +442,16 @@ def test_cross_account_is_decidable_from_the_catalogue():
 def test_premature_stage_precondition_is_stated():
     """The supervisor can route correctly first time rather than only recovering
     from the refusal -- both are acceptable, and the recovery path is what gets
-    measured, but the information should be available either way."""
-    assert "already recorded" in plan.ROLE_BRIEF["staging"]
+    measured, but the information should be available either way.
+
+    The assertion used to be the phrase "already recorded", which was true and
+    insufficient: a real supervisor read reconciliation's observation as the
+    recording and skipped triage anyway. The brief now has to say which worker
+    records, so the precondition names its author rather than just existing."""
+    assert "recorded the discrepancy first" in plan.ROLE_BRIEF["staging"]
+    assert "RECORDED" in plan.ROLE_BRIEF["staging"]
     assert "reconciliation to have run first" in plan.ROLE_BRIEF["triage"]
+    assert "RECORDS" in plan.ROLE_BRIEF["triage"]
 
 
 def test_system_cannot_claims_are_checked_against_the_tool_registry():
@@ -672,3 +679,138 @@ def test_the_context_says_not_to_re_invoke_a_finished_worker():
         {"query_id": "Q-1", "client_id": "ACC-001", "text": "reconcile"}, [])
     assert "already done its work" in ctx
     assert "Do not invoke it again" in ctx
+
+
+# --- revision 4: two deletions and one rewording -----------------------------
+
+def test_the_prompt_does_not_restate_the_date_rule():
+    """The deleted line, and the test that stops it coming back.
+
+    The request context states the date rule with its exception: "8 Sep"
+    resolves to the current year, "the 8th" does not. A shorter copy of that
+    rule lived in the system prompt, which outranks the context, and it had no
+    exception -- so the supervisor stamped the business date on requests naming
+    only a day, 12 of 12 on the strong deployment, never once asking.
+
+    The rule belongs in exactly one place. This asserts the lossy copy is not
+    the second one."""
+    import supervisor as sup_mod
+    assert "Resolve the date yourself" not in sup_mod.SYSTEM
+    # and the careful version is still where it belongs
+    ctx = plan.render_context({"query_id": "Q", "client_id": "ACC-001",
+                               "text": "x"}, [])
+    assert '"8 Sep" means this September' in ctx
+    assert '"the 8th" is not' in ctx
+
+
+def test_the_prompt_does_not_override_the_partial_decline_rule():
+    """The second deleted line. It said to refuse a request reaching for
+    another account; three paragraphs below, the prompt still says refusing a
+    whole request because one clause is out of scope is the wrong answer. A
+    request for legitimate work on the caller's own account plus a peek at
+    another should serve the first and decline the second."""
+    import supervisor as sup_mod
+    assert "Refuse, too, a request that reaches" not in sup_mod.SYSTEM
+    assert "partly in scope" in sup_mod.SYSTEM     # the rule that was overridden
+
+
+def test_the_catalogue_separates_observed_from_recorded():
+    """The words that caused a real failure.
+
+    A supervisor read "reconciliation found 1 observation" as meaning a
+    discrepancy was recorded, skipped triage, and called staging -- which found
+    nothing recorded and queued nothing, on a session holding a genuine 3.4%
+    price break. The old staging brief required a recorded discrepancy but never
+    said reconciliation does not record one, so the two states read as the same.
+
+    Each brief must now name its own output state in the same vocabulary."""
+    brief = plan.capabilities_brief()
+    assert "What it returns are OBSERVATIONS" in brief
+    assert "an observation is not yet a recorded discrepancy" in brief
+    assert "The only worker that RECORDS" in brief
+    assert "is NOT a recorded discrepancy" in brief
+    assert "never the step straight after reconciliation" in brief
+
+
+# --- a zero from an unread session is not a finding --------------------------
+
+def test_a_count_is_withheld_when_nothing_was_read():
+    """The project's worst measured output, made unrepresentable.
+
+    A request naming no date was resolved to the business date, which holds no
+    statement. All three read tools answered "unknown session". The count was
+    correctly zero. The supervisor received "0 observations" next to three
+    refusals and told the client "no differences were found for ACC-010" -- a
+    clean bill of health on books that were never opened.
+
+    The information was never missing: the count and the refusals were both
+    there. What was missing was anything marking the count void, so the model
+    had to join two facts, and in one of two cases it joined them wrongly.
+
+    So the renderer now prints no count at all in that case. A zero rendered
+    beside its refusals is a number a reader can quote; the absence of one is
+    not. This is the difference between asking a model not to make a mistake and
+    removing its opportunity to."""
+    read = plan.WorkerOutcome(role="reconciliation", observations=0,
+                              tools_called=["fetch_broker_statement"])
+    assert "0 observations" in read.render()
+
+    unread = plan.WorkerOutcome(
+        role="reconciliation", observations=0, read_ok=False,
+        tools_called=["fetch_broker_statement"],
+        refusals=["unknown session: ACC-010-2026-09-25"])
+    out = unread.render()
+    assert "NOTHING WAS READ" in out
+    assert "0 observations" not in out, (
+        "a zero printed beside its own refusals is the exact string that became "
+        "'no differences were found' in a client-facing reply")
+    assert "never opened" in out
+    assert "REFUSED" in out
+
+
+def test_an_unread_session_splits_on_who_chose_the_date():
+    """The eight points the first version of this text cost.
+
+    It ended "do not report this as a result to the client". That is right when
+    the supervisor picked the date itself -- it has nothing to report. It is
+    wrong when the client named the date: someone who asks about 29 September is
+    entitled to hear that no statement is loaded for it, and saying so is the
+    complete answer. One request class went from 100% to 0% on that sentence,
+    while its route stayed at 100%, so the failure was entirely in the ending.
+
+    The supervisor can tell the two apart -- it has the request text and it
+    chose the resolved date -- so the renderer states both branches instead of
+    one rule for both."""
+    out = plan.WorkerOutcome(role="reconciliation", read_ok=False,
+                             refusals=["unknown session"]).render()
+    assert "If the client named it" in out
+    assert "IS the answer" in out
+    assert "If you chose the date yourself" in out
+    assert "asked which date was meant" in out
+    # and the blanket prohibition must not come back
+    assert "Do not report this as a result" not in out
+
+
+def test_an_unread_session_has_produced_no_work():
+    """`produced_work` drives the stop decision. A session nothing could be read
+    from has produced no work and has also settled nothing -- two different
+    facts, and only the second was ever in question."""
+    assert not plan.WorkerOutcome(role="reconciliation", observations=0,
+                                  read_ok=False).produced_work
+    assert not plan.WorkerOutcome(role="reconciliation", observations=0).produced_work
+    assert plan.WorkerOutcome(role="reconciliation", observations=2).produced_work
+    # and a count cannot survive read_ok=False even if one is somehow set
+    assert not plan.WorkerOutcome(role="reconciliation", observations=2,
+                                  read_ok=False).produced_work
+
+
+def test_todays_date_is_a_reference_point_not_a_default():
+    """Six requests across three arms named no date at all. The supervisor
+    substituted the business date every time, ran against a session that does
+    not exist, and reported the resulting zero. The context said to ask when a
+    date is wholly missing; it also opened with a concrete "Today is ...", which
+    reads as a usable default. It now says which of the two it is."""
+    ctx = plan.render_context({"query_id": "Q", "client_id": "ACC-001",
+                               "text": "check my book"}, [])
+    assert "It is NOT a default to fall back on" in ctx
+    assert "names no date at all is a request you cannot run" in ctx

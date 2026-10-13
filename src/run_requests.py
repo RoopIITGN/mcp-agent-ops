@@ -85,6 +85,18 @@ def outcome_from(role: str, history: list[Turn]) -> WorkerOutcome:
     refusals = [t.text for t in history
                 if t.kind == "error" and t.name not in ("__cap__", "__backend__")]
 
+    # Did anything come back at all? A tool that was called and returned leaves a
+    # `result` turn; one that was refused leaves an `error` turn. So a worker that
+    # called tools and has no results read nothing -- the session does not exist,
+    # or every call was refused -- and its counts are all structurally zero for a
+    # reason that has nothing to do with the books agreeing.
+    #
+    # This is computed here rather than left to the supervisor because the
+    # supervisor got it wrong on a paid run and told a client their books were
+    # clean on a date that holds no statement. `WorkerOutcome.read_ok` is what
+    # stops the count being printed as a finding.
+    read_ok = any(t.kind == "result" and t.name != "__done__" for t in history)
+
     stopped = "done"
     for t in history:
         if t.kind == "error" and t.name == "__cap__":
@@ -103,6 +115,7 @@ def outcome_from(role: str, history: list[Turn]) -> WorkerOutcome:
             if t.kind == "result" and t.name == "stage_for_execution")
 
     return WorkerOutcome(role=role, tools_called=called, refusals=refusals,
+                         read_ok=read_ok,
                          stopped=stopped, **counts)
 
 

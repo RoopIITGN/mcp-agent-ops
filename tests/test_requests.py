@@ -182,9 +182,16 @@ def test_supervisor_is_never_handed_the_detail_object(corpus, db):
     assert "detail.task_for" in src
     outcome_src = inspect.getsource(rr.outcome_from)
     assert "Detail" not in outcome_src
+    # The field list is pinned so that adding one is a deliberate act rather
+    # than a side effect. `read_ok` was added that way: it is a boolean about
+    # whether any tool returned at all, carries no position, price, quantity or
+    # trade id, and exists because a zero count beside its own refusals was once
+    # reported to a client as "no differences were found". Anything added here
+    # has to clear the same bar -- it says something about the shape of the work,
+    # never about its contents.
     assert set(plan.WorkerOutcome.model_json_schema()["properties"]) == {
         "role", "tools_called", "observations", "flagged", "staged",
-        "refusals", "stopped"}
+        "refusals", "stopped", "read_ok"}
 
 
 # --- concurrency --------------------------------------------------------------

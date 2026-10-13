@@ -127,18 +127,39 @@ assert tools.ROLE_TOOLS["supervisor"] == (), (
 # exactly the property the early-stop class measures.
 
 ROLE_BRIEF: dict[str, str] = {
+    # OBSERVED IS NOT RECORDED, and these three briefs now say so three times.
+    #
+    # A measured failure, and the words caused it. A supervisor read
+    # "reconciliation found 1 observation" as meaning a discrepancy had been
+    # recorded, skipped triage, and called staging -- which found nothing
+    # recorded, queued nothing, and reported "0 corrections were queued" on a
+    # session holding a genuine 3.4% price break. The old staging brief did say
+    # "needs the discrepancy to be already recorded"; it never said that
+    # reconciliation does not record, so "observation" and "recorded
+    # discrepancy" read as the same state.
+    #
+    # Three states, named in the same words every time they appear:
+    #   reconciliation -> OBSERVATIONS   (nothing is recorded)
+    #   triage         -> RECORDED DISCREPANCIES
+    #   staging        -> needs a RECORDED discrepancy, not an observation
     "reconciliation":
         "Reads one client's broker statement and internal ledger for one as-of "
-        "date and reports every field that differs. Read-only: records nothing, "
-        "changes nothing. Also surfaces the counterparty's free-text note.",
+        "date and reports every field that differs. What it returns are "
+        "OBSERVATIONS. Read-only: it records nothing and changes nothing, so an "
+        "observation is not yet a recorded discrepancy. Also surfaces the "
+        "counterparty's free-text note.",
     "triage":
-        "Classifies reported differences into the five known discrepancy kinds, "
-        "records them, and drafts one client message per discrepancy. Needs "
+        "The only worker that RECORDS. Takes reconciliation's observations, "
+        "classifies each into one of the five known discrepancy kinds, records "
+        "them, and drafts one client message per discrepancy. Needs "
         "reconciliation to have run first. Cannot queue a correction.",
     "staging":
-        "Queues one correction per recorded discrepancy for a human to approve. "
-        "Needs the discrepancy to be already recorded and still open, so it "
-        "cannot be the first step on a date nobody has reconciled.",
+        "Queues one correction per RECORDED discrepancy for a human to approve. "
+        "It needs triage to have recorded the discrepancy first: an observation "
+        "from reconciliation is NOT a recorded discrepancy, and staging called "
+        "before triage finds nothing to queue and queues nothing. So staging is "
+        "never the step straight after reconciliation, and never the first step "
+        "on a date nobody has reconciled.",
 }
 
 # What no role can do, which is what makes an out-of-scope request refusable
@@ -467,6 +488,40 @@ class WorkerOutcome(Strict):
     refusals: list[str] = Field(default_factory=list,
                                 description="gate messages, redacted")
     stopped: Literal["done", "cap", "backend_error"] = "done"
+    #: Did any tool return data at all? Computed in code, never by a model.
+    #:
+    #: The most dangerous output this system produced came from the absence of
+    #: this flag. A request naming no date was resolved to the business date,
+    #: which has no statement loaded; all three read tools answered "unknown
+    #: session"; and the count was, correctly, zero observations. The supervisor
+    #: was handed "0 observations" alongside three refusals, joined them wrongly,
+    #: and told the client "no differences were found for ACC-010" -- a clean
+    #: bill of health on books that were never opened. A refusal is safe and a
+    #: wrong date is recoverable; a false all-clear closes the ticket.
+    #:
+    #: The information was always present: the count and the refusals sit side by
+    #: side. Nothing said the count was void when the refusals were total, so the
+    #: model had to infer it, and in one of two cases it did not. This flag makes
+    #: that inference unnecessary -- `render` refuses to print a count as a
+    #: finding when nothing was read. Enforced at the boundary, not asked for in
+    #: the instruction.
+    #:
+    #: MEASURED, over two arms of 80: requests ending `done` with every read
+    #: refused fell from 23 to 3, and not one of the three claimed the books
+    #: agreed. The false all-clear is gone.
+    #:
+    #: The first version of this text cost eight points of fully-correct, and the
+    #: reason is worth keeping. It ended "do not report this as a result to the
+    #: client", which is right when the supervisor picked the date itself and
+    #: wrong when the client named it -- a client who asks about 29 September is
+    #: entitled to hear that no statement is loaded for it. One request class
+    #: went from 100% to 0% on that sentence alone. Having just argued that a
+    #: structural fix beats an instruction, I attached an instruction to a
+    #: structural fix and it overshot in the one direction the structure could
+    #: not see. The structure stands; the sentence now splits the two cases.
+    read_ok: bool = Field(
+        default=True,
+        description="at least one tool returned data rather than a refusal")
 
     def render(self) -> str:
         """The lines the supervisor sees. Redacted, and asserted to be clean.
@@ -479,9 +534,25 @@ class WorkerOutcome(Strict):
                   "triage": ("discrepancies recorded", self.flagged),
                   "staging": ("corrections queued", self.staged)}
         label, value = counts[self.role]
-        parts = [f"{self.role}: {value} {label}",
-                 f"  tools used: {', '.join(self.tools_called) or 'none'}",
-                 f"  finished: {self.stopped}"]
+        if not self.read_ok:
+            # No count is printed at all. A zero rendered beside its refusals is
+            # a number a reader can quote; the absence of one is not.
+            parts = [f"{self.role}: NOTHING WAS READ. Every tool call was "
+                     f"refused, so this worker has no finding of any kind. "
+                     f"There is no count below because a count of zero here "
+                     f"would mean the books agree, and the books were never "
+                     f"opened. Which answer this leads to depends on where the "
+                     f"date came from. If the client named it, that no statement "
+                     f"is loaded for that date IS the answer: say so and stop. "
+                     f"If you chose the date yourself, you have no answer at "
+                     f"all, and the client has to be asked which date was "
+                     f"meant.",
+                     f"  tools used: {', '.join(self.tools_called) or 'none'}",
+                     f"  finished: {self.stopped}"]
+        else:
+            parts = [f"{self.role}: {value} {label}",
+                     f"  tools used: {', '.join(self.tools_called) or 'none'}",
+                     f"  finished: {self.stopped}"]
         for r in self.refusals:
             parts.append(f"  REFUSED: {redact(r)}")
         text = "\n".join(parts)
@@ -492,8 +563,13 @@ class WorkerOutcome(Strict):
     def produced_work(self) -> bool:
         """Whether there is anything for a later worker to act on. The signal
         the supervisor needs to decide 'done' on a session whose books agree --
-        and the whole reason deciding each step beats deciding once."""
-        return bool(self.observations or self.flagged or self.staged)
+        and the whole reason deciding each step beats deciding once.
+
+        `read_ok` gates it, because a session nothing could be read from has
+        produced no work and also settled nothing -- the two are different and
+        only the second was ever in doubt."""
+        return bool(self.read_ok
+                    and (self.observations or self.flagged or self.staged))
 
 
 class GateRejection(Strict):
@@ -608,7 +684,11 @@ def render_context(query_view: dict, entries: list[HistoryEntry],
     assert_no_book_data(history)
     return "\n\n".join([
         capabilities_brief(),
-        f"Today is {business_date}.\n"
+        f"Today is {business_date}. That is a reference point for working out "
+        f"what a relative date means. It is NOT a default to fall back on: a "
+        f"request that names no date at all is a request you cannot run, and "
+        f"running it against today is the worst available answer, because the "
+        f"client gets a result for a date they never asked about.\n"
         f"Resolve the date the request names into YYYY-MM-DD. You may fill in a "
         f"missing part of a date only when today's date leaves exactly one "
         f"plausible reading of it: \"8 Sep\" means this September, so the year "
