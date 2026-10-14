@@ -1,11 +1,17 @@
 """
-The agents: three workers with scoped tools, and a supervisor that dispatches.
+The agents: three workers with scoped tools, and a dispatcher that sequences
+them over the session corpus.
 
-Four agents, and only three of them are agents. The supervisor is
-deterministic: it groups sessions by account, starts the worker processes,
-hands each worker its slice of the previous worker's output, and collects the
-results. It makes no model call and holds no tools. Saying so plainly is worth
-more than claiming agency that is really a loop -- the agency is in the
+THIS FILE IS NOT THE LLM SUPERVISOR. That lives in src/supervisor.py, which
+decides one step at a time which worker to invoke next. The dispatcher here is
+deterministic: it groups sessions by account, runs the three roles in a fixed
+order, hands each worker its slice of the previous worker's output, and
+collects the results. It makes no model call and holds no tools.
+
+Both orchestration paths are kept on purpose, and this one is the control: with
+the sequencing held constant and correct by construction, every error in a
+worker-layer number belongs to a worker. Saying so plainly is worth more than
+claiming agency that is really a loop -- in this file the agency is in the
 workers, and that is a complete answer.
 
 The three workers are heterogeneous, which is the whole reason for the shape.
@@ -22,11 +28,25 @@ where the injection suite puts its payloads -- is the one agent in the system
 with no ability to write anything at all. A payload that fully captures it has
 captured a process that can do nothing but read and report.
 
-One server process per (account, role). Fifteen accounts means forty-five
-processes over a run rather than one hundred and eighty, because an account's
-four sessions share its servers -- and it means an account binding can never be
-mutated, only launched. Parallelism across accounts is therefore safe by
-construction, not by locking.
+In this batch path, one server process per (account, role). The corpus is 15
+accounts x 4 dates = 60 sessions, and each session needs all three roles, so
+launching per session would be 60 x 3 = 180 processes over a run. Grouping by
+account and reusing the three servers across that account's four sessions makes
+it 15 x 3 = 45. Same work, a quarter of the launches.
+
+The process count is the smaller half of why it is shaped this way. The account
+is in argv when the process starts, and argv cannot be changed afterwards, so
+an account binding can never be mutated -- only launched. There is no code path
+that redirects a running worker at another client's book, which makes
+parallelism across accounts safe by construction rather than by locking. The
+alternative, one long-lived server taking account_id per call, would make that
+a check to enforce on every call instead of a property of the spawn.
+
+The supervisor path shares the argv binding and not the process reuse: requests
+arrive one at a time carrying their own client, and the next role is chosen
+mid-flight, so there is nothing to group by in advance. It launches one
+subprocess per worker invocation. The 45-versus-180 arithmetic above belongs to
+this file alone.
 
 Every trajectory is written to reports/trajectories.jsonl as it completes, and
 a re-run skips sessions already there. That is partly cost discipline and
@@ -174,7 +194,7 @@ def serialise(history: list[Turn]) -> list[dict]:
 
 async def run_session(session_id: str, account: str, clients: dict[str, Client],
                       backend: Backend, tr: Tracing | None = None) -> dict:
-    """The supervisor's unit of work: three workers, each fed by the last."""
+    """The dispatcher's unit of work: three workers, each fed by the last."""
     t0 = time.perf_counter()
     tr = tr or Tracing(None)
     schemas = {r: tools.list_tools(r) for r in WORKER_ROLES}
@@ -198,7 +218,7 @@ async def run_session(session_id: str, account: str, clients: dict[str, Client],
         # was, so it staged placeholders asking to be told -- "TBD",
         # "Insufficient context provided" -- a hundred of them. An agent asked
         # to decide something it has not been shown will invent rather than
-        # refuse, and that is the supervisor's failure, not the agent's.
+        # refuse, and that is the caller's failure, not the agent's.
         staging = await run_role(
             clients["staging"], "staging",
             {"session_id": session_id,

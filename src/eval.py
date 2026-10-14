@@ -34,7 +34,9 @@ Three scores, and a fourth thing that is not a score.
   Structured-output validity. The fraction of tool calls that were accepted
   rather than refused for a schema reason. Near-meaningless under the stub,
   which emits valid calls by construction; it is the number that moves when a
-  model is driving and it is the public counterpart to the CV's 87% -> 99.4%.
+  model is driving. It is also the metric that exposed the faked tool protocol:
+  a model never told, in the terms the API defines, that its call completed has
+  no stopping signal and re-calls until the step cap.
 
   And the HITL invariant, which is not a score because a score implies a
   tolerable failure rate. Every staged action must be PENDING_HUMAN with no

@@ -1,8 +1,8 @@
 """
 The client request corpus: natural-language queries with routing truth.
 
-Why this file exists is the whole argument for Phase 8, so it is worth stating
-plainly.
+Why this file exists is the whole argument for having an LLM supervisor at all,
+so it is worth stating plainly.
 
 The system used to run the same three workers in the same order for every
 session. A supervisor that decides which workers to run therefore had nothing

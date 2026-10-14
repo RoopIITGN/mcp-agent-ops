@@ -1,8 +1,8 @@
 """
-The orchestration loop, and nine supervisors to test it against.
+The orchestration loop, and ten supervisors to test it against.
 
-The loop is the whole of Phase 8 in twenty lines: ask for one decision, carry it
-out, show the outcome, ask again. What makes it worth writing carefully is not
+The loop is twenty lines: ask for one decision, carry it out, show the outcome,
+ask again. What makes it worth writing carefully is not
 the happy path but the four ways a decision can fail to happen, because each one
 has to reach the supervisor as a fact rather than as silence.
 
@@ -601,8 +601,10 @@ class StubSupervisor:
 # Two things keep this honest in the report rather than on trust. The revision 1
 # numbers stay published beside revision 2's, so the prompt change is visible as
 # a change. And the stub arms are the control: stubs never read this prompt, so
-# `stub:oracle` must still score 80/80 and `stub:fixed` 18/80. If either moves,
-# the corpus or the scorer moved too and the comparison is void.
+# `stub:oracle` must still score 80/80 and `stub:fixed` 12/80 -- 15%, which is
+# the `fixed` ceiling queries.py computes from the corpus, and the two agreeing
+# is the point. If either moves, the corpus or the scorer moved too and the
+# comparison is void. `src/calibrate_routing.py` asserts both on every run.
 #
 # REVISION 4: TWO LINES DELETED, AND NOTHING ADDED HERE.
 #
@@ -630,9 +632,13 @@ class StubSupervisor:
 # different strength, and a defect that survives a change of model is in the
 # instruction rather than the reasoning.
 #
-# UNVERIFIED AT THE TIME OF WRITING. Two arms on the strong deployment are
-# needed before any number here moves.
-# REVISION 3, MEASURED AND REVERTED. The prompt below is revision 2.
+# MEASURED SINCE: two arms on the strong deployment, 76% and 74% fully correct
+# against 68% and 70% for revision 3 and 69% and 68% for revision 2. Deleting
+# the two lines was the largest single gain of the six revisions, which is the
+# one result here worth generalising: on a prompt that already covers the
+# ground, the highest-value edit is a deletion.
+#
+# REVISION 3, MEASURED AND REVERTED.
 #
 # Revision 2's own closing line said it was the last. It was not, and the reason
 # the rule was set aside is worth as much as the rule: revision 2 was measured on
@@ -674,8 +680,22 @@ class StubSupervisor:
 # supervisor from explaining itself while delegating. A prompt tuned until the
 # corpus stops complaining is fitted to the corpus, and the reason to stop is
 # the same whether or not the last attempt worked.
-# Revision 2 is the last one. Anything the next run exposes gets reported as a
-# limitation, not patched.
+#
+# WHAT THE PROMPT BELOW ACTUALLY IS, since three headers above could each be
+# mistaken for the current state. It is the revision-4 text: revision 2's four
+# rules, minus the two revision 4 deleted. Revisions 5 and 6 came after it and
+# changed neither this string nor this file -- both changed how a worker's
+# outcome is rendered, in plan.py, which is why the only revision markers in
+# here stop at 4.
+#
+# The whole trail, two arms of 80 each, so that no header in this file reads as
+# the end of the story: 21% -> 69%/68% -> 68%/70% -> 76%/74% -> 66%/68% ->
+# 78%/80%. Six revisions and three of the six were net negative. Revision 2
+# said it would be the last and was wrong; so would any similar line here. What
+# stopped it at six was not a promise but a ceiling -- 80% against a plan-once
+# ceiling of 81% computed from the corpus with no model calls, after which
+# further prompt work on these 80 queries is fitting rather than improving. The
+# next move named in the README is structural, not another rule.
 SYSTEM = (
     "You orchestrate a reconciliation operations system for one client at a "
     "time. You hold no tools and cannot read any client's books. You decide, one "

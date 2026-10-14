@@ -109,12 +109,13 @@ assert tools.ROLE_TOOLS["supervisor"] == (), (
 
 # --- what the supervisor knows before anything has run ------------------------
 #
-# Found by auditing every decision the ten intents require against what the
+# Found by auditing every decision the twelve intents require against what the
 # supervisor actually receives. Counts and refusal text cover the continue-or-
 # stop decisions, but two whole classes were undecidable without this block:
 #
-#   refusing out of scope (18 of 68 queries: "approve and execute the pending
-#   corrections", "what's the P&L impact", "also check ACC-005"). The supervisor
+#   refusing out of scope (18 of 80 queries -- 12 whole refusals plus 6 partial
+#   declines: "approve and execute the pending corrections", "what's the P&L
+#   impact", "also check ACC-005"). The supervisor
 #   cannot know a request is impossible unless it knows what the system can do.
 #
 #   resolving a date. The corpus writes dates as "the 8th", "8 Sep", "Sep 8".
@@ -506,9 +507,19 @@ class WorkerOutcome(Strict):
     #: finding when nothing was read. Enforced at the boundary, not asked for in
     #: the instruction.
     #:
-    #: MEASURED, over two arms of 80: requests ending `done` with every read
-    #: refused fell from 23 to 3, and not one of the three claimed the books
-    #: agreed. The false all-clear is gone.
+    #: MEASURED TWICE, because the first version of this text was not the one
+    #: that shipped. With the flag and the first wording, over two arms of 80,
+    #: requests ending `done` with every read refused fell from 23 to 3, and not
+    #: one of the three claimed the books agreed. With the wording that shipped
+    #: -- the two-case split described below -- two further arms produced no
+    #: clean-book claim on an unread session at all. 23 to zero.
+    #:
+    #: The detector needed fixing before that zero could be trusted. A grep for
+    #: clean-bill phrasing in requests whose history held refusals flagged one
+    #: reply reading "no statement is loaded for that date, so there are no
+    #: breaks to queue fixes for" -- which is a disclosure, not a claim. Same
+    #: mistake as the routing scorer before it: counting strings rather than
+    #: claims.
     #:
     #: The first version of this text cost eight points of fully-correct, and the
     #: reason is worth keeping. It ended "do not report this as a result to the
